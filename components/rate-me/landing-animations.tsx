@@ -164,7 +164,7 @@ export function useLandingAnimations() {
   );
 
   useGSAP(
-    (context) => {
+    () => {
       const root = scope.current;
       if (!root || prefersReducedMotion()) return;
 
@@ -322,7 +322,6 @@ export function useLandingAnimations() {
 
       return () => {
         cleanups.forEach((cleanup) => cleanup());
-        context.revert();
       };
     },
     { scope },

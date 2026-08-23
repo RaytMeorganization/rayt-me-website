@@ -50,6 +50,8 @@ test('member entitlements and server-controlled themes load in settings', async 
   await expect(page).toHaveURL(/settings/)
   await expect(page.getByText('Ratings given per month:')).toBeVisible()
   await expect(page.getByText('25', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Download my data' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Delete account' })).toBeDisabled()
   const themeResponse = page.waitForResponse(response =>
     response.url().includes('/backend/me/theme'),
   )
