@@ -124,33 +124,23 @@
   background: linear-gradient(90deg, rgba(4, 20, 16, .5) 0%, rgba(4, 20, 16, .22) 30%, rgba(4, 20, 16, 0) 52%);
 }
 
-/* The hero photo is 3:2. A full-bleed `cover` box is far wider than that at
-   desktop widths, so it clipped roughly 19% of the frame vertically. The sharp
-   layer now fits the whole photo and a blurred copy of the same photo fills the
-   leftover width, which keeps the edge-to-edge look without cropping. */
+/* The hero photo is 3:2 while the hero box is much wider, and the subject plus
+   the evidence card sit in the bottom-right quadrant. Anchoring the crop to the
+   bottom-right spends the overflow on sky and on the empty left third, so the
+   subject and card survive every viewport. */
 .rate-hero-photo {
   background-image: url('/hero-professional.png');
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: 72% center;
-}
-
-.rate-hero-glow {
-  position: absolute;
-  inset: -8%;
-  background-image: url('/hero-professional.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  filter: blur(42px) saturate(.88);
-  transform-origin: center;
+  background-position: 72% bottom;
+  transform-origin: 72% bottom;
   will-change: transform;
 }
 
 @media (min-width: 1024px) {
   .rate-hero-photo {
-    background-size: contain;
-    background-position: right center;
+    background-position: right bottom;
+    transform-origin: right bottom;
   }
 }
 

@@ -395,9 +395,9 @@ function Navbar() {
   return (
     <header
       data-gsap-navbar
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 will-change-transform ${solid ? "border-b border-[#dfe4de]/70 bg-[#f7f8f4]/90 backdrop-blur-xl" : "bg-gradient-to-b from-[#05130f]/60 via-[#05130f]/22 to-transparent"}`}
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 will-change-transform ${solid ? "border-b border-[#dfe4de]/70 bg-[#f7f8f4]/90 backdrop-blur-xl" : "bg-gradient-to-b from-[#05130f]/75 via-[#05130f]/40 to-transparent"}`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 lg:px-8">
         <a
           href="#top"
           aria-label="Rayt Me home"
@@ -406,7 +406,7 @@ function Navbar() {
           <LogoLockup onDark={!solid} />
         </a>
         <nav
-          className={`hidden items-center gap-7 text-sm transition-colors lg:flex ${solid ? "text-[#63706a]" : "text-white/80"}`}
+          className={`hidden items-center gap-5 text-sm transition-colors lg:flex xl:gap-7 ${solid ? "text-[#63706a]" : "text-white/90 drop-shadow-[0_1px_12px_rgba(3,15,12,.65)]"}`}
         >
           {links.map(([href, label]) => (
             <a
@@ -424,9 +424,9 @@ function Navbar() {
             </a>
           ))}
         </nav>
-        <div className="hidden items-center gap-4 lg:flex">
+        <div className="hidden items-center gap-3 lg:flex xl:gap-4">
           <a
-            className={`text-sm font-medium transition-colors ${solid ? "text-[#17201e]" : "text-white/85 hover:text-white"}`}
+            className={`text-sm font-medium transition-colors ${solid ? "text-[#17201e]" : "text-white drop-shadow-[0_1px_12px_rgba(3,15,12,.65)]"}`}
             href="/sign-in"
             data-rate-me-copy
           >
@@ -757,8 +757,8 @@ export default function RateMeLanding() {
       <Navbar />
       <main>
         <section className="rate-premium-hero relative isolate flex min-h-[600px] items-end overflow-hidden pt-24 sm:min-h-[700px] lg:min-h-[820px] lg:items-center">
-          <div data-gsap-hero-bg className="rate-hero-glow -z-20" aria-hidden="true" />
           <div
+            data-gsap-hero-bg
             className="rate-hero-photo absolute inset-0 -z-10"
             aria-hidden="true"
           />

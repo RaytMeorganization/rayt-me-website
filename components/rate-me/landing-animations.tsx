@@ -95,11 +95,15 @@ export function useLandingAnimations() {
           },
           0.8,
         )
-        .from(
+        // Declared as fromTo: a `from` tween infers its end value from the DOM,
+        // which resolved to the already-applied start state and left the CTAs
+        // permanently invisible.
+        .fromTo(
           "[data-gsap-hero-cta]",
+          { scale: 0.9, opacity: 0 },
           {
-            scale: 0.9,
-            opacity: 0,
+            scale: 1,
+            opacity: 1,
             duration: 0.6,
             ease: "back.out(1.7)",
             stagger: 0.1 * staggerFactor,
