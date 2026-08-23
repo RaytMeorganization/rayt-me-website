@@ -9,7 +9,17 @@ import { LocaleButton, inputClass } from '@/components/product/shell'
 import { Backdrop } from '@/components/product/brand-art'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
-import type { AccountType } from '@/lib/types'
+import type { AccountType, Role } from '@/lib/types'
+
+const homeFor = (role?: Role) => role === 'admin' ? '/admin-dashboard' : role === 'business' ? '/business-dashboard' : '/settings'
+
+/** `next` is caller-supplied: keep it same-origin and within the role's reach. */
+function safeNext(next: string | null, role?: Role) {
+  if (!next || !next.startsWith('/') || next.startsWith('//')) return null
+  if (next.startsWith('/admin-dashboard')) return role === 'admin' ? next : null
+  if (next.startsWith('/business-dashboard')) return role === 'business' ? next : null
+  return next
+}
 
 export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const { t } = useI18n()
@@ -30,12 +40,8 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         method: 'POST', body: JSON.stringify(payload),
       })
       const session = await refresh()
-      const roleDestination = session?.role === 'admin'
-        ? '/admin-dashboard'
-        : session?.role === 'business'
-          ? '/business-dashboard'
-          : '/settings'
-      router.replace(search.get('next') || (mode === 'sign-up' ? '/verify' : roleDestination))
+      const fallback = mode === 'sign-up' ? '/verify' : homeFor(session?.role)
+      router.replace(safeNext(search.get('next'), session?.role) ?? fallback)
     } catch (cause) {
       setError(errorMessage(cause, t('error')))
     } finally { setBusy(false) }
@@ -58,7 +64,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         {signUp && accountType === 'professional' && <label className="grid gap-2 text-sm">{t('phone')}<input required type="tel" name="phone" autoComplete="tel" className={inputClass} /></label>}
         <label className="grid gap-2 text-sm">{t('password')}<input required minLength={8} type="password" name="password" autoComplete={signUp ? 'new-password' : 'current-password'} className={inputClass} /></label>
         {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-        <Button disabled={busy} className="min-h-11 rounded-xl bg-[#17352c]">{busy ? t('loading') : t('continue')}</Button>
+        <Button type="submit" disabled={busy} className="min-h-11 rounded-xl bg-[#17352c]">{busy ? t('loading') : t('continue')}</Button>
       </div>
       <p className="mt-6 text-center text-sm text-[#5c6b64]"><Link className="font-semibold text-emerald-800 underline" href={signUp ? '/sign-in' : '/sign-up'}>{signUp ? t('signIn') : t('signUp')}</Link></p>
     </form>

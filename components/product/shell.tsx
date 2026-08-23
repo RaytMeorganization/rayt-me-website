@@ -6,12 +6,13 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Globe2, LogOut, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Backdrop, EmptyState } from '@/components/product/brand-art'
+import { MotionDirector } from '@/components/product/premium-motion'
 import { useAuth, useI18n } from '@/components/product/providers'
 import type { Role } from '@/lib/types'
 
 export function LocaleButton() {
   const { locale, setLocale } = useI18n()
-  return <Button variant="outline" size="sm" onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')} aria-label="Change language"><Globe2 />{locale === 'en' ? 'العربية' : 'EN'}</Button>
+  return <button type="button" onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')} aria-label="Change language" className="inline-flex h-7 items-center justify-center gap-1 rounded-lg border border-[#d9dfd9] bg-white px-2.5 text-[.8rem] font-medium text-[#17352c] transition-colors hover:bg-[#f3f5f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30"><Globe2 className="size-3.5" />{locale === 'en' ? 'العربية' : 'EN'}</button>
 }
 
 const homeFor = (role?: Role) => role === 'admin' ? '/admin-dashboard' : role === 'business' ? '/business-dashboard' : '/settings'
@@ -20,8 +21,9 @@ function Chrome({ children, nav }: { children: React.ReactNode; nav?: React.Reac
   const { t } = useI18n()
   return <div className="relative min-h-screen">
     <Backdrop />
+    <MotionDirector />
     <div className="relative z-10">
-      <header className="border-b border-[#dfe4de] bg-white/85 backdrop-blur-sm">
+      <header className="rate-premium-nav sticky top-0 z-40 border-b border-[#dfe4de] bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4 lg:px-8">
           <Link href="/" className="flex items-center gap-2 font-semibold text-[#17352c]"><ShieldCheck className="text-emerald-700" />{t('brand')}</Link>
           {nav}
@@ -110,7 +112,7 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
 }
 
 export function PageHeader({ eyebrow, title, description, action }: { eyebrow: string; title: string; description?: string; action?: React.ReactNode }) {
-  return <div className="flex flex-wrap items-end justify-between gap-4">
+  return <div data-premium-reveal className="flex flex-wrap items-end justify-between gap-4">
     <div>
       <p className="text-xs font-bold uppercase tracking-[.16em] text-emerald-800">{eyebrow}</p>
       <h1 className="mt-2 text-4xl font-semibold tracking-[-.04em] text-[#17352c]">{title}</h1>
@@ -121,7 +123,7 @@ export function PageHeader({ eyebrow, title, description, action }: { eyebrow: s
 }
 
 export function Panel({ title, description, children, className = '' }: { title: string; description?: string; children: React.ReactNode; className?: string }) {
-  return <section className={`rounded-3xl border border-[#d9dfd9] bg-white p-6 shadow-sm ${className}`}>
+  return <section data-premium-reveal className={`rate-premium-card rounded-3xl border border-[#d9dfd9] bg-white p-6 shadow-sm ${className}`}>
     <h2 className="text-xl font-semibold tracking-tight text-[#17352c]">{title}</h2>
     {description && <p className="mt-1 text-sm text-[#5c6b64]">{description}</p>}
     <div className="mt-5">{children}</div>

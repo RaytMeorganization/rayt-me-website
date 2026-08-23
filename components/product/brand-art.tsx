@@ -1,4 +1,5 @@
 import type { SVGProps } from 'react'
+import { AnimatedValue } from '@/components/product/premium-motion'
 
 export type IllustrationKind =
   | 'overview'
@@ -125,7 +126,7 @@ function Art({ kind }: { kind: IllustrationKind }) {
 
 export function Illustration({ kind, className = '' }: { kind: IllustrationKind; className?: string }) {
   return (
-    <span className={`pointer-events-none block ${className}`}>
+    <span className={`rate-premium-illustration pointer-events-none block ${className}`}>
       <Art kind={kind} />
     </span>
   )
@@ -159,9 +160,11 @@ export function EmptyState({
 
 export function StatCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-[#dbe2dc] bg-white p-4">
+    <div data-premium-reveal className="rate-premium-card group rounded-2xl border border-[#dbe2dc] bg-white p-4">
       <p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#5c6b64]">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tracking-[-.05em] text-[#17352c]">{value}</p>
+      <p className="mt-2 text-3xl font-semibold tabular-nums tracking-[-.05em] text-[#17352c]">
+        <AnimatedValue value={value} />
+      </p>
       {hint && <p className="mt-1 text-xs text-[#7a8780]">{hint}</p>}
     </div>
   )

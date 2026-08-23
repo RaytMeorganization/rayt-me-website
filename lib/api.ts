@@ -1,6 +1,10 @@
 import type { ApiEnvelope } from '@/lib/types'
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window === 'undefined'
+    ? process.env.API_PROXY_TARGET || 'http://localhost:4000'
+    : '/backend')
 
 export class ApiError extends Error {
   constructor(message: string, public status: number) {
