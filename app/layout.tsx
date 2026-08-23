@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import { Geist, Geist_Mono, Noto_Sans_Arabic } from 'next/font/google'
 import type { Metadata, Viewport } from 'next'
+import { Providers } from '@/components/product/providers'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist' })
@@ -58,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en" dir="ltr" className={`${geist.variable} ${geistMono.variable} ${notoArabic.variable}`}>
       <body className="antialiased">
-        {children}
+        <Providers>{children}</Providers>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ '@context': 'https://schema.org', '@graph': [{ '@type': 'Organization', name: 'Rayt Me', url: 'https://rate.me', description: 'Verified professional reputation, wherever you go.' }, { '@type': 'SoftwareApplication', name: 'Rayt Me', applicationCategory: 'BusinessApplication', operatingSystem: 'iOS, Android, Web', description: 'A professional reputation profile built from verified identity and credible real-world interactions.' }, { '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What is Rayt Me?', acceptedAnswer: { '@type': 'Answer', text: 'Rayt Me is a portable professional reputation profile built from verified identity and credible professional interactions.' } }, { '@type': 'Question', name: 'Can I dispute a rating?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Rated users can flag a rating for review and respond publicly.' } }] }] }) }} />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

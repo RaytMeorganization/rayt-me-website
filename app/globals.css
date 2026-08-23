@@ -157,6 +157,10 @@
   background: linear-gradient(90deg, rgba(4, 20, 16, .58) 0%, rgba(4, 20, 16, .3) 32%, rgba(4, 20, 16, 0) 56%);
 }
 
+.rate-premium-hero > div:first-child {
+  background-image: url('/hero-professional.svg') !important;
+}
+
 @media (max-width: 1023px) {
   .rate-hero-overlay {
     background: linear-gradient(180deg, rgba(4, 20, 16, .06) 20%, rgba(4, 20, 16, .32) 58%, rgba(4, 20, 16, .72) 100%);
