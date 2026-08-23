@@ -1,0 +1,37 @@
+---
+description: Rayt Me visual system, layout, and component patterns
+globs: components/**/*.{ts,tsx},app/globals.css
+alwaysApply: false
+---
+
+# UI and brand
+
+Editorial, quiet luxury. Warm paper, forest ink, emerald trust — not startup purple or generic shadcn gray pages.
+
+## Tokens (match existing landing)
+
+- Ink `#17201e`, paper `#f7f8f4`, white cards, muted `#63706a` / `#87958d`
+- Borders `#d9dfd9` / `#dfe4de`
+- Trust green: emerald-700, fills `#edf3ed`
+- Dark bands `#17201e` with white/15 borders
+- Radius: pills `rounded-full`, cards `rounded-[24px]`–`rounded-[28px]`
+- Type: tight tracking on headlines (`tracking-[-.05em]`), eyebrows `uppercase tracking-[.2em] text-xs font-bold text-emerald-700`
+- Layout: `max-w-7xl`, `px-5 lg:px-8`, section padding `py-28 lg:py-40`
+
+## Components
+
+Reuse `components/ui` (CVA + `@base-ui/react`) instead of one-off buttons **except** where the landing already uses custom pills for brand fidelity. New product UI should use `Button` from `@/components/ui/button` and `cn()`.
+
+```tsx
+// ❌ BAD
+<button className="bg-blue-600 rounded-md px-3">Get started</button>
+
+// ✅ GOOD
+<button className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#17201e] px-5 text-sm font-semibold text-white hover:bg-[#26332f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">
+  Get started
+</button>
+```
+
+## Motion and a11y
+
+Keep `globals.css` hero/illustration animations. Honor `prefers-reduced-motion`. `min-h-11` hit targets, visible focus rings, `aria-*` on menus/toggles. Do not ship motion that fights RTL.

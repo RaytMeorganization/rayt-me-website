@@ -1,0 +1,29 @@
+---
+description: Shared domain, REST API, server-side score math — Rate Me overview v3.1
+alwaysApply: false
+globs: "**/{api,server,backend,src}/**/*.{ts,tsx,js,jsx}"
+---
+
+# Backend (overview v3.1)
+
+Share one domain model across mobile, MERN web app, and Next.js preview. **Score math lives on the server.** Validate with the internal reputation-engine tester before applying updates to real profiles.
+
+## Own on the API
+
+Auth and verification, profiles and privacy, ratings + reputation, disputes, entitlements/billing hooks, QR/NFC identity resolution.
+
+## Invariants
+
+- Public preview endpoints return card-safe fields only (no snapshot, no rate)
+- Rating submit requires an authenticated app session and remaining **give** quota
+- Persist `Sold`, `n`, `W` components; do not recompute from a naive mean
+- OTP/email/push/stores are client-paid; define interfaces first
+
+```ts
+// ❌ BAD — client sends a new score
+await db.profiles.update({ score: body.score })
+
+// ✅ GOOD — client sends categories + relationship; server applies the formula
+const R = mean(categories)
+const Snew = Sold + alpha(n) * W * (R - Sold)
+```

@@ -1,0 +1,33 @@
+---
+description: Sign-up fields and earned verification tick — Rate Me overview v3.1
+alwaysApply: true
+---
+
+# Verification (overview v3.1)
+
+The **✓ verified** tick is earned, never assumed. Do not show it until required checks complete.
+
+## Sign-up fields
+
+- Name; profile photo optional but encouraged
+- Account type: **professional** or **university student**
+- Professional: job title, company, industry
+- Student: university + field of study
+- Location: city, country
+- Email and phone collected; visibility is independent (see privacy rule)
+
+## Required checks
+
+- **Professionals:** work-email OTP + personal-email verification + phone verification
+- **Students:** personal email + university email
+- Tick only after identity, contact, and **employment or university** checks complete
+
+```ts
+// ❌ BAD — show verified tick after email signup alone
+profile.verified = Boolean(user.email)
+
+// ✅ GOOD — tick after the account-type checklist is complete
+profile.verified = checksComplete(user.accountType, user.verifications)
+```
+
+Do not treat a marketing demo checkmark as a live verified state.

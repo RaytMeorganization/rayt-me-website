@@ -1,0 +1,27 @@
+---
+description: Privacy by default, contact visibility, Qatar/GCC data protection — overview v3.1
+alwaysApply: true
+---
+
+# Privacy and compliance (overview v3.1)
+
+Privacy is **by default**. Profile owners control what is public. Comply with **Qatar / GCC** data-protection requirements (collection, purpose, retention, access, deletion).
+
+## Contact visibility
+
+- Email and phone are each **independently** public or private
+- Private phone: hide entirely **or** show **Request phone** — never leak the number in HTML, QR payloads, or API preview responses
+- Public fields may appear on the business card; private fields must not
+
+```ts
+// ❌ BAD — send phone on public preview because the owner has one
+return { phone: profile.phone }
+
+// ✅ GOOD — honor visibility on every surface (web preview, app card, QR)
+return { phone: profile.phonePublic ? profile.phone : { status: 'private' } }
+```
+
+## Product surfaces
+
+- Rater identity when they rate someone: **title shown, name kept private** (same choice for every rater)
+- Do not log or cache private contacts in analytics, crash reports, or email signatures beyond what the owner marked public

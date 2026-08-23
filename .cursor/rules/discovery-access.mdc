@@ -1,0 +1,32 @@
+---
+description: QR, NFC, links, email signature, and app-vs-web split — Rate Me overview v3.1
+alwaysApply: true
+---
+
+# Discovery and access (overview v3.1)
+
+Access points: in-person **QR**, **NFC** tap, shared **link**, **email signature**. All resolve to the same profile identity.
+
+## Has the Rate Me app
+
+1. Scan / tap / open → native app
+2. Full business card
+3. Can **rate** and open **professional snapshot**
+4. Can **Add to my List** (save to network; WhatsApp-green save control)
+
+## No app yet
+
+1. Scan / tap / open → **rate.me** website
+2. Business-card **preview only**
+3. **Cannot** rate, **cannot** open snapshot, **cannot** add to My List
+4. CTA: Download the app (iOS / Google Play)
+
+```ts
+// ❌ BAD — public /p/:id page with Rate + snapshot
+<PublicCard actions={['rate', 'snapshot']} />
+
+// ✅ GOOD — web preview is a funnel; full actions require the app
+<PublicCard actions={['download']} />
+```
+
+Universal Links / App Links / NFC NDEF must not expose private contacts. Marketing landing may illustrate rating/snapshot; scanned public profile pages must not.

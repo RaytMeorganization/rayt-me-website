@@ -1,0 +1,29 @@
+---
+description: Rate Me platform split from overview v3.1 — website preview vs in-app product
+alwaysApply: true
+---
+
+# Architecture (overview v3.1)
+
+The website **sells and previews**. Full functionality (rating, snapshot) **always requires the app**.
+
+## This repo — landing + web preview
+
+- Marketing landing (existing Next.js base): conversion, SEO, EN/AR, brand. Demos are illustrative.
+- Scan/link with **no app**: business card **only**. No rate. No snapshot. Download-app CTA.
+- Do not turn public web preview into a second full product.
+
+## Applications
+
+- **Mobile (React Native, iOS + Android):** scan/NFC, full card, rating flow, snapshot, My List, Settings, push as needed.
+- **Web app (MERN):** auth, verification, profile, privacy, themes, subscription; still not a substitute for the “no app” preview rule on public QR pages.
+- **Backend:** REST, verification, rating engine, reputation, disputes, billing hooks. Cloud/OTP/email/push/stores are client-paid; interface first.
+
+Share one domain model across clients. Score math lives on the server.
+
+```ts
+// ❌ BAD — public web preview lets visitors rate or open snapshot
+<PublicPreview onRate={submit} showSnapshot />
+
+// ✅ GOOD — no app: card + download; app: rate + snapshot
+```

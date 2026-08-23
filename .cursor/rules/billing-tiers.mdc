@@ -1,0 +1,31 @@
+---
+description: Basic / Pro / Business tiers, give-caps, card themes — Rate Me overview v3.1
+alwaysApply: true
+---
+
+# Billing (overview v3.1)
+
+Every tier receives **unlimited** ratings. The cap applies only to ratings **given**.
+
+| Tier | Price | Given / month | Themes |
+|---|---|---|---|
+| Basic | QAR 0 | 25 | 5 card themes |
+| Pro | ~QAR 99 / year | 60 | Many themes, kept updated + custom |
+| Business | QAR 20–30 / employee / month | 50 per employee | Many + custom + **company-branded** |
+
+## Rules
+
+- Never cap ratings **received** on any tier
+- Enforce give-caps server-side (month window, Business per employee)
+- Themes are cosmetic; they must not change score math or verification
+- Super Voter is **never** a paid SKU
+
+```ts
+// ❌ BAD — limit inbound ratings for Basic
+if (tier === 'basic' && receivedThisMonth >= 25) reject()
+
+// ✅ GOOD — cap outbound ratings only
+if (givenThisMonth >= capFor(tier)) rejectGive()
+```
+
+Billing providers are client-paid; implement the interface and entitlements first.

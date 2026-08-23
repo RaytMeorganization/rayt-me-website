@@ -1,0 +1,30 @@
+---
+description: English/Arabic copy and RTL behavior for Rayt Me
+globs: components/rate-me/**/*.{ts,tsx},app/layout.tsx,app/globals.css
+alwaysApply: false
+---
+
+# EN / AR and RTL
+
+The site is bilingual. Locale key: `localStorage['rate-me-locale']` = `en` | `ar`. Arabic uses Noto Sans Arabic and `.arabic-mode`.
+
+## Rules
+
+- Every user-visible string needs an Arabic equivalent. Update `arabicCopy` (or a future dictionary) in the same change.
+- Set `document.documentElement.lang` and `dir` (`ltr` / `rtl`) together.
+- Use `data-rate-me-copy` when text is not a plain text node (buttons with icons).
+- Do not machine-translate legal, pricing, or the score formula. Keep **Rayt Me** untranslated as the product name.
+- Layout must work in RTL: logical properties (`ps`/`pe`, `ms`/`me`) over `left`/`right` for new CSS. Mirror illustrations via `.arabic-mode` when needed.
+
+```tsx
+// ❌ BAD — English-only control
+<button>Get started</button>
+
+// ✅ GOOD
+<button><span data-rate-me-copy>Get started</span></button>
+// arabicCopy['Get started'] === 'ابدأ الآن'
+```
+
+## Copy discipline
+
+Translate meaning, not word-for-word. Keep professional register in Arabic. FAQ answers must stay consistent with product truth (evidence, disputes, privacy).
