@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { ProductShell, Panel, inputClass } from '@/components/product/shell'
+import { PageHeader, ProductShell, Panel, inputClass } from '@/components/product/shell'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 
@@ -38,7 +38,8 @@ export default function VerifyPage() {
     ? [['personalEmail', user.personalEmailStatus], ['universityEmail', user.universityEmailStatus]]
     : [['workEmail', user?.workEmailStatus], ['personalEmail', user?.personalEmailStatus], ['phone', user?.phoneStatus]]
 
-  return <ProductShell><main className="mx-auto max-w-4xl px-5 py-10 lg:px-8"><h1 className="text-4xl font-semibold tracking-tight">{t('verification')}</h1><p className="mt-3 text-muted-foreground">{t('verificationHelp')}</p>
+  return <ProductShell><main className="mx-auto max-w-4xl px-5 py-10 lg:px-8">
+    <PageHeader eyebrow={t('account')} title={t('verification')} description={t('verificationHelp')} />
     <div className="mt-8 grid gap-6 md:grid-cols-2"><Panel title={t('accountChecklist')}><ul className="space-y-3">{checks.map(([key, status]) => <li key={key} className="flex justify-between rounded-xl bg-[#f7f8f4] p-3 text-sm"><span>{String(key)}</span><strong>{t(statusKey(String(status)))}</strong></li>)}</ul></Panel>
       <Panel title={t('verification')}><div className="grid gap-4"><label className="grid gap-2 text-sm">{t('verification')}<select className={inputClass} value={type} onChange={e => setType(e.target.value as VerificationType)}>{checks.map(([key]) => <option value={key} key={key}>{t(key as VerificationType)}</option>)}</select></label><Button variant="outline" disabled={busy} onClick={() => void requestCode()}>{t('sendCode')}</Button><label className="grid gap-2 text-sm">{t('code')}<input className={inputClass} value={code} onChange={e => setCode(e.target.value)} inputMode="numeric" /></label><Button disabled={busy || !code} onClick={() => void confirm()}>{t('confirmCode')}</Button>{message && <p role="status" className="text-sm text-muted-foreground">{message}</p>}</div></Panel></div>
   </main></ProductShell>

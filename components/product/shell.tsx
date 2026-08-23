@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Globe2, LogOut, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Backdrop, EmptyState } from '@/components/product/brand-art'
 import { useAuth, useI18n } from '@/components/product/providers'
 import type { Role } from '@/lib/types'
 
@@ -13,36 +14,118 @@ export function LocaleButton() {
   return <Button variant="outline" size="sm" onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')} aria-label="Change language"><Globe2 />{locale === 'en' ? 'العربية' : 'EN'}</Button>
 }
 
+const homeFor = (role?: Role) => role === 'admin' ? '/admin-dashboard' : role === 'business' ? '/business-dashboard' : '/settings'
+
+function Chrome({ children, nav }: { children: React.ReactNode; nav?: React.ReactNode }) {
+  const { t } = useI18n()
+  return <div className="relative min-h-screen">
+    <Backdrop />
+    <div className="relative z-10">
+      <header className="border-b border-[#dfe4de] bg-white/85 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4 lg:px-8">
+          <Link href="/" className="flex items-center gap-2 font-semibold text-[#17352c]"><ShieldCheck className="text-emerald-700" />{t('brand')}</Link>
+          {nav}
+        </div>
+      </header>
+      {children}
+    </div>
+  </div>
+}
+
+/** Full-height branded state used while the session resolves or access is denied. */
+function Gate({ children }: { children: React.ReactNode }) {
+  return <Chrome nav={<LocaleButton />}>
+    <main className="mx-auto grid min-h-[70vh] max-w-xl place-items-center px-5">
+      <div className="w-full rounded-3xl border border-[#d9dfd9] bg-white p-2 shadow-sm">{children}</div>
+    </main>
+  </Chrome>
+}
+
 export function ProductShell({ children, role = 'user' }: { children: React.ReactNode; role?: Role }) {
   const { t } = useI18n()
   const { user, loading, logout } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
+  const denied = Boolean(user) && role !== 'user' && user?.role !== role
 
   useEffect(() => {
-    if (loading) return
-    if (!user) router.replace(`/sign-in?next=${encodeURIComponent(pathname)}`)
-    else if (role !== 'user' && user.role !== role) router.replace('/settings')
-  }, [loading, pathname, role, router, user])
+    if (loading || user) return
+    router.replace(`/sign-in?next=${encodeURIComponent(pathname)}`)
+  }, [loading, pathname, router, user])
 
-  if (loading || !user || (role !== 'user' && user.role !== role)) {
-    return <main className="grid min-h-screen place-items-center" aria-busy="true"><p className="text-sm text-muted-foreground">{t('loading')}</p></main>
+  if (loading) {
+    return <Gate>
+      <div aria-busy="true" className="flex flex-col items-center gap-4 px-6 py-14 text-center">
+        <span className="size-10 animate-spin rounded-full border-2 border-[#dce7df] border-t-emerald-700" />
+        <p className="text-sm font-medium text-[#17352c]">{t('preparingWorkspace')}</p>
+      </div>
+    </Gate>
   }
 
-  const home = role === 'admin' ? '/admin-dashboard' : role === 'business' ? '/business-dashboard' : '/settings'
-  return <div className="min-h-screen bg-[#f7f8f4]">
-    <header className="border-b border-[#dfe4de] bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-        <Link href={home} className="flex items-center gap-2 font-semibold text-[#17352c]"><ShieldCheck className="text-emerald-700" />{t('brand')}</Link>
-        <div className="flex items-center gap-2"><LocaleButton /><Button variant="ghost" size="sm" onClick={() => void logout()}><LogOut />{t('signOut')}</Button></div>
-      </div>
-    </header>
-    {children}
+  if (!user) {
+    return <Gate>
+      <EmptyState
+        kind="locked"
+        title={t('signInRequired')}
+        description={t('signInRequiredHelp')}
+        action={<Button render={<Link href={`/sign-in?next=${encodeURIComponent(pathname)}`} />} className="bg-[#17352c]">{t('signIn')}</Button>}
+      />
+    </Gate>
+  }
+
+  if (denied) {
+    return <Gate>
+      <EmptyState
+        kind="locked"
+        title={t('accessRestricted')}
+        description={t('accessRestrictedHelp')}
+        action={<Button render={<Link href={homeFor(user.role)} />} className="bg-[#17352c]">{t('goToWorkspace')}</Button>}
+      />
+    </Gate>
+  }
+
+  const links: [string, string][] = [
+    ['/settings', t('settings')],
+    ['/verify', t('verification')],
+    ...(user.role === 'admin' ? [['/admin-dashboard', t('admin')] as [string, string]] : []),
+    ...(user.role === 'business' ? [['/business-dashboard', t('business')] as [string, string]] : []),
+  ]
+
+  return <Chrome nav={<div className="flex flex-wrap items-center gap-2">
+    <nav aria-label={t('brand')} className="flex flex-wrap items-center gap-1">
+      {links.map(([href, label]) => {
+        const active = pathname === href
+        return <Link
+          key={href}
+          href={href}
+          aria-current={active ? 'page' : undefined}
+          className={`rounded-full px-3 py-2 text-sm transition ${active ? 'bg-[#17352c] font-semibold text-white' : 'text-[#4a5a53] hover:bg-[#e9efe9]'}`}
+        >{label}</Link>
+      })}
+    </nav>
+    <span className="hidden max-w-[14rem] truncate rounded-full bg-[#e9efe9] px-3 py-2 text-xs font-medium text-[#17352c] sm:block" title={user.email}>{user.name}</span>
+    <LocaleButton />
+    <Button variant="ghost" size="sm" onClick={() => void logout()}><LogOut />{t('signOut')}</Button>
+  </div>}>{children}</Chrome>
+}
+
+export function PageHeader({ eyebrow, title, description, action }: { eyebrow: string; title: string; description?: string; action?: React.ReactNode }) {
+  return <div className="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <p className="text-xs font-bold uppercase tracking-[.16em] text-emerald-800">{eyebrow}</p>
+      <h1 className="mt-2 text-4xl font-semibold tracking-[-.04em] text-[#17352c]">{title}</h1>
+      {description && <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5c6b64]">{description}</p>}
+    </div>
+    {action}
   </div>
 }
 
-export function Panel({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) {
-  return <section className={`rounded-3xl border border-[#d9dfd9] bg-white p-6 shadow-sm ${className}`}><h2 className="text-xl font-semibold tracking-tight">{title}</h2><div className="mt-5">{children}</div></section>
+export function Panel({ title, description, children, className = '' }: { title: string; description?: string; children: React.ReactNode; className?: string }) {
+  return <section className={`rounded-3xl border border-[#d9dfd9] bg-white p-6 shadow-sm ${className}`}>
+    <h2 className="text-xl font-semibold tracking-tight text-[#17352c]">{title}</h2>
+    {description && <p className="mt-1 text-sm text-[#5c6b64]">{description}</p>}
+    <div className="mt-5">{children}</div>
+  </section>
 }
 
-export const inputClass = 'min-h-11 w-full rounded-xl border border-[#cbd3cd] bg-white px-3 text-sm outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20'
+export const inputClass = 'min-h-11 w-full rounded-xl border border-[#cbd3cd] bg-white px-3 text-sm text-[#17352c] outline-none placeholder:text-[#8a978f] focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20'

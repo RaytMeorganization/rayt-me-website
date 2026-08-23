@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LocaleButton, inputClass } from '@/components/product/shell'
+import { Backdrop } from '@/components/product/brand-art'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { AccountType } from '@/lib/types'
@@ -41,10 +42,12 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   }
 
   const signUp = mode === 'sign-up'
-  return <main className="min-h-screen bg-[#f7f8f4] px-5 py-10">
-    <div className="mx-auto flex max-w-lg items-center justify-between"><Link href="/" className="flex items-center gap-2 font-semibold text-[#17352c]"><ShieldCheck className="text-emerald-700" />Rayt Me</Link><LocaleButton /></div>
-    <form onSubmit={submit} className="mx-auto mt-12 max-w-lg rounded-[28px] border border-[#d9dfd9] bg-white p-6 shadow-xl shadow-emerald-950/5 sm:p-9">
-      <h1 className="text-3xl font-semibold tracking-[-.04em]">{signUp ? t('signUp') : t('signIn')}</h1>
+  return <main className="relative min-h-screen px-5 py-10 text-[#17352c]">
+    <Backdrop />
+    <div className="relative z-10 mx-auto flex max-w-lg items-center justify-between"><Link href="/" className="flex items-center gap-2 font-semibold text-[#17352c]"><ShieldCheck className="text-emerald-700" />Rayt Me</Link><LocaleButton /></div>
+    <form onSubmit={submit} className="relative z-10 mx-auto mt-12 max-w-lg rounded-[28px] border border-[#d9dfd9] bg-white p-6 shadow-xl shadow-emerald-950/5 sm:p-9">
+      <h1 className="text-3xl font-semibold tracking-[-.04em] text-[#17352c]">{signUp ? t('signUp') : t('signIn')}</h1>
+      <p className="mt-2 text-sm text-[#5c6b64]">{signUp ? t('signUpIntro') : t('signInRequiredHelp')}</p>
       <div className="mt-8 grid gap-5">
         {signUp && <><label className="grid gap-2 text-sm">{t('name')}<input required name="name" autoComplete="name" className={inputClass} /></label>
           <fieldset><legend className="mb-2 text-sm">{t('profile')}</legend><div className="grid grid-cols-2 gap-2">{(['professional','student'] as const).map(type => <label key={type} className={`cursor-pointer rounded-xl border p-3 text-sm ${accountType === type ? 'border-emerald-700 bg-emerald-50' : 'border-[#d9dfd9]'}`}><input className="sr-only" type="radio" name="accountType" value={type} checked={accountType === type} onChange={() => setAccountType(type)} />{t(type)}</label>)}</div></fieldset>
@@ -57,7 +60,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         <Button disabled={busy} className="min-h-11 rounded-xl bg-[#17352c]">{busy ? t('loading') : t('continue')}</Button>
       </div>
-      <p className="mt-6 text-center text-sm text-muted-foreground"><Link className="font-semibold text-emerald-800 underline" href={signUp ? '/sign-in' : '/sign-up'}>{signUp ? t('signIn') : t('signUp')}</Link></p>
+      <p className="mt-6 text-center text-sm text-[#5c6b64]"><Link className="font-semibold text-emerald-800 underline" href={signUp ? '/sign-in' : '/sign-up'}>{signUp ? t('signIn') : t('signUp')}</Link></p>
     </form>
   </main>
 }

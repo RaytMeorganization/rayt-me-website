@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Panel, ProductShell, inputClass } from '@/components/product/shell'
+import { PageHeader, Panel, ProductShell, inputClass } from '@/components/product/shell'
+import { EmptyState, Illustration, StatCard } from '@/components/product/brand-art'
 import { useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { BusinessReputation, BusinessUsage, Organization } from '@/lib/types'
@@ -18,6 +19,7 @@ export function BusinessDashboard() {
   const [inviteEmail, setInviteEmail] = useState('')
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(true)
+  const [ready, setReady] = useState(false)
 
   const load = useCallback(async () => {
     setBusy(true); setMessage('')
@@ -36,8 +38,8 @@ export function BusinessDashboard() {
     if (results[4].status === 'fulfilled') setTheme(results[4].value)
     if (results[5].status === 'fulfilled') setUsage(results[5].value)
     const failure = results.find(result => result.status === 'rejected')
-    if (failure?.status === 'rejected') setMessage(errorMessage(failure.reason, t('error')))
-    setBusy(false)
+    if (failure?.status === 'rejected') setMessage(errorMessage(failure.reason, t('loadFailed')))
+    setBusy(false); setReady(true)
   }, [t])
   useEffect(() => {
     const timer = window.setTimeout(() => { void load() }, 0)
@@ -82,15 +84,78 @@ export function BusinessDashboard() {
   }
 
   return <ProductShell role="business"><main className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
-    <div className="flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-emerald-800">Organization workspace</p><h1 className="mt-2 text-4xl font-semibold">{t('business')}</h1></div><Button variant="outline" onClick={() => void load()}>{t('refresh')}</Button></div>
-    {message && <p role="status" className="mt-5 rounded-xl bg-white p-3 text-sm">{message}</p>}
-    {busy && !organization ? <p className="py-20 text-center" aria-busy="true">{t('loading')}</p> :
-    <div className="mt-8 grid gap-6 lg:grid-cols-2">
-      <Panel title={t('organizationProfile')}><div className="grid gap-4"><label className="grid gap-2 text-sm">{t('name')}<input className={inputClass} value={organization?.name || ''} onChange={e => setOrganization(current => current ? { ...current, name: e.target.value } : { id: '', name: e.target.value })} /></label><label className="grid gap-2 text-sm">{t('description')}<textarea className={`${inputClass} min-h-24 py-3`} value={organization?.description || ''} onChange={e => setOrganization(current => current ? { ...current, description: e.target.value } : null)} /></label><label className="grid gap-2 text-sm">{t('website')}<input type="url" className={inputClass} value={organization?.website || ''} onChange={e => setOrganization(current => current ? { ...current, website: e.target.value } : null)} /></label><label className="grid gap-2 text-sm">{t('logoUrl')}<input type="url" className={inputClass} value={organization?.logoUrl || ''} onChange={e => setOrganization(current => current ? { ...current, logoUrl: e.target.value } : null)} /></label><Button disabled={busy || !organization} onClick={() => void saveOrganization()}>{t('save')}</Button></div></Panel>
-      <Panel title={t('reputation')}><p className="text-6xl font-semibold tracking-[-.08em]">{reputation ? reputation.averageReputation.toFixed(1) : '—'}</p><p className="mt-3 text-sm text-muted-foreground">{reputation?.ratingCount || 0} {t('basedOn')} · Average rating {reputation?.averageRating.toFixed(1) || '—'}</p></Panel>
-      <Panel title={t('roster')}><form onSubmit={invite} className="flex gap-2"><input required type="email" className={inputClass} value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder={t('email')} /><Button disabled={busy}>Invite · دعوة</Button></form><div className="mt-5 grid gap-2">{members.length ? members.map((member, index) => <div key={String(member.id || index)} className="rounded-xl bg-[#f7f8f4] p-3 text-sm"><strong>{String((member.user as Record<string, unknown> | undefined)?.name || 'Member')}</strong><span className="ms-2 text-muted-foreground">{String((member.user as Record<string, unknown> | undefined)?.email || '')}</span></div>) : <p className="text-sm text-muted-foreground">{t('noData')}</p>}</div><h3 className="mt-6 text-sm font-semibold">Invites · الدعوات</h3><ul className="mt-2 grid gap-2 text-sm">{invites.map((item, index) => <li key={String(item.id || index)} className="flex justify-between rounded-xl border p-3"><span>{String(item.email)}</span><span>{String(item.status)}</span></li>)}</ul></Panel>
-      <Panel title={t('brandedTheme')}><div className="grid gap-4"><label className="grid gap-2 text-sm">{t('logoUrl')}<input type="url" className={inputClass} value={theme.logoUrl || ''} onChange={e => setTheme(current => ({ ...current, logoUrl: e.target.value }))} /></label><label className="grid gap-2 text-sm">{t('brandColor')}<input type="color" className="h-11 w-full rounded-xl border p-1" value={theme.brandColor || '#17352c'} onChange={e => setTheme(current => ({ ...current, brandColor: e.target.value }))} /></label><Button disabled={busy} onClick={() => void saveTheme()}>{t('save')}</Button></div></Panel>
-      <Panel title={t('usage')}><div className="grid gap-3 text-sm"><p><strong>{t('plan')}:</strong> {usage?.plan || '—'} · {usage?.status || '—'}</p><p>Members · الأعضاء: {usage?.usage.members || 0}</p><p>Pending invites · الدعوات المعلقة: {usage?.usage.pendingInvites || 0}</p><ul className="grid gap-2">{usage?.entitlements.map(item => <li key={item.key} className="flex justify-between rounded-xl bg-[#f7f8f4] p-3"><span>{item.key}</span><strong>{item.value}</strong></li>)}</ul></div></Panel>
-    </div>}
+    <PageHeader
+      eyebrow={t('organizationWorkspace')}
+      title={organization?.name || t('business')}
+      description={t('businessIntro')}
+      action={<Button variant="outline" onClick={() => void load()}>{t('refresh')}</Button>}
+    />
+    {message && <p role="status" className="mt-5 rounded-xl border border-[#d9dfd9] bg-white p-3 text-sm text-[#17352c]">{message}</p>}
+
+    {!ready ? <div aria-busy="true" className="mt-8 grid gap-6 lg:grid-cols-2">{[0, 1, 2, 3].map(card => <div key={card} className="h-64 animate-pulse rounded-3xl bg-[#eef2ec]" />)}</div> : <>
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label={t('reputation')} value={reputation ? reputation.averageReputation.toFixed(1) : '—'} hint={`${reputation?.ratingCount ?? 0} ${t('basedOn')}`} />
+        <StatCard label={t('averageRating')} value={reputation ? reputation.averageRating.toFixed(1) : '—'} hint={t('ratingCount')} />
+        <StatCard label={t('members')} value={String(usage?.usage.members ?? members.length)} hint={t('roster')} />
+        <StatCard label={t('plan')} value={usage?.plan || '—'} hint={usage?.status || t('status')} />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Panel title={t('organizationProfile')}>
+          <div className="grid gap-4">
+            <label className="grid gap-2 text-sm">{t('name')}<input className={inputClass} value={organization?.name || ''} onChange={e => setOrganization(current => current ? { ...current, name: e.target.value } : { id: '', name: e.target.value })} /></label>
+            <label className="grid gap-2 text-sm">{t('description')}<textarea className={`${inputClass} min-h-24 py-3`} value={organization?.description || ''} onChange={e => setOrganization(current => current ? { ...current, description: e.target.value } : null)} /></label>
+            <label className="grid gap-2 text-sm">{t('website')}<input type="url" className={inputClass} value={organization?.website || ''} onChange={e => setOrganization(current => current ? { ...current, website: e.target.value } : null)} /></label>
+            <label className="grid gap-2 text-sm">{t('logoUrl')}<input type="url" className={inputClass} value={organization?.logoUrl || ''} onChange={e => setOrganization(current => current ? { ...current, logoUrl: e.target.value } : null)} /></label>
+            <Button disabled={busy || !organization} onClick={() => void saveOrganization()}>{busy ? t('saving') : t('save')}</Button>
+          </div>
+        </Panel>
+
+        <Panel title={t('reputation')}>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-6xl font-semibold tracking-[-.08em] text-[#17352c]">{reputation ? reputation.averageReputation.toFixed(1) : '—'}</p>
+              <p className="mt-3 text-sm text-[#5c6b64]">{reputation?.ratingCount || 0} {t('basedOn')}</p>
+            </div>
+            <Illustration kind="reputation" className="w-32 shrink-0" />
+          </div>
+        </Panel>
+
+        <Panel title={t('roster')} description={t('emptyRosterHelp')}>
+          <form onSubmit={invite} className="flex gap-2">
+            <input required type="email" className={inputClass} value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} placeholder={t('email')} />
+            <Button disabled={busy}>{t('invite')}</Button>
+          </form>
+          {members.length ? <div className="mt-5 grid gap-2">{members.map((member, index) => <div key={String(member.id || index)} className="rounded-xl bg-[#f7f8f4] p-3 text-sm">
+            <strong className="text-[#17352c]">{String((member.user as Record<string, unknown> | undefined)?.name || t('members'))}</strong>
+            <span className="ms-2 text-[#5c6b64]">{String((member.user as Record<string, unknown> | undefined)?.email || '')}</span>
+          </div>)}</div> : <EmptyState kind="roster" title={t('emptyRoster')} description={t('emptyRosterHelp')} />}
+          <h3 className="mt-6 text-sm font-semibold text-[#17352c]">{t('pendingInvites')}</h3>
+          {invites.length ? <ul className="mt-2 grid gap-2 text-sm">{invites.map((item, index) => <li key={String(item.id || index)} className="flex justify-between rounded-xl border border-[#dbe2dc] p-3">
+            <span className="text-[#17352c]">{String(item.email)}</span><span className="text-[#5c6b64]">{String(item.status)}</span>
+          </li>)}</ul> : <p className="mt-2 text-sm text-[#7a8780]">{t('emptyInvites')}</p>}
+        </Panel>
+
+        <Panel title={t('brandedTheme')}>
+          <div className="grid gap-4">
+            <label className="grid gap-2 text-sm">{t('logoUrl')}<input type="url" className={inputClass} value={theme.logoUrl || ''} onChange={e => setTheme(current => ({ ...current, logoUrl: e.target.value }))} /></label>
+            <label className="grid gap-2 text-sm">{t('brandColor')}<input type="color" aria-label={t('brandColor')} className="h-11 w-full rounded-xl border border-[#cbd3cd] bg-white p-1" value={theme.brandColor || '#17352c'} onChange={e => setTheme(current => ({ ...current, brandColor: e.target.value }))} /></label>
+            <Button disabled={busy} onClick={() => void saveTheme()}>{busy ? t('saving') : t('save')}</Button>
+          </div>
+        </Panel>
+
+        <Panel title={t('usage')} className="lg:col-span-2">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <StatCard label={t('plan')} value={usage?.plan || '—'} hint={usage?.status || t('status')} />
+            <StatCard label={t('members')} value={String(usage?.usage.members ?? 0)} />
+            <StatCard label={t('pendingInvites')} value={String(usage?.usage.pendingInvites ?? 0)} />
+          </div>
+          <h3 className="mt-6 text-sm font-semibold text-[#17352c]">{t('entitlements')}</h3>
+          {usage?.entitlements.length ? <ul className="mt-2 grid gap-2 sm:grid-cols-2">{usage.entitlements.map(item => <li key={item.key} className="flex justify-between rounded-xl bg-[#f7f8f4] p-3 text-sm">
+            <span className="text-[#5c6b64]">{item.key}</span><strong className="text-[#17352c]">{item.value}</strong>
+          </li>)}</ul> : <p className="mt-2 text-sm text-[#7a8780]">{t('noData')}</p>}
+        </Panel>
+      </div>
+    </>}
   </main></ProductShell>
 }

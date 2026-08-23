@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Panel, ProductShell, inputClass } from '@/components/product/shell'
+import { PageHeader, Panel, ProductShell, inputClass } from '@/components/product/shell'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { User } from '@/lib/types'
@@ -42,11 +42,12 @@ export default function SettingsPage() {
   }
 
   const fields: [keyof User, string][] = user?.accountType === 'student'
-    ? [['name', t('name')], ['bio', 'Bio · نبذة'], ['university', t('university')], ['city', t('city')], ['country', t('country')]]
-    : [['name', t('name')], ['bio', 'Bio · نبذة'], ['jobTitle', t('jobTitle')], ['company', t('company')], ['city', t('city')], ['country', t('country')]]
-  const privacy: [keyof User, string][] = [['profilePublic', 'Public profile · ملف عام'], ['emailPublic', t('publicEmail')], ['phonePublic', t('publicPhone')], ['locationPublic', t('publicLocation')], ['companyPublic', t('publicCompany')]]
+    ? [['name', t('name')], ['bio', t('bio')], ['university', t('university')], ['city', t('city')], ['country', t('country')]]
+    : [['name', t('name')], ['bio', t('bio')], ['jobTitle', t('jobTitle')], ['company', t('company')], ['city', t('city')], ['country', t('country')]]
+  const privacy: [keyof User, string][] = [['profilePublic', t('publicProfile')], ['emailPublic', t('publicEmail')], ['phonePublic', t('publicPhone')], ['locationPublic', t('publicLocation')], ['companyPublic', t('publicCompany')]]
 
-  return <ProductShell><main className="mx-auto max-w-5xl px-5 py-10 lg:px-8"><h1 className="text-4xl font-semibold tracking-tight">{t('settings')}</h1>
+  return <ProductShell><main className="mx-auto max-w-5xl px-5 py-10 lg:px-8">
+    <PageHeader eyebrow={t('account')} title={t('settings')} description={t('settingsIntro')} />
     <div className="mt-8 grid gap-6 lg:grid-cols-2"><Panel title={t('profile')}><div className="grid gap-4 sm:grid-cols-2">{fields.map(([key, label]) => <label className="grid gap-2 text-sm" key={key}>{label}<input className={inputClass} value={String(form[key] ?? '')} onChange={e => set(key, e.target.value)} /></label>)}</div></Panel>
       <div className="grid gap-6"><Panel title={t('privacy')}><div className="grid gap-3">{privacy.map(([key, label]) => <label className="flex items-center justify-between gap-4 rounded-xl bg-[#f7f8f4] p-3 text-sm" key={key}>{label}<input type="checkbox" checked={Boolean(form[key])} onChange={e => set(key, e.target.checked)} /></label>)}</div></Panel></div>
       <Panel title={t('plan')}><p className="text-3xl font-semibold capitalize">{user?.tier}</p><p className="mt-2 text-sm text-muted-foreground">{user?.isVerified ? t('verifiedReputation') : t('verificationHelp')}</p></Panel>
