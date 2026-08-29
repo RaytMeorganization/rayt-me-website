@@ -1,0 +1,43 @@
+---
+description: Next.js App Router, TypeScript, and file structure for Rayt Me
+globs: app/**/*.{ts,tsx},**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Next.js conventions
+
+Stack: Next.js 16, React 19, TypeScript strict, pnpm, Tailwind 4, shadcn (base-nova), lucide, `@/` aliases.
+
+## Structure
+
+- Routes and metadata: `app/`
+- Product UI: `components/rate-me/`
+- Primitives: `components/ui/` (do not fork casually)
+- Shared helpers: `lib/` (`cn` from `lib/utils.ts`)
+- Keep `page.tsx` thin — compose from components.
+
+## Server vs client
+
+Default to Server Components. Add `'use client'` only for interactivity (nav scroll, locale toggle, rating demo, FAQ accordion).
+
+```tsx
+// ❌ BAD — whole landing as one client file forever
+'use client'
+export default function Page() { return <EntireMarketingSite /> }
+
+// ✅ GOOD — server page, client islands
+export default function Page() {
+  return <RateMeLanding />
+}
+```
+
+## Metadata
+
+Preserve `app/layout.tsx` SEO: title **Rayt Me — Verified Professional Reputation**, `metadataBase` `https://rate.me`, EN+AR keywords, JSON-LD (Organization, SoftwareApplication, FAQPage), fonts Geist + Noto Sans Arabic.
+
+## Quality
+
+- Prefer named exports colocated with usage; default export the page/section root.
+- Do not set `typescript.ignoreBuildErrors` in new config — fix types.
+- Do not add `images.unoptimized` further; prefer local `public/` assets over remote blob URLs.
+- Verify UI in the browser after visual or interaction changes.

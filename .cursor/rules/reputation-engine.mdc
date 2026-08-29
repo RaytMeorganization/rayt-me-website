@@ -1,0 +1,35 @@
+---
+description: Reputation engine, ratings, Super Voter, disputes — Rate Me overview v3.1
+alwaysApply: false
+globs: "**/*.{ts,tsx,js,jsx}"
+---
+
+# Domain (overview v3.1)
+
+## Score
+
+- Start `S = 3.00`. Incoming `R` is 1–5 in 0.5 steps (from five categories).
+- `Snew = Sold + α(n) × W × (R − Sold)` with `α(n) = 0.045 / √(n + 10)`
+- `W` = **rater credibility × interaction credibility**
+- New profiles move fast; established ones move slowly. **5.0 is effectively unreachable.**
+- Order of ratings barely matters. “Everyone gets 5” raters move `S` far less.
+- Public UI may show a rating **count**; the engine uses **effective / credible** evidence, not raw volume.
+- Validate with an internal reputation-engine tester before touching real profiles.
+
+## Rating
+
+Relationship (different weights): Worked with, Client, Supplier, Manager, Employee, Met professionally, Event / networking.
+
+Categories: Professionalism, Communication, Reliability, Knowledge, Collaboration.
+
+Rater credibility **0.3×–1.5×** from history and differentiated patterns.
+
+## Super Voter
+
+Earned automatically for sustained credible, differentiated rating. **Never purchased.** Can be **suspended** if behavior degrades. On their profile: badge. When they rate someone: **title shown, name kept private** (same privacy choice every rater gets).
+
+## Trust
+
+Privacy by default. Disputes + public right of reply. Caps on ratings **given** (Basic 25 / Pro 60 / Business 50 per employee per month). Unlimited **received** on every tier. Themes: Basic 5, Pro many + custom, Business + company-branded.
+
+Do not replace this with a simple average or star count.

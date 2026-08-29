@@ -1,0 +1,28 @@
+---
+description: Disputes, right of reply, Super Voter display, anti-manipulation — overview v3.1
+globs: "**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+# Trust operations (overview v3.1)
+
+Scores are not silent or unchallengeable. Anti-manipulation is a product requirement, not a later add-on.
+
+## Disputes
+
+- Rated users can **flag a rating for review**
+- Rated users can **respond publicly** (right of reply)
+- Moderation must not rewrite the engine into a simple average
+
+## Super Voter
+
+- Earned automatically for sustained, credible, differentiated rating; **never purchased**
+- Can be **suspended** if behavior degrades
+- On own profile: badge
+- When they rate someone: **title shown, name private** — e.g. score attributed to “CEO” + Super Voter, not the rater’s name
+
+## Public vs engine counts
+
+UI may show a public rating **count**. The engine uses **effective / credible** evidence (`n`, `W`), not raw volume. Low-credibility “everyone gets 5” raters move `S` far less.
+
+Do not sell influence, badges, or score boosts.

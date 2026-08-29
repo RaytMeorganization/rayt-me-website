@@ -1,0 +1,33 @@
+---
+description: Business card, professional snapshot, CV, and app navigation — overview v3.1
+globs: "**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+# Card and snapshot (overview v3.1)
+
+The profile is a **portable business card**, not a resume dump.
+
+## Business card
+
+Name + verified tick, title, company · industry, location, circular **verified reputation** badge (5.0 effectively unreachable), privacy-aware contacts, **Rate** + **Add to my List**, in-app link to snapshot. Phone: hidden or **Request phone**.
+
+## Professional snapshot (short entries)
+
+Previous employment, education, skills, languages, licenses, **certifications**, memberships. Scannable in seconds.
+
+## CV
+
+Attached **separately** and supplementary. Never render the full CV as the profile or snapshot body.
+
+## App navigation
+
+Bottom tabs: **Browse** (scan/landing) · **My List** (saved contacts) · **Settings** (own profile and privacy).
+
+```tsx
+// ❌ BAD — snapshot is a multi-page CV
+<Snapshot>{resumeHtml}</Snapshot>
+
+// ✅ GOOD — short fields; CV is a separate attachment
+<Snapshot fields={shortEntries} cvUrl={optionalCv} />
+```
