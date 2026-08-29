@@ -1,0 +1,9 @@
+import type { MetadataRoute } from 'next'
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: { userAgent: '*', allow: '/', disallow: ['/settings', '/admin', '/business'] },
+    sitemap: 'https://rate.me/sitemap.xml',
+    host: 'https://rate.me',
+  }
+}
