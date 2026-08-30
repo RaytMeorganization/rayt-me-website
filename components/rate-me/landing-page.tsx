@@ -186,16 +186,32 @@ const navLinks = [
   ["#pricing", "Pricing"],
 ] as const;
 
-function LogoLockup({ className }: { className?: string }) {
+function LogoLockup({
+  className,
+  tone = 'dark',
+}: {
+  className?: string;
+  tone?: 'dark' | 'light';
+}) {
   return (
-    <Image
-      src="/logo-raytme.png"
-      alt="RaytME"
-      width={820}
-      height={258}
-      className={cn("h-10 w-auto sm:h-11", className)}
-      priority
-    />
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
+      <Image
+        src="/logo-mark.png"
+        alt=""
+        width={44}
+        height={44}
+        className="h-9 w-9 shrink-0 rounded-lg sm:h-10 sm:w-10"
+        priority
+      />
+      <span
+        className={cn(
+          "font-brand text-xl font-semibold tracking-tight sm:text-[1.35rem]",
+          tone === 'light' ? "text-white" : "text-foreground",
+        )}
+      >
+        RaytME
+      </span>
+    </span>
   );
 }
 
@@ -2051,7 +2067,7 @@ export default function RateMeLanding() {
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 lg:grid-cols-[1.45fr_1fr_1fr_1fr_1.75fr]">
           <div>
             <a className="inline-flex items-center" href="#top">
-              <LogoLockup className="h-11 sm:h-12" />
+              <LogoLockup tone="light" className="h-11 sm:h-12" />
             </a>
             <p className="mt-5 max-w-[16rem] text-sm leading-6 text-white/45">
               Your digital business card. Share your profile, grow your

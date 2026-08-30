@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { Globe2, LogOut, ShieldCheck } from 'lucide-react'
+import { Globe2, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Backdrop, EmptyState } from '@/components/product/brand-art'
 import { MotionDirector } from '@/components/product/premium-motion'
@@ -25,7 +26,10 @@ function Chrome({ children, nav }: { children: React.ReactNode; nav?: React.Reac
     <div className="relative z-10">
       <header className="rate-premium-nav sticky top-0 z-40 border-b border-[#eae2d1] bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 font-semibold text-[#11213D]"><ShieldCheck className="text-[#2E6B4C]" />{t('brand')}</Link>
+          <Link href="/" className="flex items-center gap-2.5 font-semibold text-[#11213D]">
+            <Image src="/logo-mark.png" alt="" width={36} height={36} className="h-8 w-8 rounded-lg" />
+            {t('brand')}
+          </Link>
           {nav}
         </div>
       </header>
