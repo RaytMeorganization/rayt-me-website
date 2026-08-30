@@ -640,52 +640,64 @@ function DirectoryMiniCard({
   return (
     <article
       className={cn(
-        "flex min-h-0 flex-col overflow-hidden rounded-[0.7rem] ring-1",
+        "relative w-full overflow-hidden rounded-[0.7rem] ring-1",
         ivory
           ? "bg-[#F4E9D3] text-[#11213D] ring-[#11213D]/12"
           : brand
             ? "bg-[#16121f] text-white ring-violet-500/25"
             : "bg-[#141418] text-white ring-white/10",
       )}
+      style={{ aspectRatio: "85.6 / 53.98" }}
     >
       <div className="h-[3px] w-full" style={{ backgroundColor: bar }} />
-      <div className="flex min-h-0 flex-1 flex-col gap-1.5 p-2">
-        <div className="flex items-start gap-1.5">
-          <Image
-            src={person.photo}
-            alt=""
-            width={48}
-            height={48}
-            loading="eager"
-            className="size-9 shrink-0 rounded-md object-cover object-top ring-1 ring-black/10 sm:size-10"
-          />
-          <div className="min-w-0">
-            <p
-              data-no-translate
-              className="truncate font-brand text-[8px] font-semibold leading-tight"
-            >
-              {person.name}
-            </p>
-            <p className={cn("truncate text-[6px] leading-3", muted)}>
-              {person.role}
-            </p>
-            <p data-no-translate className={cn("truncate text-[6px]", muted)}>
-              {company}
-            </p>
+      <div className="flex h-[calc(100%-3px)] flex-col justify-between px-2 pb-1.5 pt-1.5">
+        <div className="flex items-start justify-between gap-1.5">
+          <div className="flex min-w-0 items-start gap-1.5">
+            <Image
+              src={person.photo}
+              alt=""
+              width={48}
+              height={48}
+              loading="eager"
+              className="size-8 shrink-0 rounded-md object-cover object-top ring-1 ring-black/10"
+            />
+            <div className="min-w-0">
+              <p
+                data-no-translate
+                className="line-clamp-2 font-brand text-[8px] font-semibold leading-tight"
+              >
+                {person.name}
+              </p>
+              <p className={cn("truncate text-[6px] leading-3", muted)}>
+                {person.role}
+              </p>
+              <p data-no-translate className={cn("truncate text-[6px]", muted)}>
+                {company}
+              </p>
+            </div>
+          </div>
+          <div className="size-7 shrink-0 overflow-hidden rounded-sm bg-black ring-1 ring-white/10">
+            <QrFace />
           </div>
         </div>
-        <p className={cn("inline-flex items-center gap-0.5 text-[6px]", muted)}>
-          <MapPinIcon className="size-2" />
-          {`${person.city}, ${person.country}`}
-        </p>
-        <p dir="ltr" className={cn("truncate text-[6px]", muted)}>
-          {person.email}
-        </p>
-        <div className="mt-auto flex items-end justify-between gap-1">
-          <p className="font-brand text-[12px] tabular-nums leading-none">
-            {score}
-          </p>
-          <p className={cn("truncate text-[6px]", muted)}>{ratingsLabel}</p>
+        <div className="flex items-end justify-between gap-1">
+          <div className={cn("min-w-0 text-[6px] leading-3", muted)}>
+            <p className="inline-flex items-center gap-0.5">
+              <MapPinIcon className="size-2" />
+              {`${person.city}, ${person.country}`}
+            </p>
+            <p dir="ltr" className="truncate">
+              {person.email}
+            </p>
+          </div>
+          <div className="shrink-0 text-end">
+            <p className="font-brand text-[11px] tabular-nums leading-none">
+              {score}
+            </p>
+            <p className={cn("mt-0.5 text-[5px] leading-none", muted)}>
+              {ratingsLabel}
+            </p>
+          </div>
         </div>
       </div>
     </article>
@@ -715,10 +727,10 @@ function ShowcasePhone() {
     <DeviceHover>
       {(glareRef) => (
         <div className="relative w-full">
-          <span className="rate-iphone-btn absolute -start-[3px] top-[16%] z-20 h-[14px] w-[3px] rounded-s-[1px]" />
-          <span className="rate-iphone-btn absolute -start-[3px] top-[24%] z-20 h-[34px] w-[3px] rounded-s-[1px]" />
-          <span className="rate-iphone-btn absolute -start-[3px] top-[38%] z-20 h-[34px] w-[3px] rounded-s-[1px]" />
-          <span className="rate-iphone-btn absolute -end-[3px] top-[28%] z-20 h-[52px] w-[3px] rounded-e-[1px]" />
+          <span className="rate-iphone-btn absolute -left-[3px] top-[16%] z-20 h-[14px] w-[3px] rounded-l-[1px]" />
+          <span className="rate-iphone-btn absolute -left-[3px] top-[24%] z-20 h-[34px] w-[3px] rounded-l-[1px]" />
+          <span className="rate-iphone-btn absolute -left-[3px] top-[38%] z-20 h-[34px] w-[3px] rounded-l-[1px]" />
+          <span className="rate-iphone-btn absolute -right-[3px] top-[28%] z-20 h-[52px] w-[3px] rounded-r-[1px]" />
           <div className="rate-iphone-frame relative overflow-hidden rounded-[2.15rem] p-[7px]">
             <div className="relative flex aspect-[9/19.5] flex-col overflow-hidden rounded-[1.7rem] bg-[#050506]">
               <div className="pointer-events-none absolute inset-x-0 top-[7px] z-20 flex justify-center">
@@ -784,7 +796,7 @@ function ShowcaseIpad() {
     <DeviceHover>
       {(glareRef) => (
         <div className="relative w-full">
-          <span className="rate-iphone-btn absolute start-[8%] top-1/2 z-20 size-[8px] -translate-y-1/2 rounded-full ring-1 ring-white/20" />
+          <span className="rate-iphone-btn absolute left-[8%] top-1/2 z-20 size-[8px] -translate-y-1/2 rounded-full ring-1 ring-white/20" />
           <div className="rate-ipad-metal relative overflow-hidden rounded-[1.65rem] p-[10px]">
             <div className="relative flex aspect-[4/3] flex-col overflow-hidden rounded-[1.15rem] bg-[#070709]">
               <div className="flex items-center justify-between px-4 pt-2 text-[8px] font-semibold text-white">
@@ -935,7 +947,7 @@ function ShowcaseDesktop() {
                     <span>4.7 Avg rating</span>
                     <span className="hidden sm:inline">3 Brands</span>
                   </div>
-                  <div className="grid min-h-0 flex-1 grid-cols-3 gap-2 p-2 sm:p-2.5">
+                  <div className="grid min-h-0 flex-1 grid-cols-3 content-start items-start gap-2 overflow-hidden p-2 sm:p-2.5">
                     {DIRECTORY.map((entry) => (
                       <DirectoryMiniCard key={entry.person.slug} {...entry} />
                     ))}
@@ -1005,7 +1017,7 @@ export function CrossDeviceStage() {
       </ToggleGroup>
       <div
         className={cn(
-          "relative w-full transition-[height] duration-500 ease-out",
+          "relative mx-auto w-full max-w-[50rem] transition-[height] duration-500 ease-out",
           focus === "all" && "h-[22rem] sm:h-[27rem] lg:h-[30rem]",
           focus === "desktop" && "h-[20rem] sm:h-[26rem] lg:h-[30rem]",
           focus === "tablet" && "h-[18rem] sm:h-[24rem] lg:h-[26rem]",
@@ -1016,11 +1028,11 @@ export function CrossDeviceStage() {
           className={cn(
             "absolute z-10 transition-all duration-500 ease-out",
             focus === "all" &&
-              "top-1 start-0 w-[min(86%,22rem)] sm:w-[min(66%,30rem)] lg:w-[min(61%,34rem)]",
+              "top-1 left-0 w-[min(88%,22rem)] sm:w-[min(70%,30rem)] lg:w-[min(68%,34rem)]",
             focus === "desktop" &&
-              "top-0 start-1/2 w-[min(94%,38rem)] -translate-x-1/2 rtl:translate-x-1/2",
+              "top-0 left-1/2 w-[min(94%,38rem)] -translate-x-1/2",
             (focus === "tablet" || focus === "mobile") &&
-              "pointer-events-none top-8 start-0 w-[70%] scale-90 opacity-0",
+              "pointer-events-none top-8 left-0 w-[70%] scale-90 opacity-0",
           )}
         >
           <ShowcaseDesktop />
@@ -1029,9 +1041,9 @@ export function CrossDeviceStage() {
           className={cn(
             "absolute z-20 transition-all duration-500 ease-out",
             focus === "all" &&
-              "bottom-[3.4rem] start-[30%] hidden w-[44%] sm:block lg:start-[38%] lg:w-[min(40%,22rem)]",
+              "bottom-[3.2rem] left-[22%] hidden w-[48%] sm:block lg:left-[28%] lg:w-[min(46%,22rem)]",
             focus === "tablet" &&
-              "top-2 start-1/2 w-[min(88%,30rem)] -translate-x-1/2 rtl:translate-x-1/2",
+              "top-2 left-1/2 w-[min(88%,30rem)] -translate-x-1/2",
             (focus === "desktop" || focus === "mobile") &&
               "pointer-events-none hidden scale-90 opacity-0 sm:block",
           )}
@@ -1042,11 +1054,11 @@ export function CrossDeviceStage() {
           className={cn(
             "absolute z-30 transition-all duration-500 ease-out",
             focus === "all" &&
-              "end-2 bottom-0 w-[9.75rem] -translate-y-3 sm:end-8 sm:w-[11.25rem] lg:end-12 lg:w-[12.5rem]",
+              "right-1 bottom-0 w-[9.75rem] -translate-y-3 sm:right-4 sm:w-[11.25rem] lg:right-6 lg:w-[12.5rem]",
             focus === "mobile" &&
-              "bottom-0 start-1/2 w-[11rem] -translate-x-1/2 sm:w-[12.5rem] rtl:translate-x-1/2",
+              "bottom-0 left-1/2 w-[11rem] -translate-x-1/2 sm:w-[12.5rem]",
             (focus === "desktop" || focus === "tablet") &&
-              "pointer-events-none end-0 bottom-0 w-[9.75rem] translate-y-3 scale-90 opacity-0",
+              "pointer-events-none right-0 bottom-0 w-[9.75rem] translate-y-3 scale-90 opacity-0",
           )}
         >
           <ShowcasePhone />
