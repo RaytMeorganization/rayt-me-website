@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { Check, Lock, MapPin, ShieldCheck } from 'lucide-react'
+import { Check, Lock, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { LogoLockup } from '@/components/brand/logo-lockup'
 import { LocaleButton } from '@/components/product/shell'
 import { ScoreRing } from '@/components/product/score-ring'
 import { useI18n } from '@/components/product/providers'
@@ -17,7 +18,7 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
   const initials = profile.name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase()
 
   return <main className="min-h-screen bg-[var(--rm-cream)] px-5 py-8 sm:py-12">
-    <div className="mx-auto flex max-w-xl items-center justify-between"><Link href="/" className="flex items-center gap-2 font-semibold text-[var(--rm-navy)]"><ShieldCheck className="text-[var(--rm-sage)]" />Rayt Me</Link><LocaleButton /></div>
+    <div className="mx-auto flex max-w-xl items-center justify-between"><Link href="/" className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-gold)]/30"><LogoLockup size="sm" /></Link><LocaleButton /></div>
     <div className="mx-auto mt-10 max-w-xl">
       <p className="mb-3 text-center text-xs font-bold uppercase tracking-[.18em] text-[var(--rm-sage-deep)]">{t('publicPreview')}</p>
       <article className="overflow-hidden rounded-[20px] border border-[var(--rm-line)] bg-white shadow-[0_30px_90px_-45px_rgba(17,33,61,.35)]">

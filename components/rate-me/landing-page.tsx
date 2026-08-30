@@ -528,7 +528,7 @@ function Navbar() {
           aria-label="RaytME home"
           className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <LogoLockup />
+          <LogoLockup tone="light" />
         </a>
         <nav className="hidden items-center gap-6 lg:flex">
           {navLinks.map(([href, label]) => (
@@ -578,7 +578,8 @@ function Navbar() {
               className="border-white/[0.06] bg-[#020617]/90 backdrop-blur-xl duration-300 ease-out"
             >
               <SheetHeader>
-                <SheetTitle>RaytME</SheetTitle>
+                <SheetTitle className="sr-only">RaytME</SheetTitle>
+                <LogoLockup tone="light" size="sm" />
                 <SheetDescription>Navigate the product.</SheetDescription>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-4">

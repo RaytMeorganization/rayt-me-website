@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import { ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { LogoLockup } from '@/components/brand/logo-lockup'
 import { LocaleButton, inputClass } from '@/components/product/shell'
 import { Backdrop } from '@/components/product/brand-art'
 import { useAuth, useI18n } from '@/components/product/providers'
@@ -50,7 +50,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const signUp = mode === 'sign-up'
   return <main className="relative min-h-screen px-5 py-10 text-[#11213D]">
     <Backdrop />
-    <div className="relative z-10 mx-auto flex max-w-lg items-center justify-between"><Link href="/" className="flex items-center gap-2 font-semibold text-[#11213D]"><ShieldCheck className="text-[#2E6B4C]" />Rayt Me</Link><LocaleButton /></div>
+    <div className="relative z-10 mx-auto flex max-w-lg items-center justify-between"><Link href="/" className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AD8547]/30"><LogoLockup size="sm" /></Link><LocaleButton /></div>
     <form onSubmit={submit} className="relative z-10 mx-auto mt-12 max-w-lg rounded-[28px] border border-[#eae2d1] bg-white p-6 shadow-xl shadow-emerald-950/5 sm:p-9">
       <h1 className="font-serif text-3xl font-semibold tracking-[-.02em] text-[#11213D]">{signUp ? t('signUp') : t('signIn')}</h1>
       <p className="mt-2 text-sm text-[#5c6b64]">{signUp ? t('signUpIntro') : t('signInRequiredHelp')}</p>

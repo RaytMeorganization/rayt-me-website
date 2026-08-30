@@ -79,8 +79,8 @@ export function RaytmeBot({ arabic = false }: { arabic?: boolean }) {
           <CardHeader className="border-b border-white/10">
             <div className="flex items-center gap-3">
               <Avatar size="sm">
-                <AvatarImage src="/landing/raytme-bot.jpg" alt="" />
-                <AvatarFallback>R</AvatarFallback>
+                <AvatarImage src="/logo-mark.png" alt="" />
+                <AvatarFallback className="bg-black text-white">R</AvatarFallback>
               </Avatar>
               <div className="min-w-0">
                 <CardTitle id="raytme-bot-title" className="font-brand">
@@ -161,11 +161,11 @@ export function RaytmeBot({ arabic = false }: { arabic?: boolean }) {
           <XIcon className="text-white" />
         ) : (
           <Image
-            src="/landing/raytme-bot.jpg"
+            src="/logo-mark.png"
             alt=""
             width={112}
             height={112}
-            className="size-full object-contain"
+            className="size-full rounded-full object-cover"
           />
         )}
       </Button>
