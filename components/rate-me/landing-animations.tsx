@@ -31,6 +31,10 @@ export function useLandingAnimations() {
       if (!root) return;
 
       const reduceMotion = prefersReducedMotion();
+      const rtl =
+        document.documentElement.dir === "rtl" ||
+        window.localStorage.getItem("rate-me-locale") === "ar";
+      const dx = rtl ? -1 : 1;
       if (reduceMotion) {
         gsap.set(root.querySelectorAll("[data-gsap-reveal]"), {
           clearProps: "all",
@@ -44,73 +48,79 @@ export function useLandingAnimations() {
 
       const mobile = isMobile();
       const staggerFactor = mobile ? 0.5 : 1;
-      const timeline = gsap.timeline({ defaults: { force3D: true } });
+      const timeline = gsap.timeline({ defaults: { force3D: false } });
 
       timeline
-        .from("[data-gsap-navbar]", {
-          opacity: 0,
-          y: -20,
-          duration: 0.6,
-          ease: "power3.out",
-        })
-        .from(
+        .fromTo(
+          "[data-gsap-navbar]",
+          { opacity: 0, y: -20 },
+          { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        )
+        .fromTo(
           "[data-gsap-nav-link]",
+          { opacity: 0.4, y: -8 },
           {
-            opacity: 0,
-            y: -10,
+            opacity: 1,
+            y: 0,
             duration: 0.45,
             ease: "power3.out",
             stagger: 0.08 * staggerFactor,
           },
           "<0.12",
         )
-        .from(
+        .fromTo(
           "[data-gsap-hero-card]",
+          { x: (mobile ? -24 : -40) * dx, opacity: 1 },
           {
-            x: mobile ? -30 : -60,
-            opacity: 0,
+            x: 0,
+            opacity: 1,
             duration: 0.9,
             ease: "power4.out",
           },
-          "+=0.3",
+          "+=0.15",
         )
-        .from(
+        .fromTo(
           "[data-gsap-title-line]",
+          { y: 18, opacity: 0.92 },
           {
-            y: 40,
-            opacity: 0,
+            y: 0,
+            opacity: 1,
             duration: 0.7,
             ease: "power3.out",
             stagger: 0.12 * staggerFactor,
           },
-          0.5,
+          0.2,
         )
-        .from(
+        .fromTo(
           "[data-gsap-hero-subtitle]",
+          { y: 12, opacity: 0.4 },
           {
-            y: 20,
-            opacity: 0,
-            duration: 0.7,
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
             ease: "power3.out",
           },
-          0.8,
+          0.35,
         )
         // Declared as fromTo: a `from` tween infers its end value from the DOM,
         // which resolved to the already-applied start state and left the CTAs
         // permanently invisible.
         .fromTo(
           "[data-gsap-hero-cta]",
-          { scale: 0.9, opacity: 0 },
+          { scale: 0.98, opacity: 0.7 },
           {
             scale: 1,
             opacity: 1,
-            duration: 0.6,
-            ease: "back.out(1.7)",
+            duration: 0.5,
+            ease: "power3.out",
             stagger: 0.1 * staggerFactor,
           },
-          1,
+          0.45,
         )
-        .from(
+        ;
+
+      if (root.querySelector("[data-gsap-floating-enter]")) {
+        timeline.from(
           "[data-gsap-floating-enter]",
           {
             x: (_index, element) =>
@@ -124,6 +134,7 @@ export function useLandingAnimations() {
           },
           1.2,
         );
+      }
 
       gsap.fromTo(
         "[data-gsap-hero-bg]",
@@ -134,7 +145,7 @@ export function useLandingAnimations() {
           ease: "sine.inOut",
           yoyo: true,
           repeat: -1,
-          transformOrigin: "center center",
+          transformOrigin: "80% 0%",
         },
       );
 
@@ -207,17 +218,17 @@ export function useLandingAnimations() {
         const onEnter = () => {
           gsap.to(primary, {
             scale: 1.03,
-            boxShadow: "0 14px 36px rgba(125,212,170,.34)",
+            boxShadow: "0 12px 32px rgba(255,255,255,0.18)",
             duration: 0.25,
           });
-          gsap.to(arrow, { x: 4, duration: 0.25, ease: "power3.out" });
+          gsap.to(arrow, { x: 4 * dx, duration: 0.25, ease: "power3.out" });
         };
         const onLeave = () => {
           moveX(0);
           moveY(0);
           gsap.to(primary, {
             scale: 1,
-            boxShadow: "0 10px 15px rgba(0,0,0,.1)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
             duration: 0.3,
           });
           gsap.to(arrow, { x: 0, duration: 0.25, ease: "power3.out" });
@@ -239,7 +250,7 @@ export function useLandingAnimations() {
         const arrow = secondary.querySelector("[data-gsap-cta-arrow]");
         const onEnter = () => {
           gsap.to(secondary, {
-            borderColor: "rgba(255,255,255,.8)",
+            borderColor: "rgba(139,92,246,.55)",
             duration: 0.25,
           });
           gsap.fromTo(
@@ -284,45 +295,50 @@ export function useLandingAnimations() {
           });
         });
 
-      const card = root.querySelector<HTMLElement>("[data-gsap-profile-card]");
-      if (card) {
-        const glare = card.querySelector<HTMLElement>("[data-gsap-card-glare]");
-        const onMove = (event: PointerEvent) => {
-          if (isMobile()) return;
-          const rect = card.getBoundingClientRect();
-          const px = (event.clientX - rect.left) / rect.width - 0.5;
-          const py = (event.clientY - rect.top) / rect.height - 0.5;
-          gsap.to(card, {
-            rotateY: px * 10,
-            rotateX: py * -10,
-            scale: 1.02,
-            duration: 0.3,
-            transformPerspective: 900,
+      root
+        .querySelectorAll<HTMLElement>("[data-gsap-profile-card]")
+        .forEach((card) => {
+          const glare = card.querySelector<HTMLElement>("[data-gsap-card-glare]");
+          const restX = Number(card.dataset.restX || 7);
+          const restY = Number(card.dataset.restY || -16);
+          const onMove = (event: PointerEvent) => {
+            if (isMobile()) return;
+            const rect = card.getBoundingClientRect();
+            const px = (event.clientX - rect.left) / rect.width - 0.5;
+            const py = (event.clientY - rect.top) / rect.height - 0.5;
+            gsap.to(card, {
+              rotateY: px * 14,
+              rotateX: py * -12,
+              scale: 1.03,
+              duration: 0.28,
+              transformPerspective: 900,
+            });
+            if (glare) {
+              gsap.to(glare, {
+                xPercent: px * -45,
+                yPercent: py * -45,
+                opacity: 0.6,
+                duration: 0.28,
+              });
+            }
+          };
+          const onLeave = () => {
+            gsap.to(card, {
+              rotateX: restX,
+              rotateY: restY,
+              scale: 1,
+              duration: 0.5,
+              ease: "power3.out",
+            });
+            if (glare) gsap.to(glare, { opacity: 0, duration: 0.3 });
+          };
+          card.addEventListener("pointermove", onMove);
+          card.addEventListener("pointerleave", onLeave);
+          cleanups.push(() => {
+            card.removeEventListener("pointermove", onMove);
+            card.removeEventListener("pointerleave", onLeave);
           });
-          gsap.to(glare, {
-            xPercent: px * -45,
-            yPercent: py * -45,
-            opacity: 0.55,
-            duration: 0.3,
-          });
-        };
-        const onLeave = () => {
-          gsap.to(card, {
-            rotateX: 0,
-            rotateY: 0,
-            scale: 1,
-            duration: 0.5,
-            ease: "power3.out",
-          });
-          gsap.to(glare, { opacity: 0, duration: 0.3 });
-        };
-        card.addEventListener("pointermove", onMove);
-        card.addEventListener("pointerleave", onLeave);
-        cleanups.push(() => {
-          card.removeEventListener("pointermove", onMove);
-          card.removeEventListener("pointerleave", onLeave);
         });
-      }
 
       return () => {
         cleanups.forEach((cleanup) => cleanup());
@@ -336,6 +352,10 @@ export function useLandingAnimations() {
     if (!root || prefersReducedMotion()) return;
     let cancelled = false;
     let scrollContext: gsap.Context | undefined;
+    const rtl =
+      document.documentElement.dir === "rtl" ||
+      window.localStorage.getItem("rate-me-locale") === "ar";
+    const dx = rtl ? -1 : 1;
 
     void import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
       if (cancelled) return;
@@ -354,7 +374,7 @@ export function useLandingAnimations() {
             });
             timeline
               .from(section.querySelector("[data-gsap-trust-title]"), {
-                x: -30,
+                x: -30 * dx,
                 opacity: 0,
                 duration: 0.7,
                 ease: "power3.out",
@@ -390,18 +410,21 @@ export function useLandingAnimations() {
           .querySelectorAll<HTMLElement>("[data-animated-section]")
           .forEach((section) => {
             if (section.hasAttribute("data-gsap-trust")) return;
+            const heads = section.querySelectorAll("[data-gsap-section-head]");
+            const cards = section.querySelectorAll("[data-gsap-feature-card]");
+            if (!heads.length && !cards.length) return;
             const timeline = gsap.timeline({
               scrollTrigger: { trigger: section, ...triggerDefaults },
             });
             timeline
-              .from(section.querySelectorAll("[data-gsap-section-head]"), {
+              .from(heads, {
                 y: 30,
                 opacity: 0,
                 duration: 0.7,
                 ease: "power2.out",
               })
               .from(
-                section.querySelectorAll("[data-gsap-feature-card]"),
+                cards,
                 {
                   y: 50,
                   opacity: 0,

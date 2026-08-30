@@ -1,272 +1,186 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useState } from "react";
 import {
-  ArrowDown,
-  ArrowRight,
-  Check,
-  ChevronDown,
-  Globe2,
-  Lock,
-  Menu,
-  QrCode,
-  ShieldCheck,
-  X,
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
+import Image from "next/image";
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  Globe2Icon,
+  LockIcon,
+  MailIcon,
+  MenuIcon,
+  MinusIcon,
+  NfcIcon,
+  PlusIcon,
+  QrCodeIcon,
+  ShieldCheckIcon,
+  SmartphoneIcon,
+  StarIcon,
+  UserPlusIcon,
+  UsersIcon,
+  Link2Icon,
+  AwardIcon,
+  EyeOffIcon,
+  MapPinIcon,
 } from "lucide-react";
-import { AnimatedNumber } from "@/components/product/premium-motion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Slider } from "@/components/ui/slider";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  CrossDeviceStage,
+  HeroDeviceStage,
+  HeroSkyline,
+  IpadAppStage,
+  QrFace,
+} from "@/components/rate-me/hero-stage";
 import {
   AnimatedSection,
   useLandingAnimations,
 } from "@/components/rate-me/landing-animations";
+import { applyLandingCopy } from "@/components/rate-me/landing-copy";
+import { RaytmeBot } from "@/components/rate-me/raytme-bot";
+import { cardThemeBarColor } from "@/lib/card-theme";
+import { cn } from "@/lib/utils";
 
-const arabicCopy: Record<string, string> = {
-  "A CV tells people what you say about yourself.":
-    "السيرة الذاتية تخبر الناس بما تقوله عن نفسك.",
-  "Rayt Me shows what others can credibly say about you.":
-    "أما Rayt Me فتُظهر ما يمكن للآخرين قوله عنك بموثوقية.",
-  "CVs and LinkedIn profiles are claims. Rayt Me turns professional interactions into portable reputation evidence.":
-    "السير الذاتية وملفات LinkedIn ادعاءات. يحوّل Rayt Me التفاعلات المهنية إلى أدلة سمعة قابلة للنقل.",
-  "Your reputation shouldn't disappear when you change jobs.":
-    "يجب ألا تختفي سمعتك عندما تغيّر عملك.",
-  "Your reputation is built through the people you work with. Rayt Me makes that reputation portable.":
-    "تُبنى سمعتك من خلال الأشخاص الذين تعمل معهم. يجعل Rayt Me هذه السمعة قابلة للنقل.",
-  "More than a score.": "أكثر من مجرد نتيجة.",
-  "Less than a CV.": "وأقل من سيرة ذاتية.",
-  "Four steps to a reputation that travels.": "أربع خطوات لسمعة ترافقك.",
-  "Not five stars.": "ليست خمس نجوم.",
-  "Five dimensions of professional trust.": "بل خمسة أبعاد للثقة المهنية.",
-  "A reputation score that has to be earned.": "نتيجة سمعة يجب اكتسابها.",
-  "A rating's influence is earned, not assumed.":
-    "تأثير التقييم يُكتسب ولا يُفترض.",
-  "Build trust across your organization.": "ابنِ الثقة داخل مؤسستك.",
-  "Everything worth knowing.": "كل ما يستحق معرفته.",
-  "Create your Rayt Me profile": "أنشئ ملفك على Rayt Me.",
+const LandingLocale = createContext({
+  arabic: false,
+  setArabic: (_value: boolean) => {},
+});
 
-  "How it works": "كيف تعمل",
-  Trust: "الثقة",
-  "For Professionals": "للمهنيين",
-  "For Business": "للشركات",
-  Pricing: "الأسعار",
-  "Sign in": "تسجيل الدخول",
-  "Get started": "ابدأ الآن",
-  "PROFESSIONAL REPUTATION, VERIFIED": "سمعة مهنية موثّقة",
-  "Your professional reputation.": "سمعتك المهنية.",
-  "Verified wherever you go.": "موثّقة أينما ذهبت.",
-  "Build a reputation from real professional interactions — verified, portable, and backed by credible evidence.":
-    "ابنِ سمعة من تفاعلات مهنية حقيقية — موثّقة وقابلة للنقل ومدعومة بأدلة موثوقة.",
-  "Create your profile": "أنشئ ملفك المهني",
-  "See how it works": "اكتشف كيف تعمل",
-  "Rayt Me does not count stars. It measures credible evidence.":
-    "Rayt Me لا تعدّ النجوم، بل تقيس الأدلة الموثوقة.",
-  "Built around verified identity and credible professional interactions.":
-    "مبنية على هوية موثّقة وتفاعلات مهنية موثوقة.",
-  "Verified identity": "هوية موثّقة",
-  "Relationship-based": "تقييمات قائمة على العلاقة",
-  "Privacy by default": "الخصوصية افتراضية",
-  "Anti-manipulation": "مقاومة التلاعب",
-  "THE PROBLEM": "المشكلة",
-  "The problem": "المشكلة",
-  "HOW IT WORKS": "كيف تعمل",
-  "FOR BUSINESS": "للشركات",
-  "Start building your reputation.": "ابدأ ببناء سمعتك.",
-  "Your reputation travels with you.": "سمعتك ترافقك أينما ذهبت.",
-  "Explore Business": "استكشف حلول الشركات",
-  "Talk to us": "تواصل معنا",
-  "Go Pro": "انتقل إلى Pro",
-  Recommended: "موصى به",
-  FAQ: "الأسئلة الشائعة",
-  "What is Rayt Me?": "ما هو Rayt Me؟",
-  "Can I hide my phone number?": "هل يمكنني إخفاء رقم هاتفي؟",
-  "Can I dispute a rating?": "هل يمكنني الاعتراض على تقييم؟",
+function useLandingLocale() {
+  return useContext(LandingLocale);
+}
+
+const QAR_PER_EMPLOYEE_YEAR = 60;
+const QAR_PRO_YEAR = 99;
+
+type DisplayCurrency = "QAR" | "USD" | "EUR";
+
+const QAR_TO: Record<DisplayCurrency, number> = {
+  QAR: 1,
+  USD: 1 / 3.64,
+  EUR: 1 / 3.92,
 };
 
-const originalText = new WeakMap<Text, string>();
+const CURRENCY_LOCALE: Record<DisplayCurrency, string> = {
+  QAR: "en-QA",
+  USD: "en-US",
+  EUR: "en-IE",
+};
+
+function formatMoney(qarAmount: number, currency: DisplayCurrency) {
+  const value = Math.round(qarAmount * QAR_TO[currency]);
+  return new Intl.NumberFormat(CURRENCY_LOCALE[currency], {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+const glass = cn(
+  "rounded-3xl border border-white/[0.05] bg-slate-900/60 backdrop-blur-xl",
+  "shadow-[0_0_50px_-12px_rgba(139,92,246,0.15)] ring-0",
+  "transition-all duration-300 ease-out",
+  "hover:-translate-y-0.5 hover:border-white/[0.08] hover:shadow-[0_0_60px_-10px_rgba(139,92,246,0.28)]",
+);
+
+const glassStatic = cn(
+  "rounded-3xl border border-white/[0.05] bg-slate-900/60 backdrop-blur-xl",
+  "shadow-[0_0_50px_-12px_rgba(139,92,246,0.15)] ring-0",
+);
+
+const ctaWhite = cn(
+  "rounded-full bg-white px-7 text-sm font-medium text-black shadow-none",
+  "transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white/90",
+);
+
+const ctaDark = cn(
+  "rounded-full border border-white/25 bg-white/[0.04] px-7 text-sm font-medium text-white",
+  "transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white/10",
+);
+
+const ctaPrimary = ctaWhite;
+const ctaGhost = ctaDark;
+
 function LanguageToggle() {
-  const [arabic, setArabic] = useState(false);
-  useEffect(() => {
-    const saved = window.localStorage.getItem("rate-me-locale");
-    const id = window.setTimeout(() => setArabic(saved === "ar"), 0);
-    return () => window.clearTimeout(id);
-  }, []);
-  useEffect(() => {
-    document.documentElement.lang = arabic ? "ar" : "en";
-    document.documentElement.dir = arabic ? "rtl" : "ltr";
-    document.body.classList.toggle("arabic-mode", arabic);
-    window.localStorage.setItem("rate-me-locale", arabic ? "ar" : "en");
-    const walker = document.createTreeWalker(
-      document.body,
-      NodeFilter.SHOW_TEXT,
-    );
-    const nodes: Text[] = [];
-    let current: Node | null;
-    while ((current = walker.nextNode())) nodes.push(current as Text);
-    nodes.forEach((node) => {
-      const source = originalText.get(node) || node.textContent || "";
-      originalText.set(node, source);
-      const clean = source.trim();
-      const translated = arabicCopy[clean];
-      if (translated)
-        node.textContent = source.replace(clean, arabic ? translated : clean);
-    });
-    document.querySelectorAll("[data-rate-me-copy]").forEach((node) => {
-      const original =
-        node.getAttribute("data-rate-me-original") || node.textContent || "";
-      if (!node.getAttribute("data-rate-me-original"))
-        node.setAttribute("data-rate-me-original", original);
-      node.textContent = arabic ? arabicCopy[original] || original : original;
-    });
-  }, [arabic]);
+  const { arabic, setArabic } = useLandingLocale();
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      size="sm"
+      className="rounded-full border-white/15 bg-transparent text-white/80 hover:bg-white/5 hover:text-white"
       aria-label={arabic ? "Switch to English" : "التبديل إلى العربية"}
       onClick={() => setArabic(!arabic)}
-      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#c9d0ca] bg-white px-3 text-xs font-semibold text-[#17201e] transition hover:border-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
     >
-      <Globe2 className="size-4" />
-      {arabic ? "EN" : "عربي"}
-    </button>
+      <Globe2Icon data-icon="inline-start" />
+      <span className="hidden sm:inline">{arabic ? "EN" : "العربية"}</span>
+      <span className="sm:hidden">{arabic ? "EN" : "ع"}</span>
+    </Button>
   );
 }
 
-function MotionIllustration({
-  kind,
-}: {
-  kind: "evidence" | "network" | "share";
-}) {
-  const right = kind === "share";
+const navLinks = [
+  ["#how", "How it Works"],
+  ["#profile", "For Professionals"],
+  ["#business", "For Businesses"],
+  ["#pricing", "Pricing"],
+] as const;
+
+function LogoLockup({ className }: { className?: string }) {
   return (
-    <div
-      aria-hidden="true"
-      className={`rate-illustration rate-illustration-${kind}`}
-    >
-      <svg viewBox="0 0 240 150" role="presentation">
-        <path
-          className="illustration-path"
-          d={
-            right
-              ? "M34 105 C82 64 124 64 164 88"
-              : "M30 100 C78 52 128 52 196 94"
-          }
-        />
-        <circle
-          className="illustration-head"
-          cx={right ? 190 : 40}
-          cy="36"
-          r="14"
-        />
-        <path
-          className="illustration-body"
-          d={
-            right
-              ? "M178 54c-8 15-12 34-12 52m12-42 24 18m-28 0-20 22m20 0 18 25"
-              : "M52 54c8 15 12 34 12 52M52 64 28 82m28-2 20 22M48 106 30 132m18-26 22 22"
-          }
-        />
-        <rect
-          className="illustration-phone"
-          x={right ? 145 : 67}
-          y="63"
-          width="18"
-          height="31"
-          rx="3"
-        />
-        <circle
-          className="illustration-accent"
-          cx={right ? 154 : 76}
-          cy="72"
-          r="3"
-        />
-        <path
-          className="illustration-signal"
-          d={
-            right
-              ? "M169 64q14-14 28 0M173 57q10-10 20 0"
-              : "M88 64q14-14 28 0M92 57q10-10 20 0"
-          }
-        />
-      </svg>
-      <span className="illustration-caption">
-        {right ? "SHARE YOUR PROFILE" : "VERIFIED EVIDENCE"}
-      </span>
-    </div>
+    <Image
+      src="/logo-raytme.png"
+      alt="RaytME"
+      width={820}
+      height={258}
+      className={cn("h-10 w-auto sm:h-11", className)}
+      priority
+    />
   );
 }
 
-function Button({
-  children,
-  dark = false,
-  onClick,
-  href,
-}: {
-  children: React.ReactNode;
-  dark?: boolean;
-  onClick?: () => void;
-  href?: string;
-}) {
-  const classes = `inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 ${dark ? "bg-[#17201e] text-white hover:bg-[#26332f]" : "border border-[#c9d0ca] bg-white text-[#17201e] hover:border-[#87958d]"}`;
-  const target = href || (!onClick ? "/sign-up" : undefined);
-  return target ? (
-    <a href={target} className={classes}>
-      {children}
-    </a>
-  ) : (
-    <button type="button" onClick={onClick} className={classes}>
-      {children}
-    </button>
-  );
-}
-
-function Mark() {
-  return (
-    <span className="relative block size-9 shrink-0 overflow-hidden rounded-[10px] bg-white">
-      <Image
-        src="/rayt-me-logo.png"
-        alt=""
-        aria-hidden="true"
-        width={110}
-        height={73}
-        priority
-        className="absolute left-[-6px] top-[-14px] w-[110px] max-w-none"
-      />
-    </span>
-  );
-}
-function LogoLockup({ onDark = false }: { onDark?: boolean }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-2.5 rounded-2xl transition-all duration-500 ${onDark ? "border border-white/25 bg-white/92 py-1.5 pl-2 pr-3 shadow-[0_14px_36px_-18px_rgba(3,15,12,.9)] backdrop-blur-sm sm:pr-4" : ""}`}
-    >
-      <span className="relative block size-9 shrink-0 overflow-hidden sm:size-10">
-        <Image
-          src="/rayt-me-logo.png"
-          alt=""
-          aria-hidden="true"
-          width={120}
-          height={80}
-          priority
-          className="absolute left-[-4px] top-[-13px] w-[108px] max-w-none sm:left-[-5px] sm:top-[-15px] sm:w-[120px]"
-        />
-      </span>
-      <span className="flex flex-col leading-none">
-        <span className="text-[15px] font-semibold tracking-[-.03em] text-[#12352a] sm:text-[17px]">
-          Rayt Me
-        </span>
-        <span className="mt-1 hidden text-[8px] font-bold tracking-[.16em] text-[#2f7a5c] sm:block">
-          RATE. TRUST. GROW.
-        </span>
-      </span>
-    </span>
-  );
-}
-function Badge() {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[.12em] text-emerald-800">
-      <ShieldCheck className="size-3" /> Verified
-    </span>
-  );
-}
 function SectionHead({
   eyebrow,
   title,
@@ -278,106 +192,312 @@ function SectionHead({
 }) {
   return (
     <div data-gsap-section-head className="max-w-3xl">
-      <p className="mb-4 text-xs font-bold uppercase tracking-[.2em] text-emerald-700">
+      <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-violet-300/70">
         {eyebrow}
       </p>
-      <h2 className="text-balance text-4xl font-semibold tracking-[-.05em] text-[#17201e] sm:text-6xl">
+      <h2 className="text-balance font-serif text-4xl font-semibold tracking-normal text-foreground sm:text-6xl sm:tracking-wide">
         {title}
       </h2>
-      {copy && (
-        <p className="mt-6 max-w-xl text-lg leading-8 text-[#63706a]">{copy}</p>
-      )}
+      {copy ? (
+        <p className="mt-6 max-w-xl text-lg leading-8 tracking-normal text-muted-foreground">
+          {copy}
+        </p>
+      ) : null}
     </div>
   );
 }
 
-function ProfileCard({ compact = false }: { compact?: boolean }) {
+const CARD_THEME = "copper";
+
+type ThemeCardSpec = {
+  theme: string;
+  themeLabel: string;
+  tone: "brand" | "copper" | "ivory";
+  name: string;
+  nameAsHeading?: boolean;
+  initials: string;
+  photo?: string;
+  role: string;
+  location: string;
+  score: string;
+  ratingsLabel: string;
+  email: string;
+};
+
+const THEME_CARDS: ThemeCardSpec[] = [
+  {
+    theme: "#7C3AED",
+    themeLabel: "Theme · RaytME",
+    tone: "brand",
+    name: "Hassan Al-Thani",
+    initials: "HA",
+    photo: "/landing/hassan-althani.png",
+    role: "Marketing Director",
+    location: "Doha, Qatar",
+    score: "4.8",
+    ratingsLabel: "/ 5 · 62 ratings",
+    email: "hassan@almarka.qa",
+  },
+  {
+    theme: CARD_THEME,
+    themeLabel: "Theme · Copper",
+    tone: "copper",
+    name: "Sofia Mendes",
+    nameAsHeading: true,
+    initials: "SM",
+    role: "Product Designer · Helio Studio",
+    location: "Lisbon · Digital Product",
+    score: "4.6",
+    ratingsLabel: "/ 5 · 41 ratings",
+    email: "sofia@heliostudio.co",
+  },
+  {
+    theme: "ivory",
+    themeLabel: "Theme · Ivory",
+    tone: "ivory",
+    name: "Maya Brooks",
+    initials: "MB",
+    photo: "/landing/maya-brooks.png",
+    role: "Product Director",
+    location: "New York, USA",
+    score: "4.7",
+    ratingsLabel: "/ 5 · 38 ratings",
+    email: "maya@northline.co",
+  },
+];
+
+function ShowcaseThemeCard({
+  spec,
+  className,
+}: {
+  spec: ThemeCardSpec;
+  className?: string;
+}) {
+  const accent = cardThemeBarColor(spec.theme);
+  const ivory = spec.tone === "ivory";
+  const brand = spec.tone === "brand";
+  const NameTag = spec.nameAsHeading ? "h2" : "p";
+
   return (
-    <div
+    <article
       data-gsap-profile-card
-      data-gsap-feature-card
-      className={`relative overflow-hidden rounded-[28px] border border-[#d9dfd9] bg-white p-5 shadow-[0_24px_80px_-35px_rgba(23,32,30,.38)] [transform-style:preserve-3d] will-change-transform ${compact ? "" : "sm:p-7"}`}
+      className={cn("relative w-full", className)}
     >
-      <div
-        data-gsap-card-glare
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-[-30%] z-10 opacity-0 [background:radial-gradient(circle_at_center,rgba(255,255,255,.8),transparent_45%)]"
-      />
-      <div
-        data-gsap-float
-        data-float-duration="2.8"
-        className="absolute right-5 top-5 flex size-12 items-center justify-center rounded-2xl bg-[#edf2ed] text-emerald-700 will-change-transform"
+      <Card
+        className={cn(
+          "gap-0 overflow-hidden py-0 [--card-spacing:--spacing(4)]",
+          ivory && "rate-theme-ivory",
+          brand && "rate-theme-brand",
+        )}
       >
-        <QrCode className="size-7" />
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="flex size-16 items-center justify-center rounded-2xl bg-[#cad5cd] text-xl font-semibold text-[#17201e]">
-          OA
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-[#17201e]">
-              Omar Al-Kuwari
-            </h3>
+        <div
+          aria-hidden="true"
+          className="h-1 w-full"
+          style={{ backgroundColor: accent }}
+        />
+        <div
+          data-gsap-card-glare
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-[-30%] opacity-0 [background:radial-gradient(circle_at_center,color-mix(in_oklab,var(--foreground)_40%,transparent),transparent_45%)]"
+        />
+        {brand ? (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(124,58,237,0.22),transparent_55%)]"
+          />
+        ) : null}
+        <CardHeader className="relative pt-4">
+          <Badge
+            variant="outline"
+            className={cn(
+              "tracking-wide",
+              ivory
+                ? "border-[#11213D]/10 bg-white/70 text-[#11213D]"
+                : "border-white/[0.08] bg-white/[0.03]",
+            )}
+          >
+            {spec.themeLabel}
+          </Badge>
+          <CardAction>
             <span
-              data-gsap-verified-pulse
-              className="flex size-5 items-center justify-center rounded-full bg-emerald-700 text-white will-change-transform"
+              className={cn(
+                "flex size-9 items-center justify-center overflow-hidden rounded-lg ring-1",
+                ivory
+                  ? "bg-white ring-[#11213D]/10"
+                  : "bg-black/40 ring-white/10",
+              )}
             >
-              <Check className="size-3" />
+              <span className="size-7">
+                <QrFace />
+              </span>
+            </span>
+          </CardAction>
+          <div className="mt-3 flex items-start gap-3">
+            <Avatar className="size-11 rounded-lg after:rounded-lg">
+              {spec.photo ? (
+                <AvatarImage
+                  src={spec.photo}
+                  alt=""
+                  className="rounded-lg object-cover object-top"
+                />
+              ) : null}
+              <AvatarFallback
+                className={cn(
+                  "rounded-lg font-brand text-sm",
+                  ivory
+                    ? "bg-[#F4E9D3] text-[#11213D]"
+                    : brand
+                      ? "bg-violet-500/20 text-violet-100"
+                      : "bg-violet-500/15 text-violet-100",
+                )}
+              >
+                {spec.initials}
+              </AvatarFallback>
+              <AvatarBadge>
+                <CheckIcon data-gsap-verified-pulse />
+              </AvatarBadge>
+            </Avatar>
+            <div className="min-w-0">
+              <NameTag
+                data-no-translate
+                className={cn(
+                  "truncate font-serif text-lg tracking-wide",
+                  !spec.nameAsHeading && "font-semibold",
+                  ivory && "text-[#11213D]",
+                )}
+              >
+                {spec.name}
+              </NameTag>
+              <CardDescription
+                className={ivory ? "text-[#6E7480]" : undefined}
+              >
+                {spec.role}
+              </CardDescription>
+              <p
+                className={cn(
+                  "mt-0.5 inline-flex items-center gap-1 text-[11px]",
+                  ivory ? "text-[#6E7480]" : "text-muted-foreground",
+                )}
+              >
+                <MapPinIcon className="size-3" />
+                {spec.location}
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="relative flex flex-col gap-3 pb-4">
+          <Separator className={ivory ? "bg-[#11213D]/10" : undefined} />
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p
+                className={cn(
+                  "font-brand text-3xl font-medium tracking-wide tabular-nums",
+                  ivory ? "text-[#11213D]" : "text-violet-200",
+                )}
+              >
+                {spec.score}
+              </p>
+              <p
+                className={cn(
+                  "text-[11px]",
+                  ivory ? "text-[#6E7480]" : "text-muted-foreground",
+                )}
+              >
+                {spec.ratingsLabel}
+              </p>
+            </div>
+            <p
+              className={cn(
+                "max-w-[9rem] text-end text-[11px] leading-4",
+                ivory ? "text-[#6E7480]" : "text-muted-foreground",
+              )}
+            >
+              {brand
+                ? "Custom brand"
+                : "Virtual business card. Always current."}
+            </p>
+          </div>
+          <div
+            className={cn(
+              "flex items-center justify-between gap-3 text-[11px]",
+              ivory ? "text-[#11213D]" : undefined,
+            )}
+          >
+            <a
+              dir="ltr"
+              className={cn(
+                "inline-flex items-center gap-1.5 truncate underline underline-offset-4 transition-colors duration-300 ease-out",
+                ivory
+                  ? "text-[#8C6B37] hover:text-[#11213D]"
+                  : "hover:text-violet-200",
+              )}
+              href={`mailto:${spec.email}`}
+            >
+              <MailIcon />
+              {spec.email}
+            </a>
+            <span
+              className={cn(
+                "inline-flex items-center gap-1",
+                ivory ? "text-[#6E7480]" : "text-muted-foreground",
+              )}
+            >
+              <LockIcon /> Private
             </span>
           </div>
-          <p className="text-sm text-[#63706a]">Lawyer · Al Noor Legal Group</p>
-          <p className="mt-1 text-xs text-[#87958d]">
-            Doha, Qatar · Legal Services
-          </p>
+        </CardContent>
+      </Card>
+    </article>
+  );
+}
+
+function ThemedBusinessCard() {
+  return (
+    <div className="rate-id-stage w-full min-w-0">
+      <div className="grid w-full gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {THEME_CARDS.map((spec) => (
+          <ShowcaseThemeCard key={spec.themeLabel} spec={spec} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ResourcesMenu() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        className="inline-flex items-center gap-1 text-[13px] font-medium text-white/75 transition-colors duration-300 hover:text-white"
+        aria-expanded={open}
+      >
+        Resources
+        <ChevronDownIcon className="size-3.5" />
+      </button>
+      {open ? (
+        <div className="absolute start-0 top-full z-50 min-w-40 rounded-2xl border border-white/10 bg-[#0c0912]/95 p-2 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+          {["Help Center", "Guides", "Privacy", "Terms"].map((item) => (
+            <a
+              key={item}
+              href="#footer"
+              className="block rounded-xl px-3 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/5 hover:text-white"
+            >
+              {item}
+            </a>
+          ))}
         </div>
-      </div>
-      <div className="mt-8 flex items-end justify-between border-y border-[#edf0ec] py-5">
-        <div>
-          <div className="flex items-baseline gap-2">
-            <AnimatedNumber
-              value={4.3}
-              decimals={1}
-              className="text-5xl font-semibold tabular-nums tracking-[-.08em] text-[#17201e]"
-            />
-            <span className="text-sm text-[#87958d]">/ 5</span>
-          </div>
-          <div className="mt-2 flex items-center gap-2 text-xs font-medium text-emerald-700">
-            <ShieldCheck className="size-3.5" /> Verified reputation
-          </div>
-        </div>
-        <div className="text-right text-xs text-[#87958d]">
-          <p>Based on</p>
-          <p className="font-semibold tabular-nums text-[#17201e]">
-            <AnimatedNumber value={28} /> credible ratings
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-col gap-3 py-5 text-sm">
-        <a
-          className="text-[#17201e] underline decoration-[#b7c2ba] underline-offset-4"
-          href="mailto:omar.alkuwari@alnoorlegal.qa"
-        >
-          omar.alkuwari@alnoorlegal.qa
-        </a>
-        <span className="flex items-center gap-2 text-[#87958d]">
-          <Lock className="size-3.5" /> Phone number — private
-        </span>
-      </div>
-      <div className="flex gap-3">
-        <Button dark href="/p/demo-omar-al-kuwari">
-          Open card preview
-        </Button>
-        <span className="self-center text-xs text-[#87958d]">
-          App-only actions shown illustratively
-        </span>
-      </div>
+      ) : null}
     </div>
   );
 }
 
 function Navbar() {
-  const [open, setOpen] = useState(false);
+  const { arabic } = useLandingLocale();
   const [solid, setSolid] = useState(false);
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
@@ -385,672 +505,1422 @@ function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  const links = [
-    ["#how", "How it works"],
-    ["#trust", "Trust"],
-    ["#profile", "For Professionals"],
-    ["#business", "For Business"],
-    ["#pricing", "Pricing"],
-  ];
   return (
     <header
       data-gsap-navbar
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 will-change-transform ${solid ? "border-b border-[#dfe4de]/70 bg-[#f7f8f4]/90 backdrop-blur-xl" : "bg-gradient-to-b from-[#05130f]/75 via-[#05130f]/40 to-transparent"}`}
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 border-b border-white/10 transition-all duration-300 ease-out",
+        solid
+          ? "bg-[#110c1a]/45 backdrop-blur-2xl backdrop-saturate-150"
+          : "bg-[#110c1a]/12 backdrop-blur-xl backdrop-saturate-150",
+        "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)]",
+      )}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 lg:px-8">
         <a
           href="#top"
-          aria-label="Rayt Me home"
-          className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+          aria-label="RaytME home"
+          className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <LogoLockup onDark={!solid} />
+          <LogoLockup />
         </a>
-        <nav
-          className={`hidden items-center gap-5 text-sm transition-colors lg:flex xl:gap-7 ${solid ? "text-[#63706a]" : "text-white/90 drop-shadow-[0_1px_12px_rgba(3,15,12,.65)]"}`}
-        >
-          {links.map(([href, label]) => (
+        <nav className="hidden items-center gap-6 lg:flex">
+          {navLinks.map(([href, label]) => (
             <a
               data-gsap-nav-link
               key={href}
               href={href}
-              className={`relative transition-colors ${solid ? "hover:text-[#17201e]" : "hover:text-white"}`}
+              className="relative text-[13px] font-medium text-white/75 transition-colors duration-300 ease-out hover:text-white"
             >
               {label}
               <span
                 data-gsap-nav-underline
                 aria-hidden="true"
-                className="absolute inset-x-0 -bottom-1 h-px origin-center scale-x-0 bg-current"
+                className="absolute inset-x-0 -bottom-1 h-px origin-center scale-x-0 bg-white"
               />
             </a>
           ))}
+          <ResourcesMenu />
         </nav>
-        <div className="hidden items-center gap-3 lg:flex xl:gap-4">
+        <div className="hidden items-center gap-3 lg:flex">
+          <LanguageToggle />
           <a
-            className={`text-sm font-medium transition-colors ${solid ? "text-[#17201e]" : "text-white drop-shadow-[0_1px_12px_rgba(3,15,12,.65)]"}`}
             href="/sign-in"
             data-rate-me-copy
+            className="text-[13px] font-medium text-white/80 transition-colors duration-300 hover:text-white"
           >
             Sign in
           </a>
-          <LanguageToggle />
-          {solid ? (
-            <Button dark href="/sign-up">
-              <span data-rate-me-copy>Get started</span>
-            </Button>
-          ) : (
-            <a
-              href="/sign-up"
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-[#10221d] shadow-[0_10px_30px_-14px_rgba(3,15,12,.8)] transition hover:-translate-y-0.5 hover:bg-[#edf8f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#10221d]"
-            >
-              <span data-rate-me-copy>Get started</span>
-            </a>
-          )}
+          <a
+            href="/sign-up"
+            className={buttonVariants({ size: "sm", className: ctaWhite })}
+          >
+            <span data-rate-me-copy>Get Started</span>
+          </a>
         </div>
-        <div className="flex items-center gap-3 lg:hidden">
-          <a
-            className={`text-sm font-semibold transition-colors ${solid ? "text-[#17201e]" : "text-white"}`}
-            href="/sign-in"
-            data-rate-me-copy
-          >
-            Sign in
-          </a>
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2 lg:hidden">
           <LanguageToggle />
-          <button
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen(!open)}
-            className={`rounded-full border p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 ${solid ? "border-[#c9d0ca] text-[#17201e]" : "border-white/35 bg-white/10 text-white"}`}
-          >
-            {open ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+          <Sheet>
+            <SheetTrigger
+              render={<Button variant="ghost" size="icon" />}
+            >
+              <MenuIcon />
+              <span className="sr-only">Open menu</span>
+            </SheetTrigger>
+            <SheetContent
+              side={arabic ? "left" : "right"}
+              className="border-white/[0.06] bg-[#020617]/90 backdrop-blur-xl duration-300 ease-out"
+            >
+              <SheetHeader>
+                <SheetTitle>RaytME</SheetTitle>
+                <SheetDescription>Navigate the product.</SheetDescription>
+              </SheetHeader>
+              <nav className="flex flex-col gap-1 px-4">
+                {navLinks.map(([href, label]) => (
+                  <SheetClose
+                    key={href}
+                    render={
+                      <a
+                        href={href}
+                        className={buttonVariants({
+                          variant: "ghost",
+                          className: "justify-start",
+                        })}
+                      />
+                    }
+                    nativeButton={false}
+                  >
+                    {label}
+                  </SheetClose>
+                ))}
+                <SheetClose
+                  render={
+                    <a
+                      href="/sign-in"
+                      className={buttonVariants({
+                        variant: "ghost",
+                        className: "justify-start",
+                      })}
+                    />
+                  }
+                  nativeButton={false}
+                >
+                  Sign in
+                </SheetClose>
+              </nav>
+              <a
+                href="/sign-up"
+                className={buttonVariants({ className: cn("mx-4", ctaPrimary) })}
+              >
+                Get started
+              </a>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-      {open && (
-        <nav className="flex flex-col gap-5 border-t border-[#dfe4de] bg-[#f7f8f4] px-5 py-6 text-sm font-medium text-[#17201e] lg:hidden">
-          {links.map(([href, label]) => (
-            <a key={href} onClick={() => setOpen(false)} href={href}>
-              {label}
-            </a>
-          ))}
-          <Button dark href="/sign-up">
-            Get started
-          </Button>
-        </nav>
-      )}
     </header>
   );
 }
 
 function TrustStrip() {
+  const items = [
+    {
+      Icon: ShieldCheckIcon,
+      key: "Always Up to Date",
+      title: "Always Up to Date",
+      copy: "Update once, and your card is always current.",
+    },
+    {
+      Icon: StarIcon,
+      key: "Ratings That Matter",
+      title: "Ratings That Matter",
+      copy: "Verified feedback that builds real reputation.",
+    },
+    {
+      Icon: UsersIcon,
+      key: "Work & Connect Anywhere",
+      title: (
+        <>
+          Work & Connect
+          <br />
+          Anywhere
+        </>
+      ),
+      copy: "Share with anyone, anywhere in the world.",
+    },
+    {
+      Icon: LockIcon,
+      key: "You're in Control",
+      title: "You're in Control",
+      copy: "Choose what to share. Keep what's private.",
+    },
+    {
+      Icon: UserPlusIcon,
+      key: "Never Lose a Contact",
+      title: "Never Lose a Contact",
+      copy: "Save connections and reach out anytime.",
+    },
+  ];
   return (
-    <AnimatedSection id="trust" className="border-y border-[#dfe4de] bg-white">
+    <div className="mx-auto max-w-7xl px-5 pb-10 lg:px-8">
+      <div className="rate-feature-bar grid w-full grid-cols-1 divide-y divide-white/10 overflow-hidden rounded-[1.75rem] border border-white/[0.12] bg-white/[0.035] backdrop-blur-md md:grid-cols-5 md:divide-x md:divide-y-0">
+        {items.map(({ Icon, key, title, copy }) => (
+          <div key={key} className="flex gap-3 px-5 py-5">
+            <Icon className="mt-0.5 size-5 shrink-0 text-white/85" />
+            <div>
+              <p className="text-[13px] font-semibold leading-5 text-white">
+                {title}
+              </p>
+              <p className="mt-1.5 text-[12px] leading-5 text-white/48">{copy}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HowShareStage() {
+  return (
+    <div
+      aria-hidden="true"
+      className="relative isolate h-[38rem] w-full overflow-visible"
+    >
       <div
-        data-gsap-trust
-        className="mx-auto flex max-w-7xl flex-col gap-8 px-5 py-8 lg:flex-row lg:items-center lg:justify-between lg:px-8"
+        data-gsap-float
+        data-float-duration="2.6"
+        className="absolute end-0 top-0 z-20"
       >
-        <p
-          data-gsap-trust-title
-          className="max-w-xs text-sm font-semibold text-[#17201e]"
+        <Card
+          size="sm"
+          className={cn(glassStatic, "w-[13rem] rotate-6 overflow-visible")}
         >
-          Built around verified identity and credible professional interactions.
-        </p>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-xs font-medium text-[#63706a] sm:grid-cols-4">
-          {[
-            "Verified identity",
-            "Relationship-based",
-            "Privacy by default",
-            "Anti-manipulation",
-          ].map((item) => (
-            <span data-gsap-trust-item key={item}>
-              <Check
-                data-gsap-check
-                className="mr-2 inline size-4 text-emerald-700"
-              />
-              {item}
-            </span>
-          ))}
+          <CardContent className="pt-3">
+            <div className="mx-auto aspect-square w-[8rem] overflow-hidden rounded-xl bg-background p-1.5 ring-1 ring-foreground/10">
+              <QrFace />
+            </div>
+          </CardContent>
+          <CardHeader>
+            <Badge variant="outline">
+              <QrCodeIcon data-icon="inline-start" />
+              QR Code
+            </Badge>
+            <CardTitle>Scan to connect</CardTitle>
+            <CardDescription>Open the camera. Instant profile.</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+
+      <div
+        data-gsap-float
+        data-float-duration="3.4"
+        className="absolute start-0 top-[8.25rem] z-30"
+      >
+        <Card
+          size="sm"
+          className={cn(
+            glassStatic,
+            "w-[16.5rem] -rotate-3 overflow-visible rounded-[1.6rem]",
+          )}
+        >
+          <CardHeader>
+            <Badge variant="outline">
+              <SmartphoneIcon data-icon="inline-start" />
+              The app
+            </Badge>
+            <CardAction>
+              <Badge variant="secondary">Soon</Badge>
+            </CardAction>
+            <CardTitle>RaytME on your phone</CardTitle>
+            <CardDescription>
+              NFC, QR, and your live card — in one app.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center gap-3">
+            <div className="w-full rounded-[1.35rem] bg-background p-1.5 ring-1 ring-foreground/15">
+              <div className="mx-auto h-1 w-8 rounded-full bg-foreground/25" />
+              <div className="mt-1.5 overflow-hidden rounded-[1.05rem] bg-card">
+                <div className="h-0.5 w-full bg-primary/40" />
+                <div className="flex items-center gap-2 px-2.5 py-2.5">
+                  <Avatar size="sm">
+                    <AvatarImage src="/landing/hassan-althani.png" alt="" />
+                    <AvatarFallback>HA</AvatarFallback>
+                    <AvatarBadge>
+                      <CheckIcon />
+                    </AvatarBadge>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p data-no-translate className="truncate text-xs font-medium">
+                      Hassan Al-Thani
+                    </p>
+                    <p className="truncate text-[10px] text-muted-foreground">
+                      Marketing Director
+                    </p>
+                  </div>
+                  <div className="size-7 overflow-hidden rounded-sm bg-background">
+                    <QrFace />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="justify-center">
+            <p className="text-muted-foreground">iOS & Android · Coming soon</p>
+          </CardFooter>
+        </Card>
+      </div>
+
+      <div
+        data-gsap-float
+        data-float-duration="2.9"
+        className="absolute bottom-1 start-1 z-10"
+      >
+        <Card
+          size="sm"
+          className={cn(glassStatic, "w-[13rem] -rotate-6 overflow-visible")}
+        >
+          <CardHeader>
+            <Badge variant="outline">
+              <NfcIcon data-icon="inline-start" />
+              NFC Tap
+            </Badge>
+            <CardTitle>Tap to share</CardTitle>
+            <CardDescription>Hold phones together. Done.</CardDescription>
+          </CardHeader>
+          <CardContent className="pb-5">
+            <div className="relative mx-auto grid size-20 place-items-center">
+              <span className="rate-signal" />
+              <span className="rate-signal" />
+              <span className="rate-signal" />
+              <Button
+                variant="outline"
+                size="icon-lg"
+                type="button"
+                tabIndex={-1}
+                className="pointer-events-none"
+              >
+                <NfcIcon />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function HowShareStrip() {
+  return (
+    <div className="mt-10 grid gap-3 sm:grid-cols-3 lg:hidden">
+      <Card size="sm" className={glassStatic}>
+        <CardHeader>
+          <Badge variant="outline">
+            <QrCodeIcon data-icon="inline-start" />
+            QR Code
+          </Badge>
+          <CardTitle>Scan to connect</CardTitle>
+          <CardDescription>Open the camera. Instant profile.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mx-auto aspect-square w-16 overflow-hidden rounded-lg bg-background p-1 ring-1 ring-foreground/10">
+            <QrFace />
+          </div>
+        </CardContent>
+      </Card>
+      <Card size="sm" className={cn(glassStatic, "overflow-visible")}>
+        <CardHeader>
+          <Badge variant="outline">
+            <NfcIcon data-icon="inline-start" />
+            NFC Tap
+          </Badge>
+          <CardTitle>Tap to share</CardTitle>
+          <CardDescription>Hold phones together. Done.</CardDescription>
+        </CardHeader>
+        <CardContent className="pb-4">
+          <div className="relative mx-auto grid size-14 place-items-center">
+            <span className="rate-signal" />
+            <span className="rate-signal" />
+            <span className="rate-signal" />
+            <Button
+              variant="outline"
+              size="icon"
+              type="button"
+              tabIndex={-1}
+              className="pointer-events-none"
+            >
+              <NfcIcon />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      <Card size="sm" className={glassStatic}>
+        <CardHeader>
+          <Badge variant="outline">
+            <SmartphoneIcon data-icon="inline-start" />
+            The app
+          </Badge>
+          <CardAction>
+            <Badge variant="secondary">Soon</Badge>
+          </CardAction>
+          <CardTitle>RaytME on your phone</CardTitle>
+          <CardDescription>NFC, QR, and your live card — in one app.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-3 rounded-xl bg-background/40 px-3 py-2.5 ring-1 ring-foreground/10">
+            <Avatar>
+              <AvatarImage src="/landing/hassan-althani.png" alt="" />
+              <AvatarFallback>HA</AvatarFallback>
+              <AvatarBadge>
+                <CheckIcon />
+              </AvatarBadge>
+            </Avatar>
+            <div className="min-w-0">
+              <p data-no-translate className="truncate font-medium">Hassan Al-Thani</p>
+              <p className="truncate text-muted-foreground">Marketing Director</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function SuperVoterStage() {
+  return (
+    <div
+      aria-hidden="true"
+      className="relative isolate h-[32rem] w-full overflow-visible"
+    >
+      <div
+        data-gsap-float
+        data-float-duration="2.7"
+        className="absolute end-0 top-0 z-20"
+      >
+        <Card
+          size="sm"
+          className={cn(glassStatic, "w-[13.5rem] rotate-6 overflow-visible")}
+        >
+          <CardHeader>
+            <Badge variant="outline">
+              <AwardIcon data-icon="inline-start" />
+              Super Voter
+            </Badge>
+            <CardTitle>Earned standing</CardTitle>
+            <CardDescription>
+              Credible, honest ratings over time.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pb-5">
+            <div className="relative mx-auto grid size-20 place-items-center">
+              <span className="rate-signal" />
+              <span className="rate-signal" />
+              <span className="rate-signal" />
+              <Button
+                variant="outline"
+                size="icon-lg"
+                type="button"
+                tabIndex={-1}
+                className="pointer-events-none"
+              >
+                <AwardIcon />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div
+        data-gsap-float
+        data-float-duration="3.3"
+        className="absolute start-0 top-[7.5rem] z-30"
+      >
+        <Card
+          size="sm"
+          className={cn(
+            glassStatic,
+            "w-[16rem] -rotate-3 overflow-visible rounded-[1.6rem]",
+          )}
+        >
+          <CardHeader>
+            <Badge variant="outline">
+              <ShieldCheckIcon data-icon="inline-start" />
+              Earned
+            </Badge>
+            <CardAction>
+              <Badge variant="secondary">Never sold</Badge>
+            </CardAction>
+            <CardTitle>You can&apos;t buy it</CardTitle>
+            <CardDescription>
+              Standing is earned. It can be suspended if behavior drops.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-3 rounded-xl bg-background/40 px-3 py-2.5 ring-1 ring-foreground/10">
+              <Avatar>
+                <AvatarFallback>SM</AvatarFallback>
+                <AvatarBadge>
+                  <AwardIcon />
+                </AvatarBadge>
+              </Avatar>
+              <div className="min-w-0">
+                <p data-no-translate className="truncate font-medium">Sofia Mendes</p>
+                <p className="truncate text-muted-foreground">
+                  Super Voter · Product Designer
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div
+        data-gsap-float
+        data-float-duration="2.8"
+        className="absolute bottom-0 start-1 z-10"
+      >
+        <Card
+          size="sm"
+          className={cn(glassStatic, "w-[14rem] -rotate-6 overflow-visible")}
+        >
+          <CardHeader>
+            <Badge variant="outline">
+              <EyeOffIcon data-icon="inline-start" />
+              Private rater
+            </Badge>
+            <CardTitle>Title shown. Name hidden.</CardTitle>
+            <CardDescription>
+              A Super Voter rating shows as CEO — not a name.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-1 rounded-xl bg-background/40 px-3 py-2.5 ring-1 ring-foreground/10">
+              <p className="text-xs text-muted-foreground">Rated you</p>
+              <p className="font-medium">CEO · Super Voter</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function SuperVoterStrip() {
+  return (
+    <div className="mt-10 grid gap-3 sm:grid-cols-3 lg:hidden">
+      <Card size="sm" className={cn(glassStatic, "overflow-visible")}>
+        <CardHeader>
+          <Badge variant="outline">
+            <AwardIcon data-icon="inline-start" />
+            Super Voter
+          </Badge>
+          <CardTitle>Earned standing</CardTitle>
+          <CardDescription>
+            Credible, honest ratings over time.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pb-4">
+          <div className="relative mx-auto grid size-14 place-items-center">
+            <span className="rate-signal" />
+            <span className="rate-signal" />
+            <span className="rate-signal" />
+            <Button
+              variant="outline"
+              size="icon"
+              type="button"
+              tabIndex={-1}
+              className="pointer-events-none"
+            >
+              <AwardIcon />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      <Card size="sm" className={glassStatic}>
+        <CardHeader>
+          <Badge variant="outline">
+            <ShieldCheckIcon data-icon="inline-start" />
+            Earned
+          </Badge>
+          <CardAction>
+            <Badge variant="secondary">Never sold</Badge>
+          </CardAction>
+          <CardTitle>You can&apos;t buy it</CardTitle>
+          <CardDescription>
+            Standing is earned. It can be suspended if behavior drops.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+      <Card size="sm" className={glassStatic}>
+        <CardHeader>
+          <Badge variant="outline">
+            <EyeOffIcon data-icon="inline-start" />
+            Private rater
+          </Badge>
+          <CardTitle>Title shown. Name hidden.</CardTitle>
+          <CardDescription>
+            A Super Voter rating shows as CEO — not a name.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    </div>
+  );
+}
+
+function WhatsAppGlyph({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2C6.55 2 2.06 6.48 2.06 12c0 1.76.46 3.48 1.34 5L2 22l5.16-1.35A9.93 9.93 0 0 0 12.04 22c5.5 0 9.96-4.48 9.96-10 0-2.67-1.04-5.18-2.95-7.09ZM12.04 20.16c-1.5 0-2.97-.4-4.26-1.16l-.3-.18-3.06.8.82-2.98-.2-.31a8.17 8.17 0 0 1-1.26-4.33c0-4.52 3.69-8.2 8.22-8.2 2.2 0 4.26.85 5.81 2.4a8.16 8.16 0 0 1 2.41 5.8c0 4.53-3.7 8.16-8.18 8.16Zm4.5-6.13c-.25-.12-1.46-.72-1.69-.8-.22-.08-.39-.12-.55.12-.16.25-.63.8-.78.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42l-.47-.01c-.16 0-.43.06-.66.31-.22.25-.86.84-.86 2.05 0 1.21.88 2.38 1 2.54.12.16 1.77 2.7 4.29 3.79.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.46-.6 1.67-1.17.2-.58.2-1.07.14-1.17-.06-.1-.22-.16-.47-.28Z"
+      />
+    </svg>
+  );
+}
+
+function WaysToShare() {
+  const items = [
+    [QrCodeIcon, "QR Code", "Scan and connect instantly."],
+    [NfcIcon, "NFC Tap", "Tap and share in a moment."],
+    [Link2Icon, "Custom Link", "Share via your unique link."],
+    [WhatsAppGlyph, "WhatsApp", "One tap and it's on its way."],
+    [MailIcon, "Email", "Send your card in seconds."],
+    [UserPlusIcon, "Add to Contacts", "Save directly to someone's phone."],
+  ] as const;
+  return (
+    <section className="mx-auto max-w-7xl px-5 pb-14 pt-6 lg:px-8">
+      <h2 className="font-brand text-[2rem] font-semibold tracking-tight text-white sm:text-[2.35rem]">
+        Ways to share your RaytME
+      </h2>
+      <p className="mt-2 text-sm text-white/50">
+        Share your profile your way. Every time.
+      </p>
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+        {items.map(([Icon, title, copy]) => (
+          <div
+            key={title}
+            className="flex items-start gap-3 rounded-[1.15rem] border border-white/10 bg-white/[0.03] px-4 py-4 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-white/20"
+          >
+            <Icon className="mt-0.5 size-5 shrink-0 text-white" />
+            <div>
+              <p className="text-[13px] font-semibold leading-5 text-white">
+                {title}
+              </p>
+              <p className="mt-0.5 text-[12px] leading-5 text-white/50">{copy}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PreFooterCta() {
+  return (
+    <section className="px-5 pb-16 lg:px-8">
+      <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[1.5rem] border border-white/10">
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <Image
+            src="/landing/doha-skyline-bw.png"
+            alt=""
+            fill
+            sizes="(min-width: 1280px) 80rem, 100vw"
+            className="object-cover object-[50%_35%] opacity-25 grayscale"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0912] via-[#0c0912]/70 to-[#0c0912]/40" />
+        </div>
+        <div className="relative z-10 px-4 pt-8 sm:px-8 sm:pt-10 lg:px-10">
+          <CrossDeviceStage />
+        </div>
+        <div className="relative z-10 flex flex-col items-start justify-between gap-6 bg-[#0c0912] px-6 py-8 sm:flex-row sm:items-center lg:px-10">
+          <div className="max-w-xl">
+            <p className="font-brand text-[1.45rem] font-semibold tracking-tight text-white sm:text-[1.7rem]">
+              Your card. Your reputation. Your future.
+            </p>
+            <p className="mt-3 max-w-md text-sm leading-6 text-white/60">
+              Professionals in Doha, London, New York, and around the world
+              use RaytME — on phone, iPad, and desktop.
+            </p>
+          </div>
+          <a
+            href="/sign-up"
+            className={buttonVariants({
+              size: "lg",
+              className: cn(ctaWhite, "relative z-10 h-12 shrink-0 px-8"),
+            })}
+          >
+            Create Your RaytME Card
+            <ArrowRightIcon data-icon="inline-end" />
+          </a>
         </div>
       </div>
-    </AnimatedSection>
+    </section>
   );
+}
+
+function StoreBadges() {
+  return (
+    <div className="mt-4 flex flex-row flex-nowrap items-center gap-2">
+      <a
+        href="#top"
+        className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-black px-2 ring-1 ring-white/20"
+      >
+        <svg viewBox="0 0 16 19" className="h-[18px] w-4 text-white" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M13.2 9.9c0-2.1 1.7-3.1 1.8-3.2-1-1.4-2.5-1.6-3-1.6-1.3-.1-2.5.8-3.1.8-.7 0-1.7-.7-2.8-.7-1.4 0-2.8.9-3.5 2.2-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.6 2.2 2.7 2.1 1.1 0 1.5-.7 2.8-.7s1.6.7 2.8.7c1.2 0 1.9-1 2.6-2 .8-1.2 1.1-2.3 1.1-2.4-.1 0-2.1-.8-2.1-3.3Zm-2-5.9c.6-.7 1-1.7.9-2.7-.9.1-1.9.6-2.5 1.3-.6.6-1.1 1.6-.9 2.6 1 .1 1.9-.5 2.5-1.2Z"
+          />
+        </svg>
+        <span className="pe-1 leading-none text-white">
+          <span className="block text-[8px] tracking-wide text-white/70">
+            Download on the
+          </span>
+          <span className="whitespace-nowrap text-[13px] font-semibold">
+            App Store
+          </span>
+        </span>
+      </a>
+      <a
+        href="#top"
+        className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-black px-2 ring-1 ring-white/20"
+      >
+        <svg viewBox="0 0 18 20" className="h-[18px] w-[16px]" aria-hidden="true">
+          <path d="M1 1.2 10.4 10 1 18.8V1.2Z" fill="#34A853" />
+          <path d="M1 18.8 10.4 10 13.7 13.2 3.3 19.6c-.8.5-1.8.3-2.3-.4Z" fill="#FBBC04" />
+          <path d="M14.8 7.2 13.7 6.8 10.4 10l3.3 3.2 1.1-.4c1.1-.6 1.1-2.1 0-2.8Z" fill="#4285F4" />
+          <path d="M1 1.2C1.5.5 2.5.3 3.3.8L13.7 6.8 10.4 10 1 1.2Z" fill="#EA4335" />
+        </svg>
+        <span className="pe-1 leading-none text-white">
+          <span className="block text-[8px] tracking-[0.12em] text-white/70">
+            GET IT ON
+          </span>
+          <span className="whitespace-nowrap text-[13px] font-semibold">
+            Google Play
+          </span>
+        </span>
+      </a>
+    </div>
+  );
+}
+
+function QatarFlag() {
+  return (
+    <svg
+      viewBox="0 0 36 22"
+      className="h-[14px] w-[22px] rounded-[2px]"
+      aria-hidden="true"
+    >
+      <rect width="36" height="22" fill="#8A1538" rx="1.5" />
+      <path
+        fill="#fff"
+        d="M0 0h12l4 1.57L12 3.14 16 4.7 12 6.28 16 7.85 12 9.42 16 11 12 12.57 16 14.14 12 15.71 16 17.28 12 18.85 16 20.42 12 22H0V0Z"
+      />
+    </svg>
+  );
+}
+
+const pillars = [
+  {
+    num: "01",
+    eyebrow: "THE OLD WAY",
+    title: "A business card is wrong the moment something changes.",
+    copy: "Printed cards get reordered and reprinted every time a title, a number, or a company changes — most of them thrown away within a year. Your RaytME profile is your business card. Share it, connect instantly, and it's always current.",
+  },
+  {
+    num: "02",
+    eyebrow: "WHY IT WORKS",
+    title: "You can't rate everyone a 5. That's the point.",
+    copy: "Every account has a limited number of ratings to give each month. Rate everyone the same and your ratings carry less weight — rate honestly, and your feedback actually moves someone's reputation.",
+  },
+  {
+    num: "03",
+    eyebrow: "WORK TOGETHER, RATE EACH OTHER",
+    title: "You don't need to meet someone to build a reputation with them.",
+    copy: "Add your RaytME link to your email signature, or just share it directly on WhatsApp. Colleagues, clients, and vendors you've only ever worked with remotely can still rate you — and you can rate them back.",
+  },
+  {
+    num: "04",
+    eyebrow: "THE RESULT",
+    title: "When your reputation is on the line, you show up differently.",
+    copy: "Ratings that follow you and reflect real feedback from real colleagues give people a reason to bring their best. The outcome: more professional conduct, better service, day to day.",
+  },
+  {
+    num: "05",
+    eyebrow: "NEVER LOSE A CONTACT AGAIN",
+    title: "Met someone? Add them to your list.",
+    copy: "No more digging through a stack of business cards you'll never look at again. Your list keeps everyone you've met — search it later to find that sales agent from three months ago and reach out when you need them.",
+  },
+] as const;
+
+const relationships = [
+  "Worked with",
+  "Client",
+  "Supplier",
+  "Manager",
+  "Employee",
+  "Met professionally",
+  "Event / networking",
+];
+
+const ratingLabels = [
+  "Professionalism",
+  "Communication",
+  "Reliability",
+  "Knowledge",
+  "Collaboration",
+];
+
+function sliderValue(value: number | readonly number[]) {
+  return Array.isArray(value) ? Number(value[0]) : Number(value);
 }
 
 function RatingDemo() {
+  const { arabic } = useLandingLocale();
   const [relationship, setRelationship] = useState("Worked with");
   const [values, setValues] = useState([4.5, 4, 4.5, 4, 4.5]);
   const [submitted, setSubmitted] = useState(false);
-  const labels = [
-    "Professionalism",
-    "Communication",
-    "Reliability",
-    "Knowledge",
-    "Collaboration",
-  ];
   const avg = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
   return (
-    <div className="grid gap-10 rounded-[28px] border border-[#d9dfd9] bg-white p-6 sm:p-8 lg:grid-cols-[.9fr_1.1fr] lg:p-12">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[.2em] text-emerald-700">
-          Your context matters
-        </p>
-        <h3 className="mt-4 text-3xl font-semibold tracking-[-.04em] text-[#17201e]">
-          How do you know this person?
-        </h3>
-        <div className="mt-6 flex flex-wrap gap-2">
-          {[
-            "Worked with",
-            "Client",
-            "Supplier",
-            "Manager",
-            "Employee",
-            "Met professionally",
-            "Event / networking",
-          ].map((x) => (
-            <button
-              key={x}
-              onClick={() => setRelationship(x)}
-              className={`rounded-full border px-3 py-2 text-xs transition ${relationship === x ? "border-[#17201e] bg-[#17201e] text-white" : "border-[#d9dfd9] text-[#63706a] hover:border-[#87958d]"}`}
-            >
-              {x}
-            </button>
-          ))}
-        </div>
-        <p className="mt-8 text-sm leading-6 text-[#63706a]">
-          Your relationship with this person affects the credibility of your
-          rating.
-        </p>
-      </div>
-      <div>
-        <div className="mb-5 flex items-end justify-between">
-          <div>
-            <p className="text-sm text-[#63706a]">Structured feedback</p>
-            <p className="mt-1 text-4xl font-semibold tracking-[-.06em] text-[#17201e]">
-              {avg}
-              <span className="ml-1 text-base text-[#87958d]">/ 5</span>
-            </p>
+    <Card className={cn(glass, "[--card-spacing:--spacing(8)]")}>
+      <div className="grid gap-10 lg:grid-cols-2">
+        <CardHeader>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-violet-300/70">
+            Your context matters
+          </p>
+          <CardTitle className="font-serif text-3xl tracking-wide">
+            How do you know this person?
+          </CardTitle>
+          <ToggleGroup
+            variant="outline"
+            spacing={2}
+            value={[relationship]}
+            onValueChange={(next) => {
+              const selected = Array.isArray(next) ? next[0] : next;
+              if (selected) setRelationship(String(selected));
+            }}
+            className="mt-4 flex-wrap"
+          >
+            {relationships.map((item) => (
+              <ToggleGroupItem
+                key={item}
+                value={item}
+                className="rounded-xl border-white/[0.08] transition-all duration-300 ease-out"
+              >
+                {item}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+          <CardDescription className="mt-4">
+            Your relationship with this person affects the credibility of your
+            rating.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-5">
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Structured feedback
+              </p>
+              <p className="mt-1 font-brand text-4xl font-semibold tracking-wide text-violet-200">
+                {avg}
+                <span className="ms-1 text-base text-muted-foreground">
+                  / 5
+                </span>
+              </p>
+            </div>
           </div>
-          <Badge />
-        </div>
-        <div className="flex flex-col gap-5">
-          {labels.map((label, i) => (
-            <label
-              key={label}
-              className="grid grid-cols-[1fr_auto] gap-4 text-sm"
-            >
-              <span className="text-[#63706a]">{label}</span>
-              <span className="font-semibold text-[#17201e]">
-                {values[i].toFixed(1)}
-              </span>
-              <input
-                aria-label={label}
-                className="col-span-2 accent-[#187052]"
-                type="range"
-                min="1"
-                max="5"
-                step=".5"
-                value={values[i]}
-                onChange={(e) => {
-                  setSubmitted(false);
-                  setValues(
-                    values.map((v, j) =>
-                      j === i ? Number(e.target.value) : v,
-                    ),
-                  );
-                }}
-              />
-            </label>
-          ))}
-        </div>
-        <Button dark onClick={() => setSubmitted(true)}>
-          {submitted ? (
-            <>
-              <Check className="size-4" /> Rating submitted
-            </>
-          ) : (
-            "Submit rating"
-          )}
-        </Button>
+          <FieldGroup>
+            {ratingLabels.map((label, index) => (
+              <Field key={label}>
+                <div className="flex items-center justify-between">
+                  <FieldLabel>{label}</FieldLabel>
+                  <span className="text-sm font-semibold tabular-nums">
+                    {values[index].toFixed(1)}
+                  </span>
+                </div>
+                <Slider
+                  aria-label={label}
+                  min={1}
+                  max={5}
+                  step={0.5}
+                  value={values[index]}
+                  onValueChange={(next) => {
+                    const nextValue = sliderValue(next);
+                    setSubmitted(false);
+                    setValues(
+                      values.map((item, j) => (j === index ? nextValue : item)),
+                    );
+                  }}
+                />
+              </Field>
+            ))}
+          </FieldGroup>
+          <Button
+            className={ctaPrimary}
+            onClick={() => setSubmitted(true)}
+          >
+            {submitted ? (
+              <>
+                <CheckIcon data-icon="inline-start" />
+                {arabic ? "تم إرسال التقييم" : "Rating submitted"}
+              </>
+            ) : arabic ? (
+              "إرسال التقييم"
+            ) : (
+              "Submit rating"
+            )}
+          </Button>
+        </CardContent>
       </div>
-    </div>
+    </Card>
   );
 }
 
-function FAQ() {
-  const [open, setOpen] = useState<number | null>(0);
-  const qs = [
-    "What is Rayt Me?",
-    "How is the reputation score calculated?",
-    "Why does Rayt Me not use a normal average?",
-    "Who can rate me?",
-    "Can I hide my phone number?",
-    "Can I dispute a rating?",
-    "What is Super Voter?",
-    "Can I use Rayt Me without the app?",
-    "Can businesses use Rayt Me?",
-  ];
-  return (
-    <div className="mx-auto max-w-3xl divide-y divide-[#dfe4de] border-y border-[#dfe4de]">
-      {qs.map((q, i) => (
-        <div key={q}>
-          <button
-            aria-expanded={open === i}
-            onClick={() => setOpen(open === i ? null : i)}
-            className="flex w-full items-center justify-between py-5 text-left text-base font-semibold text-[#17201e]"
-          >
-            {q}
-            <ChevronDown
-              className={`size-5 transition ${open === i ? "rotate-180" : ""}`}
-            />
-          </button>
-          {open === i && (
-            <p className="max-w-2xl pb-5 pr-8 text-sm leading-7 text-[#63706a]">
-              Rayt Me is a portable professional reputation profile built from
-              verified identity and credible, real-world interactions. It
-              measures evidence, not popularity, so context and rater
-              credibility matter.
-            </p>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
+const faqItems = [
+  {
+    q: "What is RaytME?",
+    a: "RaytME is your virtual business card and portable professional reputation. Share one profile — by link, QR, or email signature — and keep your details and ratings current.",
+  },
+  {
+    q: "How is the reputation score calculated?",
+    a: "Your score moves with credible ratings from people you have actually worked with. Context and rater credibility matter more than volume.",
+  },
+  {
+    q: "Why does RaytME not use a normal average?",
+    a: "A simple average treats every rating the same. RaytME weights honest, contextual feedback so a thoughtful rating counts more than noise.",
+  },
+  {
+    q: "Who can rate me?",
+    a: "People you have a professional relationship with — colleagues, clients, vendors, and others you have actually worked with, including remotely.",
+  },
+  {
+    q: "Can I hide my phone number?",
+    a: "Yes. Phone numbers stay private unless you choose to share them. Your virtual card can still be shared without exposing your number.",
+  },
+  {
+    q: "Can I dispute a rating?",
+    a: "Yes. Rated users can flag a rating for review and respond publicly.",
+  },
+  {
+    q: "What is Super Voter?",
+    a: "Super Voter is an earned standing for sustained credible rating behavior. It is never purchased.",
+  },
+  {
+    q: "Can I use RaytME without the app?",
+    a: "You can share and view a public card on the web. Rating, snapshots, and My List are available in the RaytME app.",
+  },
+  {
+    q: "Can businesses use RaytME?",
+    a: "Yes. Business plans give every employee a current virtual card and a reputation layer that travels with them.",
+  },
+];
 
 function Pricing() {
+  const { arabic } = useLandingLocale();
+  const [employees, setEmployees] = useState(10);
+  const [currency, setCurrency] = useState<DisplayCurrency>("QAR");
+  const seats = Math.max(1, Math.min(10000, employees));
+  const total = QAR_PER_EMPLOYEE_YEAR * seats;
+  const money = (qar: number) => formatMoney(qar, currency);
+
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
-      <div className="rounded-[24px] border border-[#d9dfd9] bg-white p-7">
-        <p className="text-xs font-bold tracking-[.15em] text-[#63706a]">
-          BASIC
-        </p>
-        <p className="mt-5 text-4xl font-semibold tracking-[-.06em] text-[#17201e]">
-          QAR 0
-        </p>
-        <ul className="mt-8 flex flex-col gap-4 text-sm text-[#63706a]">
-          <li>
-            <Check className="mr-2 inline size-4 text-emerald-700" />
-            Unlimited ratings received
-          </li>
-          <li>
-            <Check className="mr-2 inline size-4 text-emerald-700" />
-            25 ratings given / month
-          </li>
-          <li>
-            <Check className="mr-2 inline size-4 text-emerald-700" />5 card
-            themes
-          </li>
-        </ul>
-        <div className="mt-8">
-          <Button>Get started</Button>
-        </div>
-      </div>
-      <div className="relative rounded-[24px] border-2 border-emerald-700 bg-[#edf3ed] p-7">
-        <span className="absolute right-6 top-6 rounded-full bg-emerald-700 px-3 py-1 text-[10px] font-bold uppercase tracking-[.15em] text-white">
-          Recommended
-        </span>
-        <p className="text-xs font-bold tracking-[.15em] text-emerald-800">
-          PRO
-        </p>
-        <p className="mt-5 text-4xl font-semibold tracking-[-.06em] text-[#17201e]">
-          ~QAR 99<span className="text-base text-[#63706a]"> / year</span>
-        </p>
-        <ul className="mt-8 flex flex-col gap-4 text-sm text-[#405149]">
-          <li>
-            <Check className="mr-2 inline size-4" />
-            Unlimited ratings received
-          </li>
-          <li>
-            <Check className="mr-2 inline size-4" />
-            60 ratings given / month
-          </li>
-          <li>
-            <Check className="mr-2 inline size-4" />
-            Many themes
-          </li>
-          <li>
-            <Check className="mr-2 inline size-4" />
-            Custom theme
-          </li>
-        </ul>
-        <div className="mt-8">
-          <Button dark>Go Pro</Button>
-        </div>
-      </div>
-      <div className="rounded-[24px] border border-[#d9dfd9] bg-white p-7">
-        <p className="text-xs font-bold tracking-[.15em] text-[#63706a]">
-          BUSINESS
-        </p>
-        <p className="mt-5 text-4xl font-semibold tracking-[-.06em] text-[#17201e]">
-          QAR 20–30
-          <span className="text-base text-[#63706a]"> / employee / month</span>
-        </p>
-        <ul className="mt-8 flex flex-col gap-4 text-sm text-[#63706a]">
-          <li>
-            <Check className="mr-2 inline size-4 text-emerald-700" />
-            Unlimited ratings received
-          </li>
-          <li>
-            <Check className="mr-2 inline size-4 text-emerald-700" />
-            50 ratings given / employee
-          </li>
-          <li>
-            <Check className="mr-2 inline size-4 text-emerald-700" />
-            Company-branded theme
-          </li>
-        </ul>
-        <div className="mt-8">
-          <Button>Talk to us</Button>
-        </div>
-      </div>
+    <div className="flex flex-col gap-6">
+      <Card className={glass}>
+        <CardHeader>
+          <CardDescription className="tracking-[0.22em]">
+            CURRENCY
+          </CardDescription>
+          <CardTitle className="font-brand text-2xl font-medium tracking-wide">
+            Pay in QAR, USD, or Euro
+          </CardTitle>
+          <CardDescription>
+            Prices convert from QAR. Scan the QR to create your RaytME card.
+          </CardDescription>
+          <CardAction>
+            <a
+              href="/sign-up"
+              className="flex flex-col items-center gap-1"
+              aria-label="Scan to create your RaytME card"
+            >
+              <span className="size-16 overflow-hidden rounded-md bg-background ring-1 ring-white/10">
+                <QrFace />
+              </span>
+              <span className="text-[10px] tracking-wide text-muted-foreground">
+                Scan
+              </span>
+            </a>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <ToggleGroup
+            variant="outline"
+            spacing={2}
+            value={[currency]}
+            onValueChange={(next) => {
+              const selected = Array.isArray(next) ? next[0] : next;
+              if (
+                selected === "QAR" ||
+                selected === "USD" ||
+                selected === "EUR"
+              ) {
+                setCurrency(selected);
+              }
+            }}
+            aria-label="Choose currency"
+          >
+            <ToggleGroupItem
+              value="QAR"
+              className="rounded-xl border-white/[0.08] px-4 transition-all duration-300 ease-out"
+            >
+              QAR
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="USD"
+              className="rounded-xl border-white/[0.08] px-4 transition-all duration-300 ease-out"
+            >
+              USD
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="EUR"
+              className="rounded-xl border-white/[0.08] px-4 transition-all duration-300 ease-out"
+            >
+              Euro
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </CardContent>
+      </Card>
+    <div className="grid items-stretch gap-4 lg:grid-cols-3">
+      {(
+        [
+          {
+            id: "basic",
+            name: "BASIC",
+            price: money(0),
+            period: "/ forever",
+            recommended: false,
+            highlight: false,
+            blurb: "For individuals getting started.",
+            features: [
+              "Unlimited ratings received",
+              "25 ratings given / month",
+              "5 card themes",
+              "Public virtual card",
+            ],
+            href: "/sign-up",
+            cta: "Get started",
+            ctaClassName: buttonVariants({
+              variant: "outline",
+              className: cn(ctaGhost, "h-11 w-full"),
+            }),
+          },
+          {
+            id: "pro",
+            name: "PRO",
+            price: money(QAR_PRO_YEAR),
+            period: "/ year",
+            recommended: true,
+            highlight: true,
+            blurb: "For professionals who share often.",
+            features: [
+              "Unlimited ratings received",
+              "60 ratings given / month",
+              "Many themes",
+              "Custom theme",
+            ],
+            href: "/sign-up",
+            cta: "Go Pro",
+            ctaClassName: buttonVariants({
+              className: cn(ctaPrimary, "h-11 w-full"),
+            }),
+          },
+          {
+            id: "business",
+            name: "BUSINESS",
+            price: money(QAR_PER_EMPLOYEE_YEAR),
+            period: "/ employee / year",
+            recommended: false,
+            highlight: false,
+            blurb: null,
+            features: [
+              "Unlimited ratings received",
+              "50 ratings given / employee",
+              "Company-branded theme",
+              "Team admin controls",
+            ],
+            href: "#footer",
+            cta: "Talk to us",
+            ctaClassName: buttonVariants({
+              variant: "outline",
+              className: cn(ctaGhost, "h-11 w-full"),
+            }),
+          },
+        ] as const
+      ).map((plan) => (
+        <Card
+          key={plan.id}
+          className={cn(
+            glass,
+            "h-full",
+            plan.highlight &&
+              "border-violet-500/25 shadow-[0_0_50px_-12px_rgba(139,92,246,0.4)]",
+          )}
+        >
+          <CardHeader>
+            <div className="flex h-5 items-center">
+              {plan.recommended ? (
+                <Badge className="bg-violet-500 text-white shadow-[0_0_24px_-6px_rgba(139,92,246,0.7)]">
+                  Recommended
+                </Badge>
+              ) : (
+                <span className="h-5" />
+              )}
+            </div>
+            <CardDescription className="tracking-[0.22em]">
+              {plan.name}
+            </CardDescription>
+            <CardTitle className="flex min-h-[4.75rem] flex-col gap-1 font-brand text-4xl font-medium tracking-wide">
+              <span>{plan.price}</span>
+              <span className="text-base font-normal text-muted-foreground">
+                {plan.period}
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-1 flex-col gap-6">
+            <div className="min-h-[7.25rem]">
+              {plan.id === "business" ? (
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="employees">Employees</FieldLabel>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="rounded-xl border-white/[0.08] bg-white/[0.03] transition-all duration-300 ease-out"
+                        aria-label="Decrease employees"
+                        onClick={() =>
+                          setEmployees((value) => Math.max(1, value - 1))
+                        }
+                      >
+                        <MinusIcon />
+                      </Button>
+                      <Input
+                        id="employees"
+                        type="number"
+                        min={1}
+                        max={10000}
+                        value={seats}
+                        onChange={(event) =>
+                          setEmployees(Number(event.target.value) || 1)
+                        }
+                        className="rounded-xl border-white/[0.08] bg-white/[0.04] text-center font-brand text-lg tabular-nums"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="rounded-xl border-white/[0.08] bg-white/[0.03] transition-all duration-300 ease-out"
+                        aria-label="Increase employees"
+                        onClick={() =>
+                          setEmployees((value) => Math.min(10000, value + 1))
+                        }
+                      >
+                        <PlusIcon />
+                      </Button>
+                    </div>
+                    <FieldDescription>
+                      {arabic
+                        ? `الإجمالي ${money(total)} / سنوياً · الفوترة بـ ${currency}`
+                        : `Total ${money(total)} / year · billed in ${currency}`}
+                    </FieldDescription>
+                  </Field>
+                </FieldGroup>
+              ) : (
+                <p className="text-sm leading-6 text-muted-foreground">
+                  {plan.blurb}
+                </p>
+              )}
+            </div>
+            <ul className="flex flex-1 flex-col gap-3 text-sm text-muted-foreground">
+              {plan.features.map((feature) => (
+                <li key={feature} className="flex items-start gap-2">
+                  <CheckIcon className="mt-0.5 size-4 shrink-0" />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+          <CardFooter className="mt-auto">
+            <a href={plan.href} className={plan.ctaClassName}>
+              {plan.cta}
+            </a>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
     </div>
   );
 }
 
 export default function RateMeLanding() {
   const animationScope = useLandingAnimations();
+  const [arabic, setArabic] = useState(false);
+
+  useLayoutEffect(() => {
+    setArabic(window.localStorage.getItem("rate-me-locale") === "ar");
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = arabic ? "ar" : "en";
+    document.documentElement.dir = arabic ? "rtl" : "ltr";
+    document.body.classList.toggle("arabic-mode", arabic);
+    window.localStorage.setItem("rate-me-locale", arabic ? "ar" : "en");
+    applyLandingCopy(arabic);
+    const retry = window.setTimeout(() => applyLandingCopy(arabic), 80);
+    return () => window.clearTimeout(retry);
+  }, [arabic]);
+
+  useEffect(() => {
+    const scrollToFooter = () => {
+      if (window.location.hash !== "#footer") return;
+      document.getElementById("footer")?.scrollIntoView({
+        block: "end",
+        inline: "nearest",
+      });
+    };
+
+    const onClick = (event: MouseEvent) => {
+      const link = (event.target as HTMLElement | null)?.closest(
+        'a[href="#footer"]',
+      );
+      if (!link) return;
+      event.preventDefault();
+      window.history.pushState(null, "", "#footer");
+      scrollToFooter();
+    };
+
+    const frame = window.requestAnimationFrame(scrollToFooter);
+    window.addEventListener("hashchange", scrollToFooter);
+    document.addEventListener("click", onClick);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("hashchange", scrollToFooter);
+      document.removeEventListener("click", onClick);
+    };
+  }, []);
 
   return (
+    <LandingLocale.Provider value={{ arabic, setArabic }}>
     <div
       ref={animationScope}
       id="top"
-      className="rate-landing min-h-screen bg-[#f7f8f4] text-[#17201e]"
+      className="rate-landing dark min-h-screen text-foreground"
     >
       <Navbar />
       <main>
-        <section className="rate-premium-hero relative isolate flex min-h-[600px] items-end overflow-hidden pt-24 sm:min-h-[700px] lg:min-h-[820px] lg:items-center">
-          <div
-            data-gsap-hero-bg
-            className="rate-hero-photo absolute inset-0 -z-10"
-            aria-hidden="true"
-          />
-          <div
-            className="rate-hero-overlay absolute inset-0 -z-10"
-            aria-hidden="true"
-          />
-          <div className="mx-auto flex w-full max-w-7xl px-5 pb-12 lg:px-8 lg:pb-0">
-            <div
-              data-gsap-hero-card
-              className="glass-shimmer rate-hero-copy w-full max-w-[470px] rounded-[26px] border border-white/15 bg-[#0d1f1a]/55 p-6 text-white shadow-[0_28px_80px_-40px_rgba(3,15,12,.85)] backdrop-blur-[3px] will-change-transform sm:p-7 lg:p-8"
-            >
-              <div className="mb-6 flex items-center gap-3">
-                <span
-                  data-gsap-floating-enter
-                  data-gsap-float
-                  data-float-x="-30"
-                  data-float-duration="3.5"
-                  className="flex size-9 items-center justify-center rounded-full border border-white/25 bg-white/10 will-change-transform"
-                >
-                  <ShieldCheck className="size-4 text-[#bce5d1]" />
+        <section className="rate-premium-hero relative isolate overflow-hidden">
+          <HeroSkyline />
+          <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-7xl items-center gap-6 px-5 pb-8 pt-[5.5rem] lg:grid-cols-[minmax(0,34rem)_1fr] lg:gap-2 lg:px-8 lg:pb-10 lg:pt-[5.75rem]">
+            <div data-gsap-hero-card className="relative min-w-0 max-w-xl">
+              <div
+                aria-hidden="true"
+                className="rate-hero-copy-scrim pointer-events-none absolute -inset-x-5 -inset-y-6 -z-10 sm:-inset-x-10 sm:-inset-y-10 lg:-inset-x-12"
+              />
+              <p className="text-[11px] font-medium tracking-[0.32em] text-white/50">
+                VIRTUAL BUSINESS CARD
+              </p>
+              <h1 className="mt-5 font-brand text-[2.15rem] font-semibold leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-[3.65rem]">
+                <span data-gsap-title-line className="block will-change-transform">
+                  Your virtual
+                  <br />
+                  business card.
                 </span>
-                <p className="text-[10px] font-bold tracking-[.2em] text-[#d7f1e4]">
-                  PROFESSIONAL REPUTATION, VERIFIED
-                </p>
-              </div>
-              <h1 className="text-balance text-[1.75rem] font-semibold leading-[1.05] sm:leading-[1.02] tracking-[-.05em] text-white drop-shadow-[0_2px_20px_rgba(3,15,12,.5)] sm:text-5xl">
                 <span
                   data-gsap-title-line
-                  className="block will-change-transform"
+                  className="mt-4 block font-serif text-[1.7rem] font-normal italic leading-[1.18] tracking-normal text-white/78 sm:text-[2.1rem] lg:text-[2.45rem]"
                 >
-                  Your professional reputation.
-                </span>
-                <br />
-                <span
-                  data-gsap-title-line
-                  className="block text-[#9ed9bd] will-change-transform"
-                >
-                  Verified wherever you go.
+                  Share it. Connect instantly.
+                  <br />
+                  Grow your reputation.
                 </span>
               </h1>
               <p
                 data-gsap-hero-subtitle
-                className="mt-5 max-w-sm text-sm leading-7 text-white/80 will-change-transform sm:text-base"
+                className="mt-6 max-w-[32rem] text-[15px] leading-7 text-white/55"
               >
-                Build a reputation from real professional interactions —
-                verified, portable, and backed by credible evidence.
+                RaytME is your digital business card and reputation platform.
+                Share your profile, collect authentic ratings, and build trust
+                with every connection — anywhere in the world.
               </p>
-              <div className="mt-7 flex flex-wrap gap-3">
+              <div className="mt-8 flex flex-wrap gap-3">
                 <a
                   data-gsap-hero-cta
                   data-gsap-primary-cta
                   href="/sign-up"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-[#10221d] shadow-lg transition hover:bg-[#edf8f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#10221d] will-change-transform"
+                  className={buttonVariants({
+                    size: "lg",
+                    className: cn(ctaWhite, "h-12"),
+                  })}
                 >
-                  Create your profile{" "}
-                  <ArrowRight data-gsap-cta-arrow className="size-4" />
+                  Create Your Card
+                  <ArrowRightIcon data-icon="inline-end" data-gsap-cta-arrow />
                 </a>
                 <a
                   data-gsap-hero-cta
                   data-gsap-secondary-cta
-                  href="#how"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/35 bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white will-change-transform"
+                  href="#business"
+                  className={buttonVariants({
+                    variant: "outline",
+                    size: "lg",
+                    className: cn(ctaDark, "h-12"),
+                  })}
                 >
-                  See how it works{" "}
-                  <ArrowDown data-gsap-cta-arrow className="size-4" />
+                  For Teams & Businesses
                 </a>
               </div>
-              <div className="mt-8 flex items-center gap-3 border-t border-white/15 pt-5 text-xs text-white/65">
-                <span className="size-2 rounded-full bg-[#7dd4aa]" />
-                Rayt Me measures credible evidence, not popularity.
-              </div>
-            </div>
-          </div>
-        </section>
-        <TrustStrip />
-        <section className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-40">
-          <SectionHead
-            eyebrow="The problem"
-            title={
-              <>
-                A CV tells people what you say about yourself.
-                <br />
-                <span className="text-[#87958d]">
-                  Rayt Me shows what others can credibly say about you.
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <div className="flex -space-x-2 rtl:space-x-reverse">
+                  {["/landing/avatar-1.png", "/landing/avatar-2.png", "/landing/avatar-3.png"].map(
+                    (src) => (
+                      <Image
+                        key={src}
+                        src={src}
+                        alt=""
+                        width={36}
+                        height={36}
+                        className="size-9 rounded-full object-cover ring-2 ring-[#0c0912]"
+                      />
+                    ),
+                  )}
+                </div>
+                <span className="flex items-center gap-0.5 text-white">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <StarIcon key={index} className="size-4 fill-white" />
+                  ))}
                 </span>
-              </>
-            }
-            copy="CVs and LinkedIn profiles are claims. Rayt Me turns professional interactions into portable reputation evidence."
-          />
-          <div className="mt-16 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-[24px] border border-[#d9dfd9] p-7">
-              <p className="text-xs font-bold tracking-[.15em] text-[#87958d]">
-                TRADITIONAL CV
-              </p>
-              <div className="mt-9 grid grid-cols-2 gap-4 text-sm text-[#87958d]">
-                <span>Claims</span>
-                <span>Self-written</span>
-                <span>Experience</span>
-                <span>References</span>
-                <span>Skills</span>
-                <span>Static</span>
-              </div>
-            </div>
-            <div className="rounded-[24px] border-2 border-emerald-700 bg-[#edf3ed] p-7">
-              <p className="text-xs font-bold tracking-[.15em] text-emerald-800">
-                RATE ME
-              </p>
-              <div className="mt-9 grid grid-cols-2 gap-4 text-sm font-medium text-[#405149]">
-                <span>Verified identity</span>
-                <span>Credible ratings</span>
-                <span>Relationship context</span>
-                <span>Portable reputation</span>
-                <span>Professional evidence</span>
-                <span>Living profile</span>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="bg-[#17201e] px-5 py-28 text-white lg:py-40">
-          <div className="mx-auto max-w-7xl">
-            <SectionHead
-              eyebrow="A new professional identity"
-              title={
-                <>
-                  Your reputation shouldn&apos;t disappear when you change jobs.
-                </>
-              }
-              copy="Your reputation is built through the people you work with. Rayt Me makes that reputation portable."
-            />
-            <div className="mt-20 grid gap-5 md:grid-cols-4">
-              <div className="rounded-2xl border border-white/15 p-5">
-                <p className="text-xs uppercase tracking-widest text-white/50">
-                  You
+                <p className="text-[13px] text-white/55">
+                  Trusted by professionals worldwide
                 </p>
-                <p className="mt-10 text-xl">Omar Al-Kuwari</p>
               </div>
-              {["Al Noor Legal Group", "XYZ Partners", "Your next chapter"].map(
-                (x, i) => (
-                  <div
-                    key={x}
-                    className="relative rounded-2xl border border-white/15 p-5 md:mt-12"
-                  >
-                    <ArrowRight className="absolute -left-4 top-1/2 hidden size-7 -translate-y-1/2 text-emerald-400 md:block" />
-                    <p className="text-xs uppercase tracking-widest text-white/50">
-                      Company {String.fromCharCode(65 + i)}
-                    </p>
-                    <p className="mt-10 text-xl">{x}</p>
-                  </div>
-                ),
-              )}
             </div>
-            <div className="mt-8 flex items-center gap-3 text-sm text-emerald-300">
-              <ShieldCheck className="size-5" /> Reputation remains attached to
-              the professional.
-            </div>
+            <HeroDeviceStage />
           </div>
+          <TrustStrip />
         </section>
-        <section
-          id="profile"
-          className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-40"
-        >
-          <SectionHead
-            eyebrow="Your professional card"
-            title={
-              <>
-                More than a score.
-                <br />
-                <span className="text-[#87958d]">Less than a CV.</span>
-              </>
-            }
-          />
-          <div className="mt-14 grid items-start gap-8 lg:grid-cols-[.8fr_1.2fr]">
-            <ProfileCard />
-            <div className="rounded-[28px] border border-[#d9dfd9] bg-white p-7 sm:p-10">
-              <p className="text-xs font-bold tracking-[.15em] text-[#87958d]">
-                PROFESSIONAL SNAPSHOT
-              </p>
-              <h3 className="mt-5 text-3xl font-semibold tracking-[-.04em]">
-                Commercial Law Specialist
-              </h3>
-              <div className="mt-8 grid gap-7 text-sm sm:grid-cols-2">
-                <div>
-                  <p className="text-[10px] font-bold tracking-[.15em] text-emerald-700">
-                    PREVIOUS EMPLOYMENT
-                  </p>
-                  <p className="mt-2 text-[#63706a]">
-                    XYZ Law Firm — Senior Associate
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold tracking-[.15em] text-emerald-700">
-                    EDUCATION
-                  </p>
-                  <p className="mt-2 text-[#63706a]">
-                    LL.M. — Harvard
-                    <br />
-                    LL.B. — Qatar University
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold tracking-[.15em] text-emerald-700">
-                    SKILLS
-                  </p>
-                  <p className="mt-2 text-[#63706a]">
-                    Corporate Law · M&A · Contracts
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold tracking-[.15em] text-emerald-700">
-                    LANGUAGES
-                  </p>
-                  <p className="mt-2 text-[#63706a]">
-                    Arabic · English · French
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold tracking-[.15em] text-emerald-700">
-                    LICENSES
-                  </p>
-                  <p className="mt-2 text-[#63706a]">Qatar Lawyer License</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold tracking-[.15em] text-emerald-700">
-                    MEMBERSHIPS
-                  </p>
-                  <p className="mt-2 text-[#63706a]">Bar Association</p>
-                </div>
-              </div>
-              <button className="mt-10 flex items-center gap-2 text-sm font-semibold text-emerald-700">
-                View professional snapshot <ArrowRight className="size-4" />
-              </button>
-            </div>
-          </div>
-        </section>
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="relative h-16">
-            <MotionIllustration kind="network" />
-            <MotionIllustration kind="share" />
-          </div>
-        </div>
-        <AnimatedSection
-          id="how"
-          className="border-y border-[#dfe4de] bg-white px-5 py-28 lg:py-40"
-        >
+        <AnimatedSection id="how" className="px-5 py-28 lg:px-8 lg:py-36">
           <div className="mx-auto max-w-7xl">
             <SectionHead
               eyebrow="How it works"
-              title="Four steps to a reputation that travels."
+              title="Your RaytME profile is your business card"
+              copy="A virtual card you share. A reputation that follows."
             />
-            <div className="mt-16 grid gap-4 md:grid-cols-4">
-              {[
-                ["01", "Create", "Build your professional profile."],
-                [
-                  "02",
-                  "Verify",
-                  "Verify identity, contact information and employment or university.",
-                ],
-                [
-                  "03",
-                  "Get rated",
-                  "People you&apos;ve actually interacted with provide structured feedback.",
-                ],
-                [
-                  "04",
-                  "Build reputation",
-                  "Your reputation becomes a portable professional asset.",
-                ],
-              ].map(([num, title, copy]) => (
-                <div
-                  data-gsap-feature-card
-                  key={num}
-                  className="border-t-2 border-[#17201e] pt-5 will-change-transform"
-                >
-                  <p className="text-xs font-bold text-emerald-700">{num}</p>
-                  <h3 className="mt-8 text-xl font-semibold">{title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-[#63706a]">
-                    {copy}
-                  </p>
+            <div className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
+              <div className="flex min-w-0 flex-col">
+                {pillars.map((item) => (
+                  <div key={item.num} data-gsap-feature-card>
+                    <Separator />
+                    <div className="grid gap-6 py-16 md:grid-cols-[7rem_1fr] md:gap-14">
+                      <p className="font-brand text-5xl font-medium tracking-wide text-violet-500/25">
+                        {item.num}
+                      </p>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-violet-300/70">
+                          {item.eyebrow}
+                        </p>
+                        <h3 className="mt-4 max-w-3xl font-serif text-3xl font-semibold tracking-normal sm:text-4xl sm:tracking-wide">
+                          {item.title}
+                        </h3>
+                        <p className="mt-6 max-w-3xl text-base leading-8 tracking-normal text-muted-foreground">
+                          {item.copy}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <Separator />
+              </div>
+              <aside className="relative hidden min-h-0 self-stretch lg:block">
+                <div className="sticky top-28 pt-4">
+                  <HowShareStage />
                 </div>
-              ))}
+              </aside>
             </div>
+            <HowShareStrip />
           </div>
         </AnimatedSection>
-        <section className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-40">
+        <section
+          id="profile"
+          className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-36"
+        >
+          <div className="grid items-start gap-12 lg:grid-cols-1 lg:gap-14">
+            <SectionHead
+              eyebrow="Your professional card"
+              title={
+                <>
+                  One profile.
+                  <br />
+                  <span className="text-muted-foreground">
+                    Your card, your contacts, your reputation.
+                  </span>
+                </>
+              }
+              copy="Share RaytME like a business card — on WhatsApp, in an email signature, or as a QR. The card stays current. The ratings travel with you."
+            />
+            <ThemedBusinessCard />
+          </div>
+        </section>
+        <section className="px-5 py-28 lg:px-8 lg:py-36">
+          <Separator />
+          <div className="mx-auto max-w-7xl py-28 lg:py-36">
+            <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
+              <div>
+                <SectionHead
+                  eyebrow="A card that outlasts the job"
+                  title="Your reputation shouldn't disappear when you change jobs."
+                  copy="Your RaytME card is yours. The company on it can change. The reputation attached to you does not."
+                />
+                <div className="mt-20 grid gap-4 sm:grid-cols-2">
+                  <Card className={glass}>
+                    <CardHeader>
+                      <CardDescription className="tracking-[0.22em] text-violet-300/70">
+                        You
+                      </CardDescription>
+                      <CardTitle data-no-translate className="font-serif text-xl tracking-wide">
+                        Sofia Mendes
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                  {["Helio Studio", "Northstar", "Your next chapter"].map((x) => (
+                    <Card key={x} className={glass}>
+                      <CardHeader>
+                        <CardDescription className="tracking-[0.22em]">
+                          Company
+                        </CardDescription>
+                        <CardTitle className="font-serif text-xl tracking-wide">
+                          {x}
+                        </CardTitle>
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+              <aside className="relative hidden min-h-0 self-stretch lg:block">
+                <div className="sticky top-28 pt-4">
+                  <SuperVoterStage />
+                </div>
+              </aside>
+            </div>
+            <SuperVoterStrip />
+          </div>
+          <Separator />
+        </section>
+        <section className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-36">
           <SectionHead
             eyebrow="Credible feedback"
             title={
               <>
                 Not five stars.
                 <br />
-                <span className="text-[#87958d]">
+                <span className="text-muted-foreground">
                   Five dimensions of professional trust.
                 </span>
               </>
@@ -1060,144 +1930,45 @@ export default function RateMeLanding() {
             <RatingDemo />
           </div>
         </section>
-        <section className="bg-[#e9efe9] px-5 py-28 lg:py-40">
-          <div className="mx-auto max-w-7xl">
-            <SectionHead
-              eyebrow="The differentiator"
-              title="A reputation score that has to be earned."
-              copy="Every profile starts at 3.00. Credible ratings move the score. As evidence accumulates, the score becomes more stable. 5.0 is effectively unreachable."
-            />
-            <div className="mt-16 grid gap-4 md:grid-cols-5">
-              {["3.00", "3.50", "4.00", "4.50", "5.00"].map((x, i) => (
-                <div
-                  key={x}
-                  className="rounded-2xl border border-[#cbd7cc] bg-white/60 p-5"
-                >
-                  <p className="text-3xl font-semibold tracking-[-.05em]">
-                    {x}
-                  </p>
-                  <div className="mt-8 h-1 rounded-full bg-[#d4ddd5]">
-                    <div
-                      className="h-1 rounded-full bg-emerald-700"
-                      style={{ width: `${20 + i * 18}%` }}
-                    />
-                  </div>
-                  <p className="mt-4 text-xs text-[#63706a]">
-                    {i === 4
-                      ? "Effectively unreachable"
-                      : `${[0, 12, 48, 152][i] ?? 480} credible ratings`}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <details className="mt-10 rounded-2xl border border-[#cbd7cc] bg-white/50 p-5">
-              <summary className="cursor-pointer font-semibold">
-                How the score works
-              </summary>
-              <div className="mt-5 grid gap-4 text-sm text-[#63706a] sm:grid-cols-2">
-                <code className="rounded-xl bg-[#17201e] p-5 text-base text-emerald-200">
-                  Snew = Sold + α(n) × W × (R − Sold)
-                  <br />
-                  α(n) = 0.045 / √(n + 10)
-                </code>
-                <p>
-                  S is the reputation score. R is the incoming rating. n is
-                  credible rating history. W is credibility weight. α(n) is the
-                  adjustment rate.
-                </p>
-              </div>
-            </details>
-          </div>
-        </section>
-        <section className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-40">
-          <SectionHead
-            eyebrow="Trust"
-            title="A rating's influence is earned, not assumed."
-          />
-          <div className="mt-14 grid gap-4 md:grid-cols-3">
-            {[
-              [
-                "Rater credibility",
-                "0.3×–1.5×",
-                "Differentiated, credible ratings carry more influence.",
-              ],
-              [
-                "Relationship credibility",
-                "Context matters",
-                "A manager, client, colleague or event contact carries different weight.",
-              ],
-              [
-                "Super Voter",
-                "Earned, never bought",
-                "Sustained credible behavior unlocks a private badge.",
-              ],
-            ].map(([t, v, c]) => (
-              <div
-                key={t}
-                className="rounded-[24px] border border-[#d9dfd9] bg-white p-7"
-              >
-                <p className="text-xs font-bold uppercase tracking-[.15em] text-emerald-700">
-                  {t}
-                </p>
-                <p className="mt-8 text-3xl font-semibold tracking-[-.05em]">
-                  {v}
-                </p>
-                <p className="mt-4 text-sm leading-6 text-[#63706a]">{c}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-        <section
-          id="business"
-          className="bg-[#17201e] px-5 py-28 text-white lg:py-40"
-        >
-          <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+        <section id="business" className="px-5 py-28 lg:py-36">
+          <Separator />
+          <div className="mx-auto grid max-w-7xl gap-12 py-28 lg:grid-cols-2 lg:items-center lg:py-36">
             <SectionHead
               eyebrow="For business"
               title="Build trust across your organization."
-              copy="Give your people a reputation layer that travels with them — while building stronger professional trust inside your organization."
+              copy="Give every employee a current virtual business card — and a reputation layer that travels with them."
             />
-            <div className="rounded-[24px] border border-white/15 bg-white/5 p-5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-5">
-                <p className="font-semibold">Company network</p>
-                <span className="text-xs text-emerald-300">Live overview</span>
-              </div>
-              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {["Employees", "Reputation", "Themes", "Usage"].map((x) => (
-                  <div
-                    key={x}
-                    className="rounded-xl border border-white/10 p-4"
-                  >
-                    <p className="text-xs text-white/50">{x}</p>
-                    <p className="mt-3 text-2xl font-semibold">
-                      {x === "Reputation"
-                        ? "4.6"
-                        : x === "Employees"
-                          ? "248"
-                          : x === "Themes"
-                            ? "12"
-                            : "84%"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 h-32 rounded-xl border border-white/10 p-4">
-                <div className="flex h-full items-end gap-2">
-                  {[32, 48, 44, 62, 58, 77, 68, 90, 82].map((h, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 rounded-t-sm bg-emerald-400/70"
-                      style={{ height: `${h}%` }}
-                    />
+            <Card className={glass}>
+              <CardHeader>
+                <CardTitle className="tracking-wide">Company network</CardTitle>
+                <CardDescription>Live overview</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+                  {[
+                    ["Employees", "248"],
+                    ["Reputation", "4.6"],
+                    ["Themes", "12"],
+                    ["Usage", "84%"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex flex-col gap-1">
+                      <p className="text-xs tracking-[0.22em] text-muted-foreground uppercase">
+                        {label}
+                      </p>
+                      <p className="font-brand text-3xl font-medium tracking-wide tabular-nums text-violet-100">
+                        {value}
+                      </p>
+                    </div>
                   ))}
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
+          <Separator />
         </section>
         <section
           id="pricing"
-          className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-40"
+          className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-36"
         >
           <SectionHead
             eyebrow="Pricing"
@@ -1206,95 +1977,103 @@ export default function RateMeLanding() {
           <div className="mt-14">
             <Pricing />
           </div>
-          <p className="mt-7 text-center text-sm text-[#63706a]">
+          <p className="mt-7 text-center text-sm text-muted-foreground">
             The cap only applies to ratings you GIVE. There is no limit to
             ratings your profile can RECEIVE.
           </p>
         </section>
-        <section className="border-t border-[#dfe4de] bg-white px-5 py-28 lg:py-40">
-          <div className="mx-auto max-w-7xl">
+        <section className="px-5 py-28 lg:px-8 lg:py-36">
+          <Separator />
+          <div className="mx-auto max-w-7xl py-28 lg:py-36">
             <SectionHead
               eyebrow="Questions"
               title="Everything worth knowing."
             />
-            <div className="mt-14">
-              <FAQ />
+            <div className="mt-14 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_28rem] lg:gap-14">
+              <Accordion
+                defaultValue={["item-0"]}
+                className="rounded-3xl border border-white/[0.05] bg-slate-900/40 px-6 backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(139,92,246,0.12)]"
+              >
+                {faqItems.map((item, index) => (
+                  <AccordionItem
+                    key={item.q}
+                    value={`item-${index}`}
+                    className="border-white/[0.05]"
+                  >
+                    <AccordionTrigger className="text-base tracking-wide hover:no-underline">
+                      {item.q}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground tracking-normal leading-7">
+                      {item.a}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+              <aside className="relative mx-auto w-full max-w-[28rem] lg:max-w-none">
+                <div className="lg:sticky lg:top-28">
+                  <IpadAppStage />
+                </div>
+              </aside>
             </div>
           </div>
         </section>
-        <section className="px-5 py-28 lg:py-40">
-          <div className="mx-auto max-w-5xl rounded-[32px] bg-[#dce8dd] px-6 py-16 text-center sm:px-12">
-            <Mark />
-            <h2 className="mx-auto mt-8 max-w-3xl text-balance text-5xl font-semibold tracking-[-.07em] text-[#17201e] sm:text-7xl">
-              Your reputation travels with you.
-            </h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-[#63706a]">
-              Build a verified professional reputation that isn&apos;t tied to
-              one employer, one CV, or one platform.
-            </p>
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <Button dark>Create your Rayt Me profile</Button>
-              <Button>See how it works</Button>
-            </div>
-            <div className="mx-auto mt-12 flex max-w-md items-center justify-center gap-3 text-xs font-semibold text-[#63706a]">
-              <span className="rounded-lg bg-white px-3 py-2">Profile</span>
-              <ArrowRight className="size-4" />
-              <QrCode className="size-8" />
-              <ArrowRight className="size-4" />
-              <span className="rounded-lg bg-white px-3 py-2">Phone</span>
-              <ArrowRight className="size-4" />
-              <span className="rounded-lg bg-white px-3 py-2">Network</span>
-            </div>
-          </div>
-        </section>
+        <WaysToShare />
+        <PreFooterCta />
       </main>
       <footer
         id="footer"
-        className="border-t border-[#dfe4de] bg-white px-5 py-14 lg:px-8"
+        className="border-t border-white/10 bg-[#0c0912] px-5 py-14 lg:px-8"
       >
-        <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+        <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 lg:grid-cols-[1.45fr_1fr_1fr_1fr_1.75fr]">
           <div>
-            <a className="flex items-center gap-3 font-semibold" href="#top">
-              <Mark />
-              Rayt Me
+            <a className="inline-flex items-center" href="#top">
+              <LogoLockup className="h-11 sm:h-12" />
             </a>
-            <p className="mt-5 max-w-xs text-sm leading-6 text-[#63706a]">
-              Verified professional reputation, wherever you go.
+            <p className="mt-5 max-w-[16rem] text-sm leading-6 text-white/45">
+              Your digital business card. Share your profile, grow your
+              reputation.
             </p>
           </div>
           {[
-            [
-              "Product",
-              "How it works",
-              "Profiles",
-              "Ratings",
-              "Trust",
-              "Business",
-              "Pricing",
-            ],
-            ["Company", "About", "Contact", "Careers"],
-            ["Legal", "Privacy", "Terms", "Disputes", "Data protection"],
-            ["App", "iOS", "Google Play"],
+            ["Product", "How it Works", "Features", "Pricing", "For Teams"],
+            ["Company", "About Us", "Blog", "Careers", "Contact"],
+            ["Resources", "Help Center", "Guides", "Privacy", "Terms"],
           ].map(([head, ...links]) => (
             <div key={head}>
-              <p className="text-xs font-bold uppercase tracking-[.15em] text-[#17201e]">
-                {head}
-              </p>
-              <div className="mt-5 flex flex-col gap-3 text-sm text-[#63706a]">
-                {links.map((x) => (
-                  <a key={x} href="#top">
-                    {x}
+              <p className="text-[13px] font-semibold text-white">{head}</p>
+              <div className="mt-4 flex flex-col gap-2.5 text-[13px] text-white/50">
+                {links.map((item) => (
+                  <a
+                    key={item}
+                    href="#top"
+                    className="transition-colors duration-300 ease-out hover:text-white"
+                  >
+                    {item}
                   </a>
                 ))}
               </div>
             </div>
           ))}
+          <div>
+            <p className="text-[13px] font-semibold text-white">Download the app</p>
+            <p className="mt-4 text-[12px] text-white/40">Coming soon</p>
+            <StoreBadges />
+          </div>
         </div>
-        <div className="mx-auto mt-14 max-w-7xl border-t border-[#dfe4de] pt-5 text-xs text-[#87958d]">
-          © 2026 Rayt Me. Built for credible professional relationships.
+        <div className="mx-auto mt-12 flex max-w-7xl flex-col gap-3 border-t border-white/10 pt-5 text-[12px] text-white/40 sm:flex-row sm:items-center sm:justify-between">
+          <p className="inline-flex flex-wrap items-center gap-1">
+            <span dir="ltr">© 2026 RaytME.</span>
+            <span>All rights reserved.</span>
+          </p>
+          <p className="inline-flex items-center gap-2">
+            Made in Qatar. For the world.
+            <QatarFlag />
+          </p>
         </div>
       </footer>
+      <RaytmeBot arabic={arabic} />
     </div>
+    </LandingLocale.Provider>
   );
 }
 

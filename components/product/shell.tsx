@@ -12,7 +12,7 @@ import type { Role } from '@/lib/types'
 
 export function LocaleButton() {
   const { locale, setLocale } = useI18n()
-  return <button type="button" onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')} aria-label="Change language" className="inline-flex h-7 items-center justify-center gap-1 rounded-lg border border-[#d9dfd9] bg-white px-2.5 text-[.8rem] font-medium text-[#17352c] transition-colors hover:bg-[#f3f5f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700/30"><Globe2 className="size-3.5" />{locale === 'en' ? 'العربية' : 'EN'}</button>
+  return <button type="button" onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')} aria-label="Change language" className="inline-flex h-7 items-center justify-center gap-1 rounded-lg border border-[#eae2d1] bg-white px-2.5 text-[.8rem] font-medium text-[#11213D] transition-colors hover:bg-[#faf6ee] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AD8547]/30"><Globe2 className="size-3.5" />{locale === 'en' ? 'العربية' : 'EN'}</button>
 }
 
 const homeFor = (role?: Role) => role === 'admin' ? '/admin-dashboard' : role === 'business' ? '/business-dashboard' : '/settings'
@@ -23,9 +23,9 @@ function Chrome({ children, nav }: { children: React.ReactNode; nav?: React.Reac
     <Backdrop />
     <MotionDirector />
     <div className="relative z-10">
-      <header className="rate-premium-nav sticky top-0 z-40 border-b border-[#dfe4de] bg-white/80 backdrop-blur-xl">
+      <header className="rate-premium-nav sticky top-0 z-40 border-b border-[#eae2d1] bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 font-semibold text-[#17352c]"><ShieldCheck className="text-emerald-700" />{t('brand')}</Link>
+          <Link href="/" className="flex items-center gap-2 font-semibold text-[#11213D]"><ShieldCheck className="text-[#2E6B4C]" />{t('brand')}</Link>
           {nav}
         </div>
       </header>
@@ -38,7 +38,7 @@ function Chrome({ children, nav }: { children: React.ReactNode; nav?: React.Reac
 function Gate({ children }: { children: React.ReactNode }) {
   return <Chrome nav={<LocaleButton />}>
     <main className="mx-auto grid min-h-[70vh] max-w-xl place-items-center px-5">
-      <div className="w-full rounded-3xl border border-[#d9dfd9] bg-white p-2 shadow-sm">{children}</div>
+      <div className="w-full rounded-3xl border border-[#eae2d1] bg-white p-2 shadow-sm">{children}</div>
     </main>
   </Chrome>
 }
@@ -58,8 +58,8 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
   if (loading) {
     return <Gate>
       <div aria-busy="true" className="flex flex-col items-center gap-4 px-6 py-14 text-center">
-        <span className="size-10 animate-spin rounded-full border-2 border-[#dce7df] border-t-emerald-700" />
-        <p className="text-sm font-medium text-[#17352c]">{t('preparingWorkspace')}</p>
+        <span className="size-10 animate-spin rounded-full border-2 border-[#e1eee6] border-t-[#11213D]" />
+        <p className="text-sm font-medium text-[#11213D]">{t('preparingWorkspace')}</p>
       </div>
     </Gate>
   }
@@ -70,7 +70,7 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
         kind="locked"
         title={t('signInRequired')}
         description={t('signInRequiredHelp')}
-        action={<Button render={<Link href={`/sign-in?next=${encodeURIComponent(pathname)}`} />} className="bg-[#17352c]">{t('signIn')}</Button>}
+        action={<Button render={<Link href={`/sign-in?next=${encodeURIComponent(pathname)}`} />} className="bg-[#11213D]">{t('signIn')}</Button>}
       />
     </Gate>
   }
@@ -81,7 +81,7 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
         kind="locked"
         title={t('accessRestricted')}
         description={t('accessRestrictedHelp')}
-        action={<Button render={<Link href={homeFor(user.role)} />} className="bg-[#17352c]">{t('goToWorkspace')}</Button>}
+        action={<Button render={<Link href={homeFor(user.role)} />} className="bg-[#11213D]">{t('goToWorkspace')}</Button>}
       />
     </Gate>
   }
@@ -101,11 +101,11 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
           key={href}
           href={href}
           aria-current={active ? 'page' : undefined}
-          className={`rounded-full px-3 py-2 text-sm transition ${active ? 'bg-[#17352c] font-semibold text-white' : 'text-[#4a5a53] hover:bg-[#e9efe9]'}`}
+          className={`rounded-full px-3 py-2 text-sm transition ${active ? 'bg-[#11213D] font-semibold text-white' : 'text-[#4a5a53] hover:bg-[#f4e9d3]'}`}
         >{label}</Link>
       })}
     </nav>
-    <span className="hidden max-w-[14rem] truncate rounded-full bg-[#e9efe9] px-3 py-2 text-xs font-medium text-[#17352c] sm:block" title={user.email}>{user.name}</span>
+    <span className="hidden max-w-[14rem] truncate rounded-full bg-[#f4e9d3] px-3 py-2 text-xs font-medium text-[#11213D] sm:block" title={user.email}>{user.name}</span>
     <LocaleButton />
     <Button variant="ghost" size="sm" onClick={() => void logout()}><LogOut />{t('signOut')}</Button>
   </div>}>{children}</Chrome>
@@ -114,8 +114,8 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
 export function PageHeader({ eyebrow, title, description, action }: { eyebrow: string; title: string; description?: string; action?: React.ReactNode }) {
   return <div data-premium-reveal className="flex flex-wrap items-end justify-between gap-4">
     <div>
-      <p className="text-xs font-bold uppercase tracking-[.16em] text-emerald-800">{eyebrow}</p>
-      <h1 className="mt-2 text-4xl font-semibold tracking-[-.04em] text-[#17352c]">{title}</h1>
+      <p className="text-xs font-bold uppercase tracking-[.16em] text-[#255840]">{eyebrow}</p>
+      <h1 className="mt-2 font-serif text-4xl font-semibold tracking-[-.02em] text-[#11213D]">{title}</h1>
       {description && <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5c6b64]">{description}</p>}
     </div>
     {action}
@@ -123,11 +123,11 @@ export function PageHeader({ eyebrow, title, description, action }: { eyebrow: s
 }
 
 export function Panel({ title, description, children, className = '' }: { title: string; description?: string; children: React.ReactNode; className?: string }) {
-  return <section data-premium-reveal className={`rate-premium-card rounded-3xl border border-[#d9dfd9] bg-white p-6 shadow-sm ${className}`}>
-    <h2 className="text-xl font-semibold tracking-tight text-[#17352c]">{title}</h2>
+  return <section data-premium-reveal className={`rate-premium-card rounded-3xl border border-[#eae2d1] bg-white p-6 shadow-sm ${className}`}>
+    <h2 className="text-xl font-semibold tracking-tight text-[#11213D]">{title}</h2>
     {description && <p className="mt-1 text-sm text-[#5c6b64]">{description}</p>}
     <div className="mt-5">{children}</div>
   </section>
 }
 
-export const inputClass = 'min-h-11 w-full rounded-xl border border-[#cbd3cd] bg-white px-3 text-sm text-[#17352c] outline-none placeholder:text-[#8a978f] focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20'
+export const inputClass = 'min-h-11 w-full rounded-xl border border-[#eae2d1] bg-white px-3 text-sm text-[#11213D] outline-none placeholder:text-[#8a978f] focus:border-[#AD8547] focus:ring-2 focus:ring-[#AD8547]/20'

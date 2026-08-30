@@ -200,30 +200,30 @@ export function AdminDashboard() {
         type="button"
         onClick={() => setSection(key)}
         aria-current={section === key ? 'true' : undefined}
-        className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${section === key ? 'bg-[#17352c] font-semibold text-white' : 'border border-[#d9dfd9] bg-white text-[#4a5a53] hover:border-emerald-700/40'}`}
+        className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${section === key ? 'bg-[#11213D] font-semibold text-white' : 'border border-[#eae2d1] bg-white text-[#4a5a53] hover:border-[#2E6B4C]/40'}`}
       >{t(label)}</button>)}
     </nav>
     <Panel title={t(active[1])} className="mt-5">
       {section === 'users' && <form className="mb-5 flex gap-2" onSubmit={event => { event.preventDefault(); void load() }}>
-        <input value={search} onChange={event => setSearch(event.target.value)} placeholder={t('search')} className="h-10 flex-1 rounded-xl border border-[#cbd3cd] bg-white px-3 text-sm text-[#17352c]" />
+        <input value={search} onChange={event => setSearch(event.target.value)} placeholder={t('search')} className="h-10 flex-1 rounded-xl border border-[#eae2d1] bg-white px-3 text-sm text-[#11213D]" />
         <Button type="submit" variant="outline">{t('search')}</Button>
       </form>}
-      {(section === 'organizations' || section === 'plans') && <details className="mb-5 rounded-2xl border border-[#dbe2dc] bg-[#f7f8f4] p-4">
-        <summary className="cursor-pointer text-sm font-semibold text-[#17352c]">
+      {(section === 'organizations' || section === 'plans') && <details className="mb-5 rounded-2xl border border-[#eae2d1] bg-[#faf6ee] p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[#11213D]">
           {section === 'organizations' ? t('createOrganization') : t('createPlan')}
         </summary>
         <form onSubmit={createRecord} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label className="grid gap-1 text-xs font-semibold text-[#5c6b64]">{t('name')}
-            <input required name="name" className="h-10 rounded-xl border border-[#cbd3cd] bg-white px-3 text-sm text-[#17352c]" />
+            <input required name="name" className="h-10 rounded-xl border border-[#eae2d1] bg-white px-3 text-sm text-[#11213D]" />
           </label>
           {section === 'organizations' ? <label className="grid gap-1 text-xs font-semibold text-[#5c6b64]">{t('slug')}
-            <input required name="slug" pattern="[a-z0-9-]+" className="h-10 rounded-xl border border-[#cbd3cd] bg-white px-3 text-sm text-[#17352c]" />
+            <input required name="slug" pattern="[a-z0-9-]+" className="h-10 rounded-xl border border-[#eae2d1] bg-white px-3 text-sm text-[#11213D]" />
           </label> : <>
             <label className="grid gap-1 text-xs font-semibold text-[#5c6b64]">{t('code')}
-              <input required name="code" pattern="[a-z0-9-]+" className="h-10 rounded-xl border border-[#cbd3cd] bg-white px-3 text-sm text-[#17352c]" />
+              <input required name="code" pattern="[a-z0-9-]+" className="h-10 rounded-xl border border-[#eae2d1] bg-white px-3 text-sm text-[#11213D]" />
             </label>
             <label className="grid gap-1 text-xs font-semibold text-[#5c6b64]">{t('price')}
-              <input required min="0" step="1" type="number" name="priceCents" className="h-10 rounded-xl border border-[#cbd3cd] bg-white px-3 text-sm text-[#17352c]" />
+              <input required min="0" step="1" type="number" name="priceCents" className="h-10 rounded-xl border border-[#eae2d1] bg-white px-3 text-sm text-[#11213D]" />
             </label>
           </>}
           <Button type="submit" disabled={busy} className="self-end">{t('create')}</Button>
@@ -243,7 +243,7 @@ export function AdminDashboard() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <dl className="grid min-w-0 flex-1 gap-2 sm:grid-cols-2">{Object.entries(item).map(([key, value]) => <div key={key} className="min-w-0">
               <dt className="text-[10px] font-bold uppercase tracking-wider text-[#7a8780]">{humanize(key)}</dt>
-              <dd className="mt-1 break-words text-sm text-[#17352c]">{displayValue(value)}</dd>
+              <dd className="mt-1 break-words text-sm text-[#11213D]">{displayValue(value)}</dd>
             </div>)}</dl>
             {section === 'verifications' && item.id ? <div className="grid min-w-56 gap-2">
               {verificationFields.filter(field => {
@@ -251,8 +251,8 @@ export function AdminDashboard() {
                   ? field.type === 'personalEmail' || field.type === 'universityEmail'
                   : field.type === 'personalEmail' || field.type === 'workEmail' || field.type === 'phone'
                 return required && item[field.status] === 'pending'
-              }).map(field => <div key={field.type} className="rounded-xl border border-[#dbe2dc] bg-white p-3">
-                <p className="mb-2 text-xs font-semibold text-[#17352c]">{t(field.type)}</p>
+              }).map(field => <div key={field.type} className="rounded-xl border border-[#eae2d1] bg-white p-3">
+                <p className="mb-2 text-xs font-semibold text-[#11213D]">{t(field.type)}</p>
                 <div className="flex gap-2">
                   <Button size="sm" onClick={() => void review(item, 'verified', field.type)}>{t('approve')}</Button>
                   <Button size="sm" variant="outline" onClick={() => void review(item, 'rejected', field.type)}>{t('reject')}</Button>
@@ -271,19 +271,19 @@ export function AdminDashboard() {
               const values = Object.fromEntries(new FormData(event.currentTarget))
               void updateOrganization(item, { name: String(values.name || item.name), website: values.website ? String(values.website) : null })
             }}>
-              <input name="name" defaultValue={String(item.name || '')} className="h-9 rounded-lg border border-[#cbd3cd] px-2 text-sm" aria-label={t('name')} />
-              <input name="website" defaultValue={String(item.website || '')} className="h-9 rounded-lg border border-[#cbd3cd] px-2 text-sm" aria-label={t('website')} />
+              <input name="name" defaultValue={String(item.name || '')} className="h-9 rounded-lg border border-[#eae2d1] px-2 text-sm" aria-label={t('name')} />
+              <input name="website" defaultValue={String(item.website || '')} className="h-9 rounded-lg border border-[#eae2d1] px-2 text-sm" aria-label={t('website')} />
               <Button size="sm" type="submit">{t('save')}</Button>
             </form> : null}
             {section === 'plans' && item.id ? <form className="grid min-w-52 gap-2" onSubmit={event => void upsertEntitlement(event, String(item.id))}>
-              <input name="key" required placeholder={t('entitlementKey')} className="h-9 rounded-lg border border-[#cbd3cd] px-2 text-sm" />
-              <input name="value" required type="number" min="0" placeholder={t('entitlementValue')} className="h-9 rounded-lg border border-[#cbd3cd] px-2 text-sm" />
+              <input name="key" required placeholder={t('entitlementKey')} className="h-9 rounded-lg border border-[#eae2d1] px-2 text-sm" />
+              <input name="value" required type="number" min="0" placeholder={t('entitlementValue')} className="h-9 rounded-lg border border-[#eae2d1] px-2 text-sm" />
               <Button size="sm" type="submit">{t('save')}</Button>
             </form> : null}
             {section === 'users' && item.id ? <div className="grid min-w-44 gap-2">
               <label className="grid gap-1 text-xs font-semibold text-[#5c6b64]">{t('role')}
                 <select
-                  className="h-9 rounded-lg border border-[#cbd3cd] bg-white px-2 text-sm text-[#17352c]"
+                  className="h-9 rounded-lg border border-[#eae2d1] bg-white px-2 text-sm text-[#11213D]"
                   value={String(item.role)}
                   onChange={event => void updateUser(item, { role: event.target.value })}
                 >
