@@ -9,7 +9,7 @@ import { LocaleButton, inputClass } from '@/components/product/shell'
 import { Backdrop } from '@/components/product/brand-art'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
-import { WEB_SIGN_IN_DISABLED } from '@/lib/web-sign-in'
+import { WEB_SIGN_IN_DISABLED, WEB_SIGN_UP_DISABLED } from '@/lib/web-sign-in'
 import type { AccountType, Role } from '@/lib/types'
 
 const homeFor = (role?: Role) => role === 'admin' ? '/admin-dashboard' : role === 'business' ? '/business-dashboard' : '/settings'
@@ -70,6 +70,8 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
       <p className="mt-6 text-center text-sm text-[#6e7480]">
         {signUp && WEB_SIGN_IN_DISABLED ? (
           <span className="font-semibold text-[#8C6B37]/40">{t('signIn')}</span>
+        ) : !signUp && WEB_SIGN_UP_DISABLED ? (
+          <span className="font-semibold text-[#8C6B37]/40">{t('signUp')}</span>
         ) : (
           <Link className="font-semibold text-[#8C6B37] underline" href={signUp ? '/sign-in' : '/sign-up'}>
             {signUp ? t('signIn') : t('signUp')}

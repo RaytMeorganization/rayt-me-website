@@ -6,6 +6,7 @@ import {
   useEffect,
   useSyncExternalStore,
   useState,
+  type ComponentPropsWithoutRef,
 } from "react";
 import Image from "next/image";
 import {
@@ -82,6 +83,7 @@ import { LogoLockup } from "@/components/brand/logo-lockup";
 import { applyLandingCopy } from "@/components/rate-me/landing-copy";
 import { RaytmeBot } from "@/components/rate-me/raytme-bot";
 import { cardThemeBarColor } from "@/lib/card-theme";
+import { WEB_SIGN_UP_DISABLED } from "@/lib/web-sign-in";
 import { cn } from "@/lib/utils";
 
 type LandingLocaleValue = {
@@ -161,6 +163,29 @@ const ctaDark = cn(
 
 const ctaPrimary = ctaWhite;
 const ctaGhost = ctaDark;
+
+function SignUpCta({
+  className,
+  children,
+  ...rest
+}: ComponentPropsWithoutRef<"a">) {
+  if (WEB_SIGN_UP_DISABLED) {
+    return (
+      <button
+        type="button"
+        disabled
+        className={cn(className, "pointer-events-none cursor-not-allowed opacity-40")}
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <a href="/sign-up" className={className} {...rest}>
+      {children}
+    </a>
+  );
+}
 
 function LanguageToggle() {
   const { arabic, setArabic } = useLandingLocale();
@@ -558,12 +583,9 @@ function Navbar() {
           >
             Sign in
           </button>
-          <a
-            href="/sign-up"
-            className={buttonVariants({ size: "sm", className: ctaWhite })}
-          >
+          <SignUpCta className={buttonVariants({ size: "sm", className: ctaWhite })}>
             <span data-rate-me-copy>Get Started</span>
-          </a>
+          </SignUpCta>
         </div>
         <div className="flex shrink-0 items-center gap-1 sm:gap-2 lg:hidden">
           <LanguageToggle />
@@ -610,12 +632,9 @@ function Navbar() {
                   <span data-rate-me-copy>Sign in</span>
                 </Button>
               </nav>
-              <a
-                href="/sign-up"
-                className={buttonVariants({ className: cn("mx-4", ctaPrimary) })}
-              >
+              <SignUpCta className={buttonVariants({ className: cn("mx-4", ctaPrimary) })}>
                 Get started
-              </a>
+              </SignUpCta>
             </SheetContent>
           </Sheet>
         </div>
@@ -1143,8 +1162,7 @@ function PreFooterCta() {
               use RaytME — on phone, iPad, and desktop.
             </p>
           </div>
-          <a
-            href="/sign-up"
+          <SignUpCta
             className={buttonVariants({
               size: "lg",
               className: cn(ctaWhite, "relative z-10 h-12 shrink-0 px-8"),
@@ -1152,7 +1170,7 @@ function PreFooterCta() {
           >
             Create Your RaytME Card
             <ArrowRightIcon data-icon="inline-end" />
-          </a>
+          </SignUpCta>
         </div>
       </div>
     </section>
@@ -1438,8 +1456,7 @@ function Pricing() {
             Prices convert from QAR. Scan the QR to create your RaytME card.
           </CardDescription>
           <CardAction>
-            <a
-              href="/sign-up"
+            <SignUpCta
               className="flex flex-col items-center gap-1"
               aria-label="Scan to create your RaytME card"
             >
@@ -1449,7 +1466,7 @@ function Pricing() {
               <span className="text-[10px] tracking-wide text-muted-foreground">
                 Scan
               </span>
-            </a>
+            </SignUpCta>
           </CardAction>
         </CardHeader>
         <CardContent>
@@ -1652,9 +1669,13 @@ function Pricing() {
             </ul>
           </CardContent>
           <CardFooter className="mt-auto">
-            <a href={plan.href} className={plan.ctaClassName}>
-              {plan.cta}
-            </a>
+            {plan.href === "/sign-up" ? (
+              <SignUpCta className={plan.ctaClassName}>{plan.cta}</SignUpCta>
+            ) : (
+              <a href={plan.href} className={plan.ctaClassName}>
+                {plan.cta}
+              </a>
+            )}
           </CardFooter>
         </Card>
       ))}
@@ -1760,10 +1781,9 @@ export default function RateMeLanding() {
                 with every connection — anywhere in the world.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <a
+                <SignUpCta
                   data-gsap-hero-cta
                   data-gsap-primary-cta
-                  href="/sign-up"
                   className={buttonVariants({
                     size: "lg",
                     className: cn(ctaWhite, "h-12"),
@@ -1771,7 +1791,7 @@ export default function RateMeLanding() {
                 >
                   Create Your Card
                   <ArrowRightIcon data-icon="inline-end" data-gsap-cta-arrow />
-                </a>
+                </SignUpCta>
                 <a
                   data-gsap-hero-cta
                   data-gsap-secondary-cta

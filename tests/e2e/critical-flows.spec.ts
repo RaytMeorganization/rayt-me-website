@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('landing renders the branded hero and working account CTA', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: /your virtual business card/i })).toBeVisible()
-  await expect(page.getByRole('link', { name: /create your card/i })).toHaveAttribute('href', '/sign-up')
+  await expect(page.getByRole('button', { name: /create your card/i }).first()).toBeDisabled()
   await expect(page.locator('[data-gsap-hero-bg]')).toBeAttached()
   await expect(page.getByText('Your RaytME profile is your business card')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Hassan Al-Thani' })).toBeVisible()

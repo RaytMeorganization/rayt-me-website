@@ -5,9 +5,12 @@ const nextConfig = {
   async rewrites() {
     return [{ source: '/backend/:path*', destination: `${backend}/:path*` }]
   },
-  // Temporary: remove this block when WEB_SIGN_IN_DISABLED is flipped in lib/web-sign-in.ts
+  // Temporary: remove these when flags are flipped in lib/web-sign-in.ts
   async redirects() {
-    return [{ source: '/sign-in', destination: '/', permanent: false }]
+    return [
+      { source: '/sign-in', destination: '/', permanent: false },
+      { source: '/sign-up', destination: '/', permanent: false },
+    ]
   },
 }
 
