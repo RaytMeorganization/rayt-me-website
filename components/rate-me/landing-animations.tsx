@@ -183,6 +183,10 @@ export function useLandingAnimations() {
       const root = scope.current;
       if (!root || prefersReducedMotion()) return;
 
+      const rtl =
+        document.documentElement.dir === "rtl" ||
+        window.localStorage.getItem("rate-me-locale") === "ar";
+      const dx = rtl ? -1 : 1;
       const cleanups: Array<() => void> = [];
       const primary = root.querySelector<HTMLElement>(
         "[data-gsap-primary-cta]",
