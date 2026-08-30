@@ -78,6 +78,7 @@ import {
   AnimatedSection,
   useLandingAnimations,
 } from "@/components/rate-me/landing-animations";
+import { LogoLockup } from "@/components/brand/logo-lockup";
 import { applyLandingCopy } from "@/components/rate-me/landing-copy";
 import { RaytmeBot } from "@/components/rate-me/raytme-bot";
 import { cardThemeBarColor } from "@/lib/card-theme";
@@ -185,19 +186,6 @@ const navLinks = [
   ["#business", "For Businesses"],
   ["#pricing", "Pricing"],
 ] as const;
-
-function LogoLockup({ className }: { className?: string }) {
-  return (
-    <Image
-      src="/logo-raytme.png"
-      alt="RaytME"
-      width={820}
-      height={258}
-      className={cn("h-10 w-auto sm:h-11", className)}
-      priority
-    />
-  );
-}
 
 function SectionHead({
   eyebrow,
@@ -2051,7 +2039,7 @@ export default function RateMeLanding() {
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 lg:grid-cols-[1.45fr_1fr_1fr_1fr_1.75fr]">
           <div>
             <a className="inline-flex items-center" href="#top">
-              <LogoLockup className="h-11 sm:h-12" />
+              <LogoLockup tone="light" showTagline size="md" />
             </a>
             <p className="mt-5 max-w-[16rem] text-sm leading-6 text-white/45">
               Your digital business card. Share your profile, grow your
