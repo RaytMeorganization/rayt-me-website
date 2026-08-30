@@ -4,7 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
-  useLayoutEffect,
+  useSyncExternalStore,
   useState,
 } from "react";
 import Image from "next/image";
@@ -83,10 +83,28 @@ import { RaytmeBot } from "@/components/rate-me/raytme-bot";
 import { cardThemeBarColor } from "@/lib/card-theme";
 import { cn } from "@/lib/utils";
 
-const LandingLocale = createContext({
+type LandingLocaleValue = {
+  arabic: boolean;
+  setArabic: (value: boolean) => void;
+};
+
+const LandingLocale = createContext<LandingLocaleValue>({
   arabic: false,
-  setArabic: (_value: boolean) => {},
+  setArabic: () => {},
 });
+
+function subscribeLocale(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener("rate-me-locale-change", onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener("rate-me-locale-change", onStoreChange);
+  };
+}
+
+function getLocaleSnapshot() {
+  return window.localStorage.getItem("rate-me-locale") === "ar";
+}
 
 function useLandingLocale() {
   return useContext(LandingLocale);
@@ -1663,11 +1681,17 @@ function Pricing() {
 
 export default function RateMeLanding() {
   const animationScope = useLandingAnimations();
-  const [arabic, setArabic] = useState(false);
-
-  useLayoutEffect(() => {
-    setArabic(window.localStorage.getItem("rate-me-locale") === "ar");
-  }, []);
+  const [localeOverride, setLocaleOverride] = useState<boolean | null>(null);
+  const storedArabic = useSyncExternalStore(
+    subscribeLocale,
+    getLocaleSnapshot,
+    () => false,
+  );
+  const arabic = localeOverride ?? storedArabic;
+  const setArabic = (value: boolean) => {
+    setLocaleOverride(value);
+    window.dispatchEvent(new Event("rate-me-locale-change"));
+  };
 
   useEffect(() => {
     document.documentElement.lang = arabic ? "ar" : "en";

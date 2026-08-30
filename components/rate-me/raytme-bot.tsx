@@ -36,18 +36,16 @@ export function RaytmeBot({ arabic = false }: { arabic?: boolean }) {
     { id: "welcome", from: "bot", text: WELCOME_MESSAGE },
   ]);
   const scrollerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMessages((current) =>
-      current.map((line) => {
-        if (line.id === "welcome") return { ...line, text: welcome };
-        if (line.from === "bot" && (line.text === botCopy.setupEn || line.text === botCopy.setupAr)) {
-          return { ...line, text: setup };
-        }
-        return line;
-      }),
-    );
-  }, [welcome, setup]);
+  const displayedMessages = messages.map((line) => {
+    if (line.id === "welcome") return { ...line, text: welcome };
+    if (
+      line.from === "bot" &&
+      (line.text === botCopy.setupEn || line.text === botCopy.setupAr)
+    ) {
+      return { ...line, text: setup };
+    }
+    return line;
+  });
 
   useEffect(() => {
     const node = scrollerRef.current;
@@ -100,7 +98,7 @@ export function RaytmeBot({ arabic = false }: { arabic?: boolean }) {
               ref={scrollerRef}
               className="flex h-56 flex-col gap-3 overflow-y-auto px-4 py-4"
             >
-              {messages.map((line) => (
+              {displayedMessages.map((line) => (
                 <div
                   key={line.id}
                   className={cn(
