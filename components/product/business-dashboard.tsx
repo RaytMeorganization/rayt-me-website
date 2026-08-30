@@ -115,7 +115,7 @@ export function BusinessDashboard() {
       description={t('businessIntro')}
       action={<Button variant="outline" onClick={() => void load()}>{t('refresh')}</Button>}
     />
-    {message && <p role="status" className="mt-5 rounded-xl border border-[#d9dfd9] bg-white p-3 text-sm text-[#17352c]">{message}</p>}
+    {message && <p role="status" className="mt-5 rounded-xl border border-[#eae2d1] bg-white p-3 text-sm text-[#11213D]">{message}</p>}
 
     {!ready ? <div aria-busy="true" className="mt-8 grid gap-6 lg:grid-cols-2">{[0, 1, 2, 3].map(card => <div key={card} className="h-64 animate-pulse rounded-3xl bg-[#eef2ec]" />)}</div> : <>
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -139,7 +139,7 @@ export function BusinessDashboard() {
         <Panel title={t('reputation')}>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-6xl font-semibold tabular-nums tracking-[-.08em] text-[#17352c]">{reputation ? <AnimatedNumber value={reputation.averageReputation} decimals={1} /> : '—'}</p>
+              <p className="text-6xl font-semibold tabular-nums tracking-[-.08em] text-[#11213D]">{reputation ? <AnimatedNumber value={reputation.averageReputation} decimals={1} /> : '—'}</p>
               <p className="mt-3 text-sm text-[#5c6b64]">{reputation?.ratingCount || 0} {t('basedOn')}</p>
             </div>
             <Illustration kind="reputation" className="w-32 shrink-0" />
@@ -155,9 +155,9 @@ export function BusinessDashboard() {
             </select>
             <Button type="submit" disabled={busy}>{t('invite')}</Button>
           </form>
-          {members.length ? <div className="mt-5 grid gap-2">{members.map((member, index) => <div key={String(member.id || index)} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#f7f8f4] p-3 text-sm">
+          {members.length ? <div className="mt-5 grid gap-2">{members.map((member, index) => <div key={String(member.id || index)} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#faf6ee] p-3 text-sm">
             <span className="min-w-0">
-              <strong className="text-[#17352c]">{String((member.user as Record<string, unknown> | undefined)?.name || t('members'))}</strong>
+              <strong className="text-[#11213D]">{String((member.user as Record<string, unknown> | undefined)?.name || t('members'))}</strong>
               <span className="ms-2 text-[#5c6b64]">{String((member.user as Record<string, unknown> | undefined)?.email || '')}</span>
             </span>
             <span className="flex items-center gap-2">
@@ -165,9 +165,9 @@ export function BusinessDashboard() {
               {String(member.role) !== 'ADMIN' && <Button size="sm" variant="outline" disabled={busy} onClick={() => void removeMember(String(member.id))}>{t('remove')}</Button>}
             </span>
           </div>)}</div> : <EmptyState kind="roster" title={t('emptyRoster')} description={t('emptyRosterHelp')} />}
-          <h3 className="mt-6 text-sm font-semibold text-[#17352c]">{t('pendingInvites')}</h3>
-          {invites.length ? <ul className="mt-2 grid gap-2 text-sm">{invites.map((item, index) => <li key={String(item.id || index)} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#dbe2dc] p-3">
-            <span className="text-[#17352c]">{String(item.email)}</span>
+          <h3 className="mt-6 text-sm font-semibold text-[#11213D]">{t('pendingInvites')}</h3>
+          {invites.length ? <ul className="mt-2 grid gap-2 text-sm">{invites.map((item, index) => <li key={String(item.id || index)} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#eae2d1] p-3">
+            <span className="text-[#11213D]">{String(item.email)}</span>
             <span className="flex items-center gap-2">
               <span className="text-[#5c6b64]">{String(item.status)}</span>
               {String(item.status) === 'PENDING' && <Button size="sm" variant="outline" disabled={busy} onClick={() => void revokeInvite(String(item.id))}>{t('revoke')}</Button>}
@@ -178,7 +178,7 @@ export function BusinessDashboard() {
         <Panel title={t('brandedTheme')}>
           <div className="grid gap-4">
             <label className="grid gap-2 text-sm">{t('logoUrl')}<input type="url" className={inputClass} value={theme.logoUrl || ''} onChange={e => setTheme(current => ({ ...current, logoUrl: e.target.value }))} /></label>
-            <label className="grid gap-2 text-sm">{t('brandColor')}<input type="color" aria-label={t('brandColor')} className="h-11 w-full rounded-xl border border-[#cbd3cd] bg-white p-1" value={theme.brandColor || '#17352c'} onChange={e => setTheme(current => ({ ...current, brandColor: e.target.value }))} /></label>
+            <label className="grid gap-2 text-sm">{t('brandColor')}<input type="color" aria-label={t('brandColor')} className="h-11 w-full rounded-xl border border-[#eae2d1] bg-white p-1" value={theme.brandColor || '#11213D'} onChange={e => setTheme(current => ({ ...current, brandColor: e.target.value }))} /></label>
             <Button disabled={busy} onClick={() => void saveTheme()}>{busy ? t('saving') : t('save')}</Button>
           </div>
         </Panel>
@@ -189,9 +189,9 @@ export function BusinessDashboard() {
             <StatCard label={t('members')} value={String(usage?.usage.members ?? 0)} />
             <StatCard label={t('pendingInvites')} value={String(usage?.usage.pendingInvites ?? 0)} />
           </div>
-          <h3 className="mt-6 text-sm font-semibold text-[#17352c]">{t('entitlements')}</h3>
-          {usage?.entitlements.length ? <ul className="mt-2 grid gap-2 sm:grid-cols-2">{usage.entitlements.map(item => <li key={item.key} className="flex justify-between rounded-xl bg-[#f7f8f4] p-3 text-sm">
-            <span className="text-[#5c6b64]">{item.key}</span><strong className="text-[#17352c]">{item.value}</strong>
+          <h3 className="mt-6 text-sm font-semibold text-[#11213D]">{t('entitlements')}</h3>
+          {usage?.entitlements.length ? <ul className="mt-2 grid gap-2 sm:grid-cols-2">{usage.entitlements.map(item => <li key={item.key} className="flex justify-between rounded-xl bg-[#faf6ee] p-3 text-sm">
+            <span className="text-[#5c6b64]">{item.key}</span><strong className="text-[#11213D]">{item.value}</strong>
           </li>)}</ul> : <p className="mt-2 text-sm text-[#7a8780]">{t('noData')}</p>}
         </Panel>
       </div>
