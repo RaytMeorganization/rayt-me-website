@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Backdrop, EmptyState } from '@/components/product/brand-art'
 import { MotionDirector } from '@/components/product/premium-motion'
 import { useAuth, useI18n } from '@/components/product/providers'
+import { WEB_SIGN_IN_DISABLED } from '@/lib/web-sign-in'
 import type { Role } from '@/lib/types'
 
 export function LocaleButton() {
@@ -55,7 +56,7 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
 
   useEffect(() => {
     if (loading || user) return
-    router.replace(`/sign-in?next=${encodeURIComponent(pathname)}`)
+    router.replace(WEB_SIGN_IN_DISABLED ? '/' : `/sign-in?next=${encodeURIComponent(pathname)}`)
   }, [loading, pathname, router, user])
 
   if (loading) {
@@ -73,7 +74,13 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
         kind="locked"
         title={t('signInRequired')}
         description={t('signInRequiredHelp')}
-        action={<Button render={<Link href={`/sign-in?next=${encodeURIComponent(pathname)}`} />} className="bg-[#11213D]">{t('signIn')}</Button>}
+        action={
+          WEB_SIGN_IN_DISABLED ? undefined : (
+            <Button render={<Link href={`/sign-in?next=${encodeURIComponent(pathname)}`} />} className="bg-[#11213D]">
+              {t('signIn')}
+            </Button>
+          )
+        }
       />
     </Gate>
   }

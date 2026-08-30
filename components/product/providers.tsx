@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { usePathname, useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { dictionaries } from '@/lib/i18n'
+import { WEB_SIGN_IN_DISABLED } from '@/lib/web-sign-in'
 import type { Locale, User } from '@/lib/types'
 
 type I18nValue = { locale: Locale; setLocale: (locale: Locale) => void; t: (key: keyof typeof dictionaries.en) => string }
@@ -62,7 +63,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     try { await api('/auth/logout', { method: 'POST' }) } finally {
       setUser(null)
-      router.push('/sign-in')
+      router.push(WEB_SIGN_IN_DISABLED ? '/' : '/sign-in')
       router.refresh()
     }
   }, [router])

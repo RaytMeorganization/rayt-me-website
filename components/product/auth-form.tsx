@@ -9,6 +9,7 @@ import { LocaleButton, inputClass } from '@/components/product/shell'
 import { Backdrop } from '@/components/product/brand-art'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
+import { WEB_SIGN_IN_DISABLED } from '@/lib/web-sign-in'
 import type { AccountType, Role } from '@/lib/types'
 
 const homeFor = (role?: Role) => role === 'admin' ? '/admin-dashboard' : role === 'business' ? '/business-dashboard' : '/settings'
@@ -66,7 +67,15 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
         <Button type="submit" disabled={busy} className="min-h-11 rounded-xl bg-[#11213D]">{busy ? t('loading') : t('continue')}</Button>
       </div>
-      <p className="mt-6 text-center text-sm text-[#6e7480]"><Link className="font-semibold text-[#8C6B37] underline" href={signUp ? '/sign-in' : '/sign-up'}>{signUp ? t('signIn') : t('signUp')}</Link></p>
+      <p className="mt-6 text-center text-sm text-[#6e7480]">
+        {signUp && WEB_SIGN_IN_DISABLED ? (
+          <span className="font-semibold text-[#8C6B37]/40">{t('signIn')}</span>
+        ) : (
+          <Link className="font-semibold text-[#8C6B37] underline" href={signUp ? '/sign-in' : '/sign-up'}>
+            {signUp ? t('signIn') : t('signUp')}
+          </Link>
+        )}
+      </p>
     </form>
   </main>
 }

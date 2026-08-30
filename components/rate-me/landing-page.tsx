@@ -550,13 +550,14 @@ function Navbar() {
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
           <LanguageToggle />
-          <a
-            href="/sign-in"
+          <button
+            type="button"
+            disabled
             data-rate-me-copy
-            className="text-[13px] font-medium text-white/80 transition-colors duration-300 hover:text-white"
+            className="cursor-not-allowed text-[13px] font-medium text-white/35"
           >
             Sign in
-          </a>
+          </button>
           <a
             href="/sign-up"
             className={buttonVariants({ size: "sm", className: ctaWhite })}
@@ -600,20 +601,14 @@ function Navbar() {
                     {label}
                   </SheetClose>
                 ))}
-                <SheetClose
-                  render={
-                    <a
-                      href="/sign-in"
-                      className={buttonVariants({
-                        variant: "ghost",
-                        className: "justify-start",
-                      })}
-                    />
-                  }
-                  nativeButton={false}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled
+                  className="justify-start"
                 >
-                  Sign in
-                </SheetClose>
+                  <span data-rate-me-copy>Sign in</span>
+                </Button>
               </nav>
               <a
                 href="/sign-up"
