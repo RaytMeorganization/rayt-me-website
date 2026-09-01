@@ -1072,35 +1072,35 @@ export function HeroSkyline() {
   return (
     <div
       data-gsap-hero-bg
-      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-black"
       aria-hidden="true"
     >
-      <div className="absolute -top-[22%] right-0 -bottom-[18%] left-0 origin-[80%_0%] scale-[1.16] sm:-top-[26%] lg:-top-[30%]">
-        <Image
-          src="/landing/doha-skyline-bw.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[78%_38%] blur-[2.5px] grayscale brightness-[1.45] contrast-[1.65] opacity-95"
-        />
-        <div className="rate-skyline-upper absolute inset-0">
+      <div className="absolute -top-[18%] right-0 bottom-0 left-0 origin-[80%_0%] scale-[1.12] sm:-top-[22%] lg:-top-[26%]">
+        <div className="absolute inset-0 mix-blend-lighten">
           <Image
             src="/landing/doha-skyline-bw.png"
             alt=""
             fill
+            priority
             sizes="100vw"
-            className="object-cover object-[78%_38%] blur-[0.25px] grayscale brightness-[2.15] contrast-[2.35] mix-blend-screen opacity-95"
+            className="object-cover object-[78%_42%] grayscale contrast-[1.45] brightness-[0.68] opacity-90"
           />
+          <div className="rate-skyline-upper absolute inset-0">
+            <Image
+              src="/landing/doha-skyline-bw.png"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-[78%_42%] grayscale brightness-[1.15] contrast-[1.9] mix-blend-screen opacity-80"
+            />
+          </div>
         </div>
         <div className="rate-skyline-inner-glow" />
         <div className="rate-skyline-windows" />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-[#08060d] from-[0%] via-[#0c0912]/90 via-[18%] to-transparent to-[58%] rtl:bg-gradient-to-l lg:via-[#0c0912]/88 lg:via-[32%] lg:to-[68%]" />
-      <div className="absolute inset-y-[8%] start-0 w-[min(40rem,70%)] bg-[radial-gradient(ellipse_at_center,rgb(8_6_13/0.9)_0%,rgb(12_9_18/0.62)_46%,transparent_76%)] rtl:start-auto rtl:end-0" />
-      <div className="absolute inset-y-0 end-0 w-[8%] bg-gradient-to-l from-[#0c0912]/40 to-transparent rtl:bg-gradient-to-r" />
-      <div className="absolute inset-x-0 bottom-0 h-[52%] bg-gradient-to-t from-[#08060d] from-[24%] via-[#0c0912] via-[60%] to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#08060d] to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black from-[0%] via-black/75 via-[24%] to-transparent to-[68%] rtl:bg-gradient-to-l lg:via-black/70 lg:via-[30%] lg:to-[72%]" />
+      <div className="absolute inset-y-[8%] start-0 w-[min(42rem,72%)] bg-[radial-gradient(ellipse_at_center,rgb(0_0_0/0.88)_0%,rgb(0_0_0/0.45)_50%,transparent_76%)] rtl:start-auto rtl:end-0" />
+      <div className="absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black from-[12%] via-black/70 via-[42%] to-transparent" />
     </div>
   );
 }

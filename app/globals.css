@@ -138,7 +138,7 @@
    only and leave copy unreadable. Dark tokens stay opt-in via `.dark`. */
 
 .rate-landing.dark {
-  --background: #0c0912;
+  --background: #000000;
   --foreground: #f8fafc;
   --card: rgb(18 12 28 / 0.62);
   --card-foreground: #f8fafc;
@@ -164,10 +164,7 @@
 .rate-landing {
   position: relative;
   isolation: isolate;
-  background:
-    radial-gradient(78rem 46rem at 88% -8%, rgb(88 28 135 / 0.2), transparent 54%),
-    radial-gradient(56rem 38rem at 6% 110%, rgb(59 7 100 / 0.16), transparent 58%),
-    linear-gradient(168deg, #110c1a 0%, #0c0912 42%, #08060d 100%);
+  background: #000;
   color: var(--foreground);
   font-family: var(--font-figtree), "Figtree", var(--font-sans);
 }
@@ -178,10 +175,10 @@
   position: fixed;
   inset: 0;
   z-index: 0;
-  opacity: 0.55;
+  opacity: 0.28;
   background:
-    radial-gradient(46rem 30rem at 80% 0%, rgb(124 58 237 / 0.12), transparent 58%),
-    radial-gradient(38rem 26rem at 8% 100%, rgb(76 29 149 / 0.1), transparent 62%);
+    radial-gradient(46rem 30rem at 80% 0%, rgb(124 58 237 / 0.08), transparent 58%),
+    radial-gradient(38rem 26rem at 8% 100%, rgb(76 29 149 / 0.06), transparent 62%);
 }
 
 .rate-landing::after {
@@ -212,13 +209,13 @@
 }
 
 html:has(.rate-landing) {
-  background: #0c0912;
+  background: #000;
   overflow-x: clip;
   scroll-padding-top: 5rem;
 }
 
 html:has(.rate-landing) body {
-  background: #0c0912;
+  background: #000;
 }
 
 .font-brand {
@@ -249,14 +246,14 @@ html:has(.rate-landing) body {
   -webkit-mask-image: linear-gradient(
     to bottom,
     #000 0%,
-    #000 58%,
-    transparent 88%
+    #000 62%,
+    transparent 100%
   );
   mask-image: linear-gradient(
     to bottom,
     #000 0%,
-    #000 58%,
-    transparent 88%
+    #000 62%,
+    transparent 100%
   );
 }
 
@@ -306,15 +303,15 @@ html:has(.rate-landing) body {
   background:
     radial-gradient(
       120% 90% at 18% 42%,
-      rgb(8 6 13 / 0.94) 0%,
-      rgb(12 9 18 / 0.78) 42%,
-      rgb(12 9 18 / 0.28) 68%,
+      rgb(0 0 0 / 0.92) 0%,
+      rgb(0 0 0 / 0.62) 42%,
+      rgb(0 0 0 / 0.18) 68%,
       transparent 82%
     ),
     linear-gradient(
       to right,
-      rgb(8 6 13 / 0.9) 0%,
-      rgb(12 9 18 / 0.62) 58%,
+      rgb(0 0 0 / 0.88) 0%,
+      rgb(0 0 0 / 0.48) 58%,
       transparent 100%
     );
 }
@@ -323,17 +320,26 @@ html[dir="rtl"] .rate-hero-copy-scrim {
   background:
     radial-gradient(
       120% 90% at 82% 42%,
-      rgb(8 6 13 / 0.94) 0%,
-      rgb(12 9 18 / 0.78) 42%,
-      rgb(12 9 18 / 0.28) 68%,
+      rgb(0 0 0 / 0.92) 0%,
+      rgb(0 0 0 / 0.62) 42%,
+      rgb(0 0 0 / 0.18) 68%,
       transparent 82%
     ),
     linear-gradient(
       to left,
-      rgb(8 6 13 / 0.9) 0%,
-      rgb(12 9 18 / 0.62) 58%,
+      rgb(0 0 0 / 0.88) 0%,
+      rgb(0 0 0 / 0.48) 58%,
       transparent 100%
     );
+}
+
+.rate-about-mix {
+  background: radial-gradient(
+    ellipse 90% 80% at 8% 42%,
+    rgb(0 0 0 / 0.62) 0%,
+    rgb(0 0 0 / 0.28) 46%,
+    transparent 74%
+  );
 }
 
 .rate-id-stage {

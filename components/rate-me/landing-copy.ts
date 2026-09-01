@@ -58,6 +58,11 @@ export const arabicCopy: Record<string, string> = {
   "Create Your Card": "أنشئ بطاقتك",
   "For Teams & Businesses": "للفرق والشركات",
   "Trusted by professionals worldwide": "يثق به مهنيون حول العالم",
+  "About RaytME": "عن RaytME",
+  "RaytME is a verified professional identity platform. Share your profile, collect authentic ratings, and build trust with every connection, anywhere in the world.":
+    "RaytME منصة هوية مهنية موثّقة. شارك ملفك، واجمع تقييمات أصيلة، وابنِ الثقة مع كل تواصل، في أي مكان في العالم.",
+  "RaytME is built for a simple idea: your reputation should be something you can prove, not just something you say.":
+    "بُني RaytME على فكرة بسيطة: سمعتك يجب أن تكون شيئاً تستطيع إثباته، لا مجرد شيء تقوله.",
 
   // Hero / device chrome
   "YOUR RAYTME CARD": "بطاقة RAYTME",

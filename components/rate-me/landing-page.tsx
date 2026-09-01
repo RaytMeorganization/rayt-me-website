@@ -668,7 +668,7 @@ function TrustStrip() {
     },
   ];
   return (
-    <div className="mx-auto max-w-7xl px-5 pb-10 lg:px-8">
+    <div className="mx-auto max-w-7xl px-5 pb-3 lg:px-8">
       <div className="rate-feature-bar grid w-full grid-cols-1 divide-y divide-white/10 overflow-hidden rounded-[1.75rem] border border-white/[0.12] bg-white/[0.035] backdrop-blur-md md:grid-cols-5 md:divide-x md:divide-y-0">
         {items.map(({ Icon, key, title, copy }) => (
           <div key={key} className="flex gap-3 px-5 py-5">
@@ -1704,7 +1704,7 @@ export default function RateMeLanding() {
     >
       <Navbar />
       <main>
-        <section className="rate-premium-hero relative isolate overflow-hidden">
+        <section className="rate-premium-hero relative isolate overflow-hidden bg-black">
           <HeroSkyline />
           <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-7xl grid-cols-1 items-center gap-6 overflow-x-hidden px-5 pb-8 pt-[5.5rem] sm:overflow-x-visible lg:grid-cols-[minmax(0,34rem)_1fr] lg:gap-2 lg:px-8 lg:pb-10 lg:pt-[5.75rem]">
             <div data-gsap-hero-card className="relative min-w-0 w-full max-w-[21rem] sm:max-w-xl">
@@ -1791,6 +1791,23 @@ export default function RateMeLanding() {
             </div>
           </div>
           <TrustStrip />
+          <div
+            id="about"
+            className="rate-about-mix relative z-10 mx-auto max-w-7xl px-5 pb-20 pt-4 lg:px-8 lg:pb-24"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-violet-300/70">
+              About RaytME
+            </p>
+            <p className="mt-5 max-w-3xl text-lg leading-8 tracking-normal text-white/70">
+              RaytME is a verified professional identity platform. Share your
+              profile, collect authentic ratings, and build trust with every
+              connection, anywhere in the world.
+            </p>
+            <p className="mt-6 max-w-3xl text-lg leading-8 tracking-normal text-white/55">
+              RaytME is built for a simple idea: your reputation should be
+              something you can prove, not just something you say.
+            </p>
+          </div>
         </section>
         <AnimatedSection id="how" className="px-5 py-28 lg:px-8 lg:py-36">
           <div className="mx-auto max-w-7xl">
@@ -2031,7 +2048,7 @@ export default function RateMeLanding() {
                 {links.map((item) => (
                   <a
                     key={item}
-                    href="#top"
+                    href={item === "About Us" ? "#about" : "#top"}
                     className="transition-colors duration-300 ease-out hover:text-white"
                   >
                     {item}
