@@ -2,21 +2,21 @@ import { expect, test } from '@playwright/test'
 
 test('landing renders the branded hero and working account CTA', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: /your virtual business card/i })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /professional identity platform/i })).toBeVisible()
   await expect(page.getByRole('button', { name: /create your card/i }).first()).toBeDisabled()
   await expect(page.locator('[data-gsap-hero-bg]')).toBeAttached()
   await expect(page.getByText('Your RaytME profile is your business card')).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Hassan Al-Thani' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'James Carter' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Sofia Mendes' })).toBeVisible()
   await expect(page.getByText('LinkedIn')).toHaveCount(0)
 })
 
 test('public QR profile is card-only, privacy-safe, and app-directed', async ({ page }) => {
   await page.goto('/p/demo-omar-al-kuwari')
-  await expect(page.getByRole('heading', { name: 'Omar Al-Kuwari' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Michael Brennan' })).toBeVisible()
   await expect(page.getByText('Public card preview')).toBeVisible()
   await expect(page.getByText('Request phone in the app')).toBeVisible()
-  await expect(page.getByText('Continue in the Rayt Me app')).toBeVisible()
+  await expect(page.getByText('Continue in the RaytME app')).toBeVisible()
   await expect(page.getByRole('link', { name: 'App Store' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Google Play' })).toBeVisible()
   await expect(page.getByRole('button', { name: /^rate$/i })).toHaveCount(0)

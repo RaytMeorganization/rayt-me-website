@@ -41,18 +41,18 @@ export const arabicCopy: Record<string, string> = {
   "GET IT ON": "حمّله من",
   "Google Play": "Google Play",
   "© 2026 RaytME. All rights reserved.": "© 2026 RaytME. جميع الحقوق محفوظة.",
-  "Made in Qatar. For the world.": "صُنع في قطر. للعالم.",
 
   // Hero
   "VIRTUAL BUSINESS CARD": "بطاقة عمل رقمية",
-  "Your virtual": "بطاقتك المهنية",
-  "business card.": "الرقمية.",
-  "Share it. Connect instantly.": "شاركها. تواصل فوراً.",
-  "Grow your reputation.": "ابنِ سمعتك.",
+  "The Professional": "منصة الهوية",
+  "Identity Platform": "المهنية",
+  "Built on Verified Reputation.": "مبنية على سمعة موثّقة.",
   "All rights reserved.": "جميع الحقوق محفوظة.",
-  "RaytME is your digital business card and reputation platform. Share your profile, collect authentic ratings, and build trust with every connection — anywhere in the world.":
-    "منصة RaytME هي بطاقة عملك الرقمية وسمعتك المهنية. شارك ملفك، واجمع تقييمات موثوقة، وابنِ الثقة مع كل تواصل — في أي مكان بالعالم.",
+  "Every interaction you have — a meeting, a call, an introduction — builds your reputation somewhere. RaytME turns it into one verified score and card you carry everywhere.":
+    "كل تفاعل تقوم به — اجتماع، مكالمة، تعريف — يبني سمعتك في مكان ما. RaytME يحوّله إلى درجة موثّقة وبطاقة تحملها في كل مكان.",
   "Doha, Qatar": "الدوحة، قطر",
+  "Austin, USA": "أوستن، الولايات المتحدة",
+  Austin: "أوستن",
   "London, United Kingdom": "لندن، المملكة المتحدة",
   "New York, USA": "نيويورك، الولايات المتحدة",
   "Create Your Card": "أنشئ بطاقتك",
@@ -250,13 +250,10 @@ export const arabicCopy: Record<string, string> = {
 
   // Pricing
   "Start building your reputation.": "ابدأ ببناء سمعتك.",
-  CURRENCY: "العملة",
-  "Pay in QAR, USD, or Euro": "ادفع بالريال أو الدولار أو اليورو",
-  "Prices convert from QAR. Scan the QR to create your RaytME card.":
-    "الأسعار تُحوَّل من الريال القطري. امسح رمز QR لإنشاء بطاقة RaytME.",
+  USD: "USD",
+  "Priced in USD": "الأسعار بالدولار الأمريكي",
+  "Scan the QR to create your RaytME card.": "امسح رمز QR لإنشاء بطاقة RaytME.",
   "Scan to create your RaytME card": "امسح لإنشاء بطاقة RaytME",
-  "Choose currency": "اختر العملة",
-  Euro: "يورو",
   BASIC: "أساسي",
   PRO: "احترافي",
   BUSINESS: "أعمال",
@@ -287,17 +284,38 @@ export const arabicCopy: Record<string, string> = {
   Questions: "أسئلة",
   "Everything worth knowing.": "كل ما يستحق أن تعرفه.",
   "What is RaytME?": "ما هو RaytME؟",
-  "RaytME is your virtual business card and portable professional reputation. Share one profile — by link, QR, or email signature — and keep your details and ratings current.":
-    "RaytME بطاقة عملك الرقمية وسمعتك المهنية المتنقلة. شارك ملفاً واحداً — برابط أو QR أو توقيع البريد — وأبقِ بياناتك وتقييماتك محدّثة.",
+  "RaytME is a verified professional reputation platform and virtual business card. It converts real professional interactions into a credibility-weighted reputation score, shareable via QR code, NFC, link, or email signature.":
+    "RaytME منصة سمعة مهنية موثّقة وبطاقة عمل رقمية. تحوّل التفاعلات المهنية الحقيقية إلى درجة سمعة مرجّحة بالمصداقية، يمكن مشاركتها عبر رمز QR أو NFC أو رابط أو توقيع البريد.",
   "How is the reputation score calculated?": "كيف تُحسب درجة السمعة؟",
-  "Your score moves with credible ratings from people you have actually worked with. Context and rater credibility matter more than volume.":
-    "درجتك تتحرك مع تقييمات موثوقة من أشخاص عملت معهم فعلاً. السياق ومصداقية المقيّم أهم من العدد.",
+  "Every rating updates your score using a weighted formula that accounts for relationship type, rating category, and how established your score already is — so a single rating on a brand-new profile moves the score more than one additional rating on a well-established profile. This keeps the score responsive early on and stable over time.":
+    "كل تقييم يحدّث درجتك بمعادلة مرجّحة تراعي نوع العلاقة وفئة التقييم ومدى استقرار درجتك الحالية — لذا يحرّك تقييم واحد ملفاً جديداً أكثر مما يحرّك تقييماً إضافياً على ملف راسخ. فتبقى الدرجة مستجيبة في البداية ومستقرة مع الوقت.",
   "Why does RaytME not use a normal average?": "لماذا لا يستخدم RaytME متوسطاً عادياً؟",
   "A simple average treats every rating the same. RaytME weights honest, contextual feedback so a thoughtful rating counts more than noise.":
     "المتوسط البسيط يعامل كل تقييم بالمثل. RaytME يرجّح الملاحظات الصادقة المرتبطة بسياق، فيحسب التقييم المتأنّي أكثر من الضجيج.",
   "Who can rate me?": "من يمكنه تقييمي؟",
-  "People you have a professional relationship with — colleagues, clients, vendors, and others you have actually worked with, including remotely.":
-    "من تربطك بهم علاقة مهنية — زملاء وعملاء وموردون ومن عملت معهم فعلاً، بما في ذلك عن بُعد.",
+  "Anyone you've had a real professional interaction with — managers, clients, collaborators, vendors, or peers. Ratings are weighted differently depending on the nature of that relationship.":
+    "أي شخص كانت لك معه علاقة مهنية حقيقية — مدير أو عميل أو متعاون أو مورّد أو زميل. وتُرجَّح التقييمات بحسب طبيعة تلك العلاقة.",
+  "Can ratings be anonymous?": "هل يمكن أن تكون التقييمات مجهولة؟",
+  "Yes. Raters can choose to submit feedback anonymously, and profile owners control what's shown publicly versus kept private, without losing the rating's contribution to the score.":
+    "نعم. يمكن للمقيّمين إرسال الملاحظات دون الكشف عن هويتهم، ويتحكم صاحب الملف بما يظهر علناً وما يبقى خاصاً، دون أن يفقد التقييم أثره في الدرجة.",
+  "How does RaytME prevent fake or manipulated ratings?": "كيف يمنع RaytME التقييمات المزيفة أو المتلاعب بها؟",
+  "A built-in anti-manipulation engine detects patterns like rating rings, brigading, or low-context raters; relationship-type weighting naturally discounts unverified or low-trust inputs; and every account has a monthly cap on ratings given, so no one can flood the system with fake positive reviews.":
+    "محرك مدمج لمكافحة التلاعب يرصد أنماطاً مثل حلقات التقييم أو الهجوم المنسّق أو المقيّمين منخفضي السياق؛ وترجيح نوع العلاقة يخفّض تلقائياً المدخلات غير الموثّقة أو منخفضة الثقة؛ ولكل حساب سقف شهري للتقييمات الممنوحة، فلا يمكن إغراق النظام بتقييمات إيجابية مزيفة.",
+  "Is RaytME only for certain industries or regions?": "هل RaytME مخصص لقطاعات أو مناطق معيّنة فقط؟",
+  "No. RaytME is built as a global platform for any professional, in any industry, anywhere in the world.":
+    "لا. RaytME منصة عالمية لأي مهني، في أي قطاع، وفي أي مكان بالعالم.",
+  "How do I share my RaytME profile?": "كيف أشارِك ملف RaytME؟",
+  "Share it however fits the moment — QR code, NFC tap, a direct link, or an embedded email signature. No app download is required for the person viewing it.":
+    "شاركه بما يناسب اللحظة — رمز QR، أو لمسة NFC، أو رابط مباشر، أو توقيع بريد مضمّن. ولا يحتاج من يشاهده إلى تحميل التطبيق.",
+  "Does RaytME sell my data?": "هل يبيع RaytME بياناتي؟",
+  "No. RaytME does not sell user data or rating information.":
+    "لا. RaytME لا يبيع بيانات المستخدمين ولا معلومات التقييم.",
+  "What are the five rating categories?": "ما هي فئات التقييم الخمس؟",
+  "Professionalism, Communication, Reliability, Knowledge, and Collaboration — giving a fuller picture than a single star rating.":
+    "الاحترافية، والتواصل، والموثوقية، والمعرفة، والتعاون — لتعطيك صورة أوضح من نجمة واحدة.",
+  "How does my list work?": "كيف تعمل قائمتي؟",
+  "You choose who to add — it's not automatic. Add anyone you meet with one tap, whether or not you rate them. Once added, they're organized by profession along with any rating you've given and where you met, so you can search your list anytime you need to find someone specific.":
+    "أنت من يختار من تضيفه — ليست تلقائية. أضف أي شخص تقابله بنقرة واحدة، سواء قيّمته أم لا. وبعد الإضافة يُرتَّبون حسب المهنة مع أي تقييم منحته ومكان اللقاء، لتبحث في قائمتك متى احتجت شخصاً محدداً.",
   "Can I hide my phone number?": "هل يمكنني إخفاء رقم هاتفي؟",
   "Yes. Phone numbers stay private unless you choose to share them. Your virtual card can still be shared without exposing your number.":
     "نعم. تبقى أرقام الهواتف خاصة ما لم تختر مشاركتها. ويمكن مشاركة بطاقتك الرقمية دون كشف رقمك.",

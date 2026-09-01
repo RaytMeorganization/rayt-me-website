@@ -113,30 +113,15 @@ function useLandingLocale() {
   return useContext(LandingLocale);
 }
 
-const QAR_PER_EMPLOYEE_YEAR = 60;
-const QAR_PRO_YEAR = 99;
+const USD_PER_EMPLOYEE_YEAR = 16;
+const USD_PRO_YEAR = 27;
 
-type DisplayCurrency = "QAR" | "USD" | "EUR";
-
-const QAR_TO: Record<DisplayCurrency, number> = {
-  QAR: 1,
-  USD: 1 / 3.64,
-  EUR: 1 / 3.92,
-};
-
-const CURRENCY_LOCALE: Record<DisplayCurrency, string> = {
-  QAR: "en-QA",
-  USD: "en-US",
-  EUR: "en-IE",
-};
-
-function formatMoney(qarAmount: number, currency: DisplayCurrency) {
-  const value = Math.round(qarAmount * QAR_TO[currency]);
-  return new Intl.NumberFormat(CURRENCY_LOCALE[currency], {
+function formatUsd(amount: number) {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency,
+    currency: "USD",
     maximumFractionDigits: 0,
-  }).format(value);
+  }).format(amount);
 }
 
 const glass = cn(
@@ -260,14 +245,14 @@ const THEME_CARDS: ThemeCardSpec[] = [
     theme: "#7C3AED",
     themeLabel: "Theme · RaytME",
     tone: "brand",
-    name: "Hassan Al-Thani",
-    initials: "HA",
-    photo: "/landing/hassan-althani.png",
+    name: "James Carter",
+    initials: "JC",
+    photo: "/landing/james-carter.png",
     role: "Marketing Director",
-    location: "Doha, Qatar",
+    location: "Austin, USA",
     score: "4.8",
     ratingsLabel: "/ 5 · 62 ratings",
-    email: "hassan@almarka.qa",
+    email: "james@brightlane.co",
   },
   {
     theme: CARD_THEME,
@@ -764,15 +749,15 @@ function HowShareStage() {
                 <div className="h-0.5 w-full bg-primary/40" />
                 <div className="flex items-center gap-2 px-2.5 py-2.5">
                   <Avatar size="sm">
-                    <AvatarImage src="/landing/hassan-althani.png" alt="" />
-                    <AvatarFallback>HA</AvatarFallback>
+                    <AvatarImage src="/landing/james-carter.png" alt="" />
+                    <AvatarFallback>JC</AvatarFallback>
                     <AvatarBadge>
                       <CheckIcon />
                     </AvatarBadge>
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <p data-no-translate className="truncate text-xs font-medium">
-                      Hassan Al-Thani
+                      James Carter
                     </p>
                     <p className="truncate text-[10px] text-muted-foreground">
                       Marketing Director
@@ -889,14 +874,14 @@ function HowShareStrip() {
         <CardContent>
           <div className="flex items-center gap-3 rounded-xl bg-background/40 px-3 py-2.5 ring-1 ring-foreground/10">
             <Avatar>
-              <AvatarImage src="/landing/hassan-althani.png" alt="" />
-              <AvatarFallback>HA</AvatarFallback>
+              <AvatarImage src="/landing/james-carter.png" alt="" />
+              <AvatarFallback>JC</AvatarFallback>
               <AvatarBadge>
                 <CheckIcon />
               </AvatarBadge>
             </Avatar>
             <div className="min-w-0">
-              <p data-no-translate className="truncate font-medium">Hassan Al-Thani</p>
+              <p data-no-translate className="truncate font-medium">James Carter</p>
               <p className="truncate text-muted-foreground">Marketing Director</p>
             </div>
           </div>
@@ -1222,22 +1207,6 @@ function StoreBadges() {
   );
 }
 
-function QatarFlag() {
-  return (
-    <svg
-      viewBox="0 0 36 22"
-      className="h-[14px] w-[22px] rounded-[2px]"
-      aria-hidden="true"
-    >
-      <rect width="36" height="22" fill="#8A1538" rx="1.5" />
-      <path
-        fill="#fff"
-        d="M0 0h12l4 1.57L12 3.14 16 4.7 12 6.28 16 7.85 12 9.42 16 11 12 12.57 16 14.14 12 15.71 16 17.28 12 18.85 16 20.42 12 22H0V0Z"
-      />
-    </svg>
-  );
-}
-
 const pillars = [
   {
     num: "01",
@@ -1398,11 +1367,11 @@ function RatingDemo() {
 const faqItems = [
   {
     q: "What is RaytME?",
-    a: "RaytME is your virtual business card and portable professional reputation. Share one profile — by link, QR, or email signature — and keep your details and ratings current.",
+    a: "RaytME is a verified professional reputation platform and virtual business card. It converts real professional interactions into a credibility-weighted reputation score, shareable via QR code, NFC, link, or email signature.",
   },
   {
     q: "How is the reputation score calculated?",
-    a: "Your score moves with credible ratings from people you have actually worked with. Context and rater credibility matter more than volume.",
+    a: "Every rating updates your score using a weighted formula that accounts for relationship type, rating category, and how established your score already is — so a single rating on a brand-new profile moves the score more than one additional rating on a well-established profile. This keeps the score responsive early on and stable over time.",
   },
   {
     q: "Why does RaytME not use a normal average?",
@@ -1410,7 +1379,35 @@ const faqItems = [
   },
   {
     q: "Who can rate me?",
-    a: "People you have a professional relationship with — colleagues, clients, vendors, and others you have actually worked with, including remotely.",
+    a: "Anyone you've had a real professional interaction with — managers, clients, collaborators, vendors, or peers. Ratings are weighted differently depending on the nature of that relationship.",
+  },
+  {
+    q: "Can ratings be anonymous?",
+    a: "Yes. Raters can choose to submit feedback anonymously, and profile owners control what's shown publicly versus kept private, without losing the rating's contribution to the score.",
+  },
+  {
+    q: "How does RaytME prevent fake or manipulated ratings?",
+    a: "A built-in anti-manipulation engine detects patterns like rating rings, brigading, or low-context raters; relationship-type weighting naturally discounts unverified or low-trust inputs; and every account has a monthly cap on ratings given, so no one can flood the system with fake positive reviews.",
+  },
+  {
+    q: "Is RaytME only for certain industries or regions?",
+    a: "No. RaytME is built as a global platform for any professional, in any industry, anywhere in the world.",
+  },
+  {
+    q: "How do I share my RaytME profile?",
+    a: "Share it however fits the moment — QR code, NFC tap, a direct link, or an embedded email signature. No app download is required for the person viewing it.",
+  },
+  {
+    q: "Does RaytME sell my data?",
+    a: "No. RaytME does not sell user data or rating information.",
+  },
+  {
+    q: "What are the five rating categories?",
+    a: "Professionalism, Communication, Reliability, Knowledge, and Collaboration — giving a fuller picture than a single star rating.",
+  },
+  {
+    q: "How does my list work?",
+    a: "You choose who to add — it's not automatic. Add anyone you meet with one tap, whether or not you rate them. Once added, they're organized by profession along with any rating you've given and where you met, so you can search your list anytime you need to find someone specific.",
   },
   {
     q: "Can I hide my phone number?",
@@ -1437,23 +1434,21 @@ const faqItems = [
 function Pricing() {
   const { arabic } = useLandingLocale();
   const [employees, setEmployees] = useState(10);
-  const [currency, setCurrency] = useState<DisplayCurrency>("QAR");
   const seats = Math.max(1, Math.min(10000, employees));
-  const total = QAR_PER_EMPLOYEE_YEAR * seats;
-  const money = (qar: number) => formatMoney(qar, currency);
+  const total = USD_PER_EMPLOYEE_YEAR * seats;
 
   return (
     <div className="flex flex-col gap-6">
       <Card className={glass}>
         <CardHeader>
           <CardDescription className="tracking-[0.22em]">
-            CURRENCY
+            USD
           </CardDescription>
           <CardTitle className="font-brand text-2xl font-medium tracking-wide">
-            Pay in QAR, USD, or Euro
+            Priced in USD
           </CardTitle>
           <CardDescription>
-            Prices convert from QAR. Scan the QR to create your RaytME card.
+            Scan the QR to create your RaytME card.
           </CardDescription>
           <CardAction>
             <SignUpCta
@@ -1469,43 +1464,6 @@ function Pricing() {
             </SignUpCta>
           </CardAction>
         </CardHeader>
-        <CardContent>
-          <ToggleGroup
-            variant="outline"
-            spacing={2}
-            value={[currency]}
-            onValueChange={(next) => {
-              const selected = Array.isArray(next) ? next[0] : next;
-              if (
-                selected === "QAR" ||
-                selected === "USD" ||
-                selected === "EUR"
-              ) {
-                setCurrency(selected);
-              }
-            }}
-            aria-label="Choose currency"
-          >
-            <ToggleGroupItem
-              value="QAR"
-              className="rounded-xl border-white/[0.08] px-4 transition-all duration-300 ease-out"
-            >
-              QAR
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="USD"
-              className="rounded-xl border-white/[0.08] px-4 transition-all duration-300 ease-out"
-            >
-              USD
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="EUR"
-              className="rounded-xl border-white/[0.08] px-4 transition-all duration-300 ease-out"
-            >
-              Euro
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </CardContent>
       </Card>
     <div className="grid items-stretch gap-4 lg:grid-cols-3">
       {(
@@ -1513,7 +1471,7 @@ function Pricing() {
           {
             id: "basic",
             name: "BASIC",
-            price: money(0),
+            price: formatUsd(0),
             period: "/ forever",
             recommended: false,
             highlight: false,
@@ -1534,7 +1492,7 @@ function Pricing() {
           {
             id: "pro",
             name: "PRO",
-            price: money(QAR_PRO_YEAR),
+            price: formatUsd(USD_PRO_YEAR),
             period: "/ year",
             recommended: true,
             highlight: true,
@@ -1554,7 +1512,7 @@ function Pricing() {
           {
             id: "business",
             name: "BUSINESS",
-            price: money(QAR_PER_EMPLOYEE_YEAR),
+            price: formatUsd(USD_PER_EMPLOYEE_YEAR),
             period: "/ employee / year",
             recommended: false,
             highlight: false,
@@ -1648,8 +1606,8 @@ function Pricing() {
                     </div>
                     <FieldDescription>
                       {arabic
-                        ? `الإجمالي ${money(total)} / سنوياً · الفوترة بـ ${currency}`
-                        : `Total ${money(total)} / year · billed in ${currency}`}
+                        ? `الإجمالي ${formatUsd(total)} / سنوياً · الفوترة بالدولار`
+                        : `Total ${formatUsd(total)} / year · billed in USD`}
                     </FieldDescription>
                   </Field>
                 </FieldGroup>
@@ -1748,8 +1706,8 @@ export default function RateMeLanding() {
       <main>
         <section className="rate-premium-hero relative isolate overflow-hidden">
           <HeroSkyline />
-          <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-7xl items-center gap-6 px-5 pb-8 pt-[5.5rem] lg:grid-cols-[minmax(0,34rem)_1fr] lg:gap-2 lg:px-8 lg:pb-10 lg:pt-[5.75rem]">
-            <div data-gsap-hero-card className="relative min-w-0 max-w-xl">
+          <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-7xl grid-cols-1 items-center gap-6 overflow-x-hidden px-5 pb-8 pt-[5.5rem] sm:overflow-x-visible lg:grid-cols-[minmax(0,34rem)_1fr] lg:gap-2 lg:px-8 lg:pb-10 lg:pt-[5.75rem]">
+            <div data-gsap-hero-card className="relative min-w-0 w-full max-w-[21rem] sm:max-w-xl">
               <div
                 aria-hidden="true"
                 className="rate-hero-copy-scrim pointer-events-none absolute -inset-x-5 -inset-y-6 -z-10 sm:-inset-x-10 sm:-inset-y-10 lg:-inset-x-12"
@@ -1757,28 +1715,26 @@ export default function RateMeLanding() {
               <p className="text-[11px] font-medium tracking-[0.32em] text-white/50">
                 VIRTUAL BUSINESS CARD
               </p>
-              <h1 className="mt-5 font-brand text-[2.15rem] font-semibold leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-[3.65rem]">
-                <span data-gsap-title-line className="block will-change-transform">
-                  Your virtual
+              <h1 className="mt-5 w-full font-brand text-[2.15rem] font-semibold leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
+                <span data-gsap-title-line className="block w-full will-change-transform">
+                  The Professional
                   <br />
-                  business card.
+                  Identity Platform
                 </span>
                 <span
                   data-gsap-title-line
-                  className="mt-4 block font-serif text-[1.7rem] font-normal italic leading-[1.18] tracking-normal text-white/78 sm:text-[2.1rem] lg:text-[2.45rem]"
+                  className="mt-4 block w-full font-serif text-[1.45rem] font-normal italic leading-[1.18] tracking-normal text-white/78 sm:text-[2.1rem] lg:text-[2.45rem]"
                 >
-                  Share it. Connect instantly.
-                  <br />
-                  Grow your reputation.
+                  Built on Verified Reputation.
                 </span>
               </h1>
               <p
                 data-gsap-hero-subtitle
-                className="mt-6 max-w-[32rem] text-[15px] leading-7 text-white/55"
+                className="mt-6 w-full text-[15px] leading-7 text-white/55"
               >
-                RaytME is your digital business card and reputation platform.
-                Share your profile, collect authentic ratings, and build trust
-                with every connection — anywhere in the world.
+                Every interaction you have — a meeting, a call, an introduction
+                — builds your reputation somewhere. RaytME turns it into one
+                verified score and card you carry everywhere.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <SignUpCta
@@ -1805,9 +1761,9 @@ export default function RateMeLanding() {
                   For Teams & Businesses
                 </a>
               </div>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="mt-8 flex min-w-0 flex-wrap items-center gap-3">
                 <div className="flex -space-x-2 rtl:space-x-reverse">
-                  {["/landing/avatar-1.png", "/landing/avatar-2.png", "/landing/avatar-3.png"].map(
+                  {["/landing/james-carter.png", "/landing/avatar-2.png", "/landing/avatar-3.png"].map(
                     (src) => (
                       <Image
                         key={src}
@@ -1825,12 +1781,14 @@ export default function RateMeLanding() {
                     <StarIcon key={index} className="size-4 fill-white" />
                   ))}
                 </span>
-                <p className="text-[13px] text-white/55">
+                <p className="min-w-0 basis-full text-[13px] text-white/55 sm:basis-auto">
                   Trusted by professionals worldwide
                 </p>
               </div>
             </div>
-            <HeroDeviceStage />
+            <div className="min-w-0 max-w-full overflow-hidden lg:overflow-visible">
+              <HeroDeviceStage />
+            </div>
           </div>
           <TrustStrip />
         </section>
@@ -2088,14 +2046,10 @@ export default function RateMeLanding() {
             <StoreBadges />
           </div>
         </div>
-        <div className="mx-auto mt-12 flex max-w-7xl flex-col gap-3 border-t border-white/10 pt-5 text-[12px] text-white/40 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto mt-12 max-w-7xl border-t border-white/10 pt-5 text-[12px] text-white/40">
           <p className="inline-flex flex-wrap items-center gap-1">
             <span dir="ltr">© 2026 RaytME.</span>
             <span>All rights reserved.</span>
-          </p>
-          <p className="inline-flex items-center gap-2">
-            Made in Qatar. For the world.
-            <QatarFlag />
           </p>
         </div>
       </footer>

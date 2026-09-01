@@ -19,23 +19,23 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   try {
     const profile = await getProfile(id)
     const role = profile.jobTitle || profile.education?.fieldOfStudy || 'Professional'
-    const description = profile.bio?.slice(0, 160) || `View ${profile.name}'s verified professional reputation card on Rayt Me.`
+    const description = profile.bio?.slice(0, 160) || `View ${profile.name}'s verified professional reputation card on RaytME.`
     const url = `https://rate.me/p/${encodeURIComponent(id)}`
     return {
-      title: `${profile.name} — ${role} | Rayt Me`,
+      title: `${profile.name} — ${role} | RaytME`,
       description,
       alternates: { canonical: url },
       openGraph: {
-        title: `${profile.name} — Rayt Me`,
+        title: `${profile.name} — RaytME`,
         description,
         type: 'profile',
         url,
         images: profile.avatarUrl ? [{ url: profile.avatarUrl }] : undefined,
       },
-      twitter: { card: profile.avatarUrl ? 'summary_large_image' : 'summary', title: `${profile.name} — Rayt Me`, description },
+      twitter: { card: profile.avatarUrl ? 'summary_large_image' : 'summary', title: `${profile.name} — RaytME`, description },
     }
   } catch {
-    return { title: 'Professional profile — Rayt Me', robots: { index: false, follow: false } }
+    return { title: 'Professional profile — RaytME', robots: { index: false, follow: false } }
   }
 }
 

@@ -138,16 +138,16 @@ type ShowcasePerson = {
   slug: string;
 };
 
-const PERSON_HASSAN: ShowcasePerson = {
-  name: "Hassan Al-Thani",
+const PERSON_JAMES: ShowcasePerson = {
+  name: "James Carter",
   role: "Marketing Director",
   specialty: "Brand Strategy · Digital Growth",
-  photo: "/landing/hassan-althani.png",
-  city: "Doha",
-  country: "Qatar",
-  email: "hassan@almarka.qa",
-  phone: "+974 5555 1234",
-  slug: "hassan-al-thani",
+    photo: "/landing/james-carter.png",
+  city: "Austin",
+  country: "USA",
+  email: "james@brightlane.co",
+  phone: "+1 512 555 0142",
+  slug: "james-carter",
 };
 
 const PERSON_AMELIA: ShowcasePerson = {
@@ -296,7 +296,7 @@ function NestedRaytCard({
   variant = "phone",
   nameAs = "h2",
   showQr = true,
-  person = PERSON_HASSAN,
+  person = PERSON_JAMES,
   compact = false,
 }: {
   cardRef: RefObject<HTMLElement | null>;
@@ -497,7 +497,7 @@ function WatchQr() {
 
 export function HeroDeviceStage() {
   return (
-    <div className="relative mx-auto flex w-full max-w-[34rem] items-center justify-center lg:justify-end lg:pe-10">
+    <div className="relative mx-auto flex w-full min-w-0 max-w-[34rem] items-center justify-center lg:justify-end lg:pe-10">
       <div className="relative">
         <PhoneProfile />
         <div className="pointer-events-none absolute -end-[5.4rem] bottom-[4.2rem] z-20 hidden sm:block">
@@ -597,11 +597,11 @@ const DIRECTORY = [
     company: "Hart Studio",
   },
   {
-    person: PERSON_HASSAN,
+    person: PERSON_JAMES,
     score: "4.8",
     ratingsLabel: "/ 5 · 62 ratings",
     theme: "brand" as const,
-    company: "Al Marka",
+    company: "Brightlane",
   },
   {
     person: PERSON_MAYA,
@@ -722,7 +722,7 @@ function RatingBar({ label, value }: { label: string; value: number }) {
 }
 
 function ShowcasePhone() {
-  const person = PERSON_HASSAN;
+  const person = PERSON_JAMES;
   return (
     <DeviceHover>
       {(glareRef) => (
