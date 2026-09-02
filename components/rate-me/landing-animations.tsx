@@ -302,6 +302,7 @@ export function useLandingAnimations() {
       root
         .querySelectorAll<HTMLElement>("[data-gsap-profile-card]")
         .forEach((card) => {
+          if (card.closest("[data-demo], .rate-hero-nested-stage")) return;
           const glare = card.querySelector<HTMLElement>("[data-gsap-card-glare]");
           const restX = Number(card.dataset.restX || 7);
           const restY = Number(card.dataset.restY || -16);

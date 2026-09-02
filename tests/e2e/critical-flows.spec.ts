@@ -5,7 +5,7 @@ test('landing renders the branded hero and working account CTA', async ({ page }
   await expect(page.getByRole('heading', { name: /professional identity platform/i })).toBeVisible()
   await expect(page.getByRole('button', { name: /create your card/i }).first()).toBeDisabled()
   await expect(page.locator('[data-gsap-hero-bg]')).toBeAttached()
-  await expect(page.getByText('Your RaytME profile is your business card')).toBeVisible()
+  await expect(page.getByText('Your reputation, proven when it matters.')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'James Carter' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Sofia Mendes' })).toBeVisible()
   await expect(page.getByText('LinkedIn')).toHaveCount(0)

@@ -197,6 +197,39 @@ const navLinks = [
   ["#pricing", "Pricing"],
 ] as const;
 
+const solutionItems = [
+  {
+    href: "#how",
+    title: "A card that stays current",
+    copy: "Update once. Your RaytME profile stays right when a title, number, or company changes.",
+    image: "/landing/james-carter.png",
+  },
+  {
+    href: "#how",
+    title: "Ratings that carry weight",
+    copy: "Honest feedback from people you've worked with — not everyone a five.",
+    image: "/landing/maya-brooks.png",
+  },
+  {
+    href: "#share",
+    title: "Share anywhere you work",
+    copy: "QR, WhatsApp, link, or email signature. Connect without a printed card.",
+    image: "/landing/amelia-hart.png",
+  },
+  {
+    href: "#business",
+    title: "Built for teams",
+    copy: "Give every employee a verified professional identity and a reputation that travels.",
+    image: "/landing/avatar-2.png",
+  },
+  {
+    href: "#how",
+    title: "Never lose a contact",
+    copy: "Save who you meet. Search your list later and reach out when it matters.",
+    image: "/landing/avatar-3.png",
+  },
+] as const;
+
 function SectionHead({
   eyebrow,
   title,
@@ -479,6 +512,62 @@ function ThemedBusinessCard() {
   );
 }
 
+function SolutionsMenu() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        data-gsap-nav-link
+        className="inline-flex items-center gap-1 text-[13px] font-medium text-white/75 transition-colors duration-300 hover:text-white"
+        aria-expanded={open}
+        aria-haspopup="true"
+      >
+        Solutions
+        <ChevronDownIcon
+          className={cn("size-3.5 transition-transform duration-300", open && "rotate-180")}
+        />
+      </button>
+      {open ? (
+        <div className="fixed inset-x-4 top-[3.6rem] z-50 mx-auto max-w-7xl pt-2 lg:inset-x-8">
+          <div className="rounded-2xl border border-white/10 bg-black/95 p-5 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)] backdrop-blur-xl">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+              {solutionItems.map((item) => (
+                <a
+                  key={item.title}
+                  href={item.href}
+                  className="group min-w-0 rounded-xl transition-colors duration-300 hover:bg-white/[0.04]"
+                  onClick={() => setOpen(false)}
+                >
+                  <div className="relative aspect-[5/4] overflow-hidden rounded-xl bg-white/5">
+                    <Image
+                      src={item.image}
+                      alt=""
+                      fill
+                      sizes="220px"
+                      className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                  </div>
+                  <p className="mt-3 text-[14px] font-semibold leading-5 text-white">
+                    {item.title}
+                  </p>
+                  <p className="mt-1.5 text-[12px] leading-5 text-white/55">
+                    {item.copy}
+                  </p>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function ResourcesMenu() {
   const [open, setOpen] = useState(false);
   return (
@@ -541,7 +630,23 @@ function Navbar() {
           <LogoLockup tone="light" />
         </a>
         <nav className="hidden items-center gap-6 lg:flex">
-          {navLinks.map(([href, label]) => (
+          {navLinks.slice(0, 1).map(([href, label]) => (
+            <a
+              data-gsap-nav-link
+              key={href}
+              href={href}
+              className="relative text-[13px] font-medium text-white/75 transition-colors duration-300 ease-out hover:text-white"
+            >
+              {label}
+              <span
+                data-gsap-nav-underline
+                aria-hidden="true"
+                className="absolute inset-x-0 -bottom-1 h-px origin-center scale-x-0 bg-white"
+              />
+            </a>
+          ))}
+          <SolutionsMenu />
+          {navLinks.slice(1).map(([href, label]) => (
             <a
               data-gsap-nav-link
               key={href}
@@ -591,7 +696,44 @@ function Navbar() {
                 <SheetDescription>Navigate the product.</SheetDescription>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-4">
-                {navLinks.map(([href, label]) => (
+                {navLinks.slice(0, 1).map(([href, label]) => (
+                  <SheetClose
+                    key={href}
+                    render={
+                      <a
+                        href={href}
+                        className={buttonVariants({
+                          variant: "ghost",
+                          className: "justify-start",
+                        })}
+                      />
+                    }
+                    nativeButton={false}
+                  >
+                    {label}
+                  </SheetClose>
+                ))}
+                <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                  Solutions
+                </p>
+                {solutionItems.map((item) => (
+                  <SheetClose
+                    key={item.title}
+                    render={
+                      <a
+                        href={item.href}
+                        className={buttonVariants({
+                          variant: "ghost",
+                          className: "h-auto justify-start py-2 text-start whitespace-normal",
+                        })}
+                      />
+                    }
+                    nativeButton={false}
+                  >
+                    {item.title}
+                  </SheetClose>
+                ))}
+                {navLinks.slice(1).map(([href, label]) => (
                   <SheetClose
                     key={href}
                     render={
@@ -1093,7 +1235,7 @@ function WaysToShare() {
     [UserPlusIcon, "Add to Contacts", "Save directly to someone's phone."],
   ] as const;
   return (
-    <section className="mx-auto max-w-7xl px-5 pb-14 pt-6 lg:px-8">
+    <section id="share" className="mx-auto max-w-7xl px-5 pb-14 pt-6 lg:px-8">
       <h2 className="font-brand text-[2rem] font-semibold tracking-tight text-white sm:text-[2.35rem]">
         Ways to share your RaytME
       </h2>
@@ -1210,33 +1352,63 @@ function StoreBadges() {
 const pillars = [
   {
     num: "01",
-    eyebrow: "THE OLD WAY",
-    title: "A business card is wrong the moment something changes.",
-    copy: "Printed cards get reordered and reprinted every time a title, a number, or a company changes — most of them thrown away within a year. Your RaytME profile is your business card. Share it, connect instantly, and it's always current.",
+    eyebrow: "RETIRE THE PAPER CARD",
+    title: "Paper cards lock you into a title you've already outgrown.",
+    copy: "Companies and individuals pay for business cards in bulk. When a role or title changes mid-year, the cards don't — reprinting isn't worth the cost, so people keep handing out cards that are already wrong. RaytME replaces printed cards with a digital business card that can be updated anytime, at no reprint cost. Companies get custom, on-brand themes they can roll out and edit across the whole team instantly, so a title change is a two-second edit instead of a reorder.",
   },
   {
     num: "02",
-    eyebrow: "WHY IT WORKS",
-    title: "You can't rate everyone a 5. That's the point.",
-    copy: "Every account has a limited number of ratings to give each month. Rate everyone the same and your ratings carry less weight — rate honestly, and your feedback actually moves someone's reputation.",
+    eyebrow: "TURN CONTACTS INTO A NETWORK",
+    title: "A drawer full of business cards is a dead end, not a network.",
+    copy: "Offices end up stacked with business cards from people you met once — most get thrown out, and the ones you keep are useless the moment you need to remember who was good at what. There's no way to search a pile of paper. Add anyone you meet to your list with one tap — you choose who to save, it's not automatic, and you don't need to rate someone to keep them. Organized by profession, your list turns every card you'd normally lose into something searchable: need a reliable accountant, a contractor, a designer you worked with last year? Search by profession and RaytME surfaces exactly who you saved, any rating you gave them, and where you met.",
   },
   {
     num: "03",
-    eyebrow: "WORK TOGETHER, RATE EACH OTHER",
-    title: "You don't need to meet someone to build a reputation with them.",
-    copy: "Add your RaytME link to your email signature, or just share it directly on WhatsApp. Colleagues, clients, and vendors you've only ever worked with remotely can still rate you — and you can rate them back.",
+    eyebrow: "TRACK GROWTH, NOT GUESSWORK",
+    title: "HR can't see who's actually improving.",
+    copy: "Performance reviews rely on self-reported updates and manager memory. HR has no ongoing, independent signal of how someone is actually developing — with colleagues, or on work delivered to outside clients. HR and managers can track a staff member's credible score over time, built from real ratings by colleagues and by the third parties they work with. It's a running, verifiable view of growth — not a once-a-year snapshot based on what someone chose to report.",
   },
   {
     num: "04",
-    eyebrow: "THE RESULT",
-    title: "When your reputation is on the line, you show up differently.",
-    copy: "Ratings that follow you and reflect real feedback from real colleagues give people a reason to bring their best. The outcome: more professional conduct, better service, day to day.",
+    eyebrow: "BUILD TRUST ACROSS ANY BORDER",
+    title: "Working across borders, credibility doesn't travel with you.",
+    copy: "Work is global now — you can be based in one country and collaborating with companies in several others. But there's no simple way to establish and confirm mutual credibility with someone you may only ever meet through a screen. Share your RaytME code the moment you connect — through an email signature, or a link sent once the work is done. The other side checks your card, saves you to their list, and once the engagement wraps, you rate each other on the work itself. Distance stops being a barrier to trust.",
   },
   {
     num: "05",
-    eyebrow: "NEVER LOSE A CONTACT AGAIN",
-    title: "Met someone? Add them to your list.",
-    copy: "No more digging through a stack of business cards you'll never look at again. Your list keeps everyone you've met — search it later to find that sales agent from three months ago and reach out when you need them.",
+    eyebrow: "BE CREDIBLE THE MOMENT IT COUNTS",
+    title: "Credibility doesn't show up when it counts.",
+    copy: "By the time someone checks you out — searching your name, scrolling a profile, asking around — the meeting, the pitch, or the handshake is already over. Credibility arrives too late to change the outcome. Every RaytME profile is instantly shareable via QR code, NFC tap, direct link, or embedded email signature — no app download required for the person viewing it. Update your information once and every card, link, and signature reflects it immediately, so your credibility is visible at the exact moment of the interaction.",
+  },
+  {
+    num: "06",
+    eyebrow: "SEE THE FULL PICTURE, NOT ONE SCORE",
+    title: "A single star rating hides more than it reveals.",
+    copy: "A great communicator who's unreliable and a reliable person who under-communicates look identical under one generic score. Viewers can't tell what kind of trust they're actually getting. RaytME breaks every score into five distinct categories — Professionalism, Communication, Reliability, Knowledge, and Collaboration — so viewers see the shape of someone's reputation, not just a headline number, and professionals know exactly where to improve.",
+  },
+  {
+    num: "07",
+    eyebrow: "GET HONEST FEEDBACK, WITHOUT THE FEAR",
+    title: "Honest feedback and public exposure are in tension.",
+    copy: "People soften or withhold honest feedback when their name is permanently attached to it — which means the ratings that do get left are often the polite version, not the true one. Raters can submit feedback anonymously, while profile owners control what's shown publicly versus kept private or aggregate-only. Anonymity protects the rater; the rating still counts toward the score.",
+  },
+  {
+    num: "08",
+    eyebrow: "RATINGS YOU CAN ACTUALLY TRUST",
+    title: "Reputation systems are easy to game.",
+    copy: "Star ratings, review platforms, and endorsement systems are routinely manipulated — rating rings, reciprocal reviews, fake accounts — which erodes trust in the score itself. A built-in anti-manipulation engine flags patterns consistent with brigading or coordinated rating rings, relationship-type weighting naturally discounts low-context or unverified raters, and a monthly cap on ratings given makes it impossible to flood the system with fake positive reviews. The system is monitored on an ongoing basis as manipulation tactics evolve.",
+  },
+  {
+    num: "09",
+    eyebrow: "MAKE EVERY RATING COUNT",
+    title: "Real ratings drive real performance, not just perception.",
+    copy: "On most platforms, endorsements and appraisals are easy to hand out and hold little weight — so they don't influence day-to-day behavior. Nobody works harder because of a one-click endorsement. When a company puts its RaytME code in every email signature, the rating becomes real and visible — colleagues know they'll be rated by the people they work with, and employees know third-party clients will rate the service they deliver. That single shift quietly drives better collaboration internally and better service externally, improving how the company performs without anyone having to mandate it.",
+  },
+  {
+    num: "10",
+    eyebrow: "ONE REPUTATION, EVERYWHERE YOU GO",
+    title: "Reputation is fragmented by platform, role, and geography.",
+    copy: "Your credibility gets rebuilt from scratch every time you change companies, roles, or countries — nothing portable carries forward what you've actually earned. RaytME is a single global platform, not tied to one region, industry, or job type. Relationship-type weighting adapts to how you actually work — manager, client, collaborator, vendor, peer — and your score and profile travel with you across roles, companies, and countries.",
   },
 ] as const;
 
@@ -1712,10 +1884,7 @@ export default function RateMeLanding() {
                 aria-hidden="true"
                 className="rate-hero-copy-scrim pointer-events-none absolute -inset-x-5 -inset-y-6 -z-10 sm:-inset-x-10 sm:-inset-y-10 lg:-inset-x-12"
               />
-              <p className="text-[11px] font-medium tracking-[0.32em] text-white/50">
-                VIRTUAL BUSINESS CARD
-              </p>
-              <h1 className="mt-5 w-full font-brand text-[2.15rem] font-semibold leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
+              <h1 className="w-full font-brand text-[2.15rem] font-semibold leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
                 <span data-gsap-title-line className="block w-full will-change-transform">
                   The Professional
                   <br />
@@ -1804,8 +1973,8 @@ export default function RateMeLanding() {
               connection, anywhere in the world.
             </p>
             <p className="mt-6 max-w-3xl text-lg leading-8 tracking-normal text-white/55">
-              RaytME is built for a simple idea: your reputation should be
-              something you can prove, not just something you say.
+              RaytME is built for a simple idea: a reputation you can prove, not
+              just claim.
             </p>
           </div>
         </section>
@@ -1813,8 +1982,8 @@ export default function RateMeLanding() {
           <div className="mx-auto max-w-7xl">
             <SectionHead
               eyebrow="How it works"
-              title="Your RaytME profile is your business card"
-              copy="A virtual card you share. A reputation that follows."
+              title="Your reputation, proven when it matters."
+              copy="Professional reputation today lives in scattered, unverifiable places — a recommendation written as a favor, a testimonial from a screenshot, a “trust me” during a pitch. RaytME is a portable, tamper-resistant way to demonstrate real-world credibility at the exact moment it matters."
             />
             <div className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
               <div className="flex min-w-0 flex-col">
@@ -2064,10 +2233,7 @@ export default function RateMeLanding() {
           </div>
         </div>
         <div className="mx-auto mt-12 max-w-7xl border-t border-white/10 pt-5 text-[12px] text-white/40">
-          <p className="inline-flex flex-wrap items-center gap-1">
-            <span dir="ltr">© 2026 RaytME.</span>
-            <span>All rights reserved.</span>
-          </p>
+          <p dir="ltr">Copyright © 2026 RaytME LLC. All rights reserved.</p>
         </div>
       </footer>
       <RaytmeBot arabic={arabic} />
