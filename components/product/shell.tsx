@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Globe2, LogOut } from 'lucide-react'
