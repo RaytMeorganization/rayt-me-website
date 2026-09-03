@@ -179,8 +179,11 @@ const LIST_CONTACTS = [
 
 function useDemoActions(handlers: Record<string, () => void>) {
   const handlersRef = useRef(handlers);
-  handlersRef.current = handlers;
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    handlersRef.current = handlers;
+  }, [handlers]);
 
   useEffect(() => {
     if (!root) return;
