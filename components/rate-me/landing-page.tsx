@@ -2199,11 +2199,7 @@ export default function RateMeLanding() {
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 lg:grid-cols-[1.45fr_1fr_1fr_1fr_1.75fr]">
           <div>
             <a className="inline-flex items-center" href="#top">
-<<<<<<< HEAD
               <LogoLockup tone="light" showTagline size="md" />
-=======
-              <LogoLockup tone="light" className="h-11 sm:h-12" />
->>>>>>> feat/abdurdevsundnaywork
             </a>
             <p className="mt-5 max-w-[16rem] text-sm leading-6 text-white/45">
               Your digital business card. Share your profile, grow your
