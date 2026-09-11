@@ -198,7 +198,7 @@ export const arabicCopy: Record<string, string> = {
   "Working across borders, credibility doesn't travel with you.":
     "عند العمل عبر الحدود، المصداقية لا تسافر معك.",
   "Work is global now — you can be based in one country and collaborating with companies in several others. But there's no simple way to establish and confirm mutual credibility with someone you may only ever meet through a screen. Share your RaytME code the moment you connect — through an email signature, or a link sent once the work is done. The other side checks your card, saves you to their list, and once the engagement wraps, you rate each other on the work itself. Distance stops being a barrier to trust.":
-    "العمل عالمي الآن — قد تكون في بلد وتتعاون مع شركات في عدة بلدان. لكن لا توجد طريقة بسيطة لتأكيد المصداقية المتبادلة مع شخص قد لا تقابله إلا عبر الشاشة. شارك رمز RaytME لحظة التواصل. الطرف الآخر يتحقق من بطاقتك ويحفظك، وبعد انتهاء العمل تقيّمون بعضكم على العمل نفسه. المسافة تتوقف عن أن تكون عائقاً للثقة.",
+    "العمل عالمي الآن — قد تكون في بلد وتتعاون مع شركات في عدة بلدان. لكن لا توجد طريقة بسيطة لتأكيد المصداقية المتبادلة مع شخص قد لا تقابله إلا عبر الشاشة. شارك رمز RaytME لحظة التواصل. الطرف الآخر ي��حقق من بطاقتك ويحفظك، وبعد انتهاء العمل تقيّمون بعضكم على العمل نفسه. المسافة تتوقف عن أن تكون عائقاً للثقة.",
   "BE CREDIBLE THE MOMENT IT COUNTS": "كن موثوقاً في اللحظة التي تهم",
   "Credibility doesn't show up when it counts.":
     "المصداقية لا تظهر عندما تُحتسب.",
@@ -366,7 +366,7 @@ export const arabicCopy: Record<string, string> = {
     "المتوسط البسيط يعامل كل تقييم بالمثل. RaytME يرجّح الملاحظات الصادقة المرتبطة بسياق، فيحسب التقييم المتأنّي أكثر من الضجيج.",
   "Who can rate me?": "من يمكنه تقييمي؟",
   "Anyone you've had a real professional interaction with — managers, clients, collaborators, vendors, or peers. Ratings are weighted differently depending on the nature of that relationship.":
-    "أي شخص كانت لك معه علاقة مهنية حقيقية — مدير أو عميل أو متعاون أو مورّد أو زميل. وتُرجَّح التقييمات بحسب طبيعة تلك العلاقة.",
+    "أي شخص كانت لك معه علاقة مهنية حقيقية — مدير أو عميل أو متعاون أو مورّد أو زميل. وتُرجَّح التقييمات بحسب طبي��ة تلك العلاقة.",
   "Can ratings be anonymous?": "هل يمكن أن تكون التقييمات مجهولة؟",
   "Yes. Raters can choose to submit feedback anonymously, and profile owners control what's shown publicly versus kept private, without losing the rating's contribution to the score.":
     "نعم. يمكن للمقيّمين إرسال الملاحظات دون الكشف عن هويتهم، ويتحكم صاحب الملف بما يظهر علناً وما يبقى خاصاً، دون أن يفقد التقييم أثره في الدرجة.",
@@ -433,6 +433,38 @@ export const arabicCopy: Record<string, string> = {
     "مرحباً — أنا RaytME Bot. هذه معاينة للواجهة فقط.",
   "Configure your OpenAI API setup to use this chatbot.":
     "اضبط إعدادات OpenAI API لاستخدام هذا المحادث.",
+
+  // Updated How it works points
+  "Titles change. Printed cards don't.": "العناوين تتغير. البطاقات المطبوعة لا تتغير.",
+  "Your RaytME card updates instantly — no reprints, ever.":
+    "تتحدث بطاقة RaytME فوراً — دون إعادة طباعة أبداً.",
+  "Stop losing business cards.": "توقف عن فقدان بطاقات العمل.",
+  "Save everyone you meet, searchable by profession, whenever you need them.":
+    "احفظ كل من تقابلهم، وابحث عنهم حسب المهنة وقتما تحتاجهم.",
+  "Reviews rely on memory.": "تعتمد المراجعات على الذاكرة.",
+  "RaytME gives HR a real, running score built from real ratings.":
+    "تمنح RaytME الموارد البشرية درجة حقيقية مستمرة مبنية على تقييمات حقيقية.",
+  "Never met in person?": "لم تلتقِ بهم شخصياً؟",
+  "Share your code, rate the work, build trust with zero distance.":
+    "شارك رمزك، قيّم العمل، وابنِ الثقة دون أي مسافة.",
+  "Credibility that shows up late is useless.": "المصداقية التي تظهر متأخرة لا فائدة منها.",
+  "RaytME makes yours visible the moment it matters.":
+    "تجعل RaytME مصداقيتك ظاهرة في اللحظة التي تهم.",
+  "One star hides everything.": "نجمة واحدة تخفي كل شيء.",
+  "RaytME scores five categories — so your real strengths actually show.":
+    "تقيّم RaytME خمس فئات — لتظهر نقاط قوتك الحقيقية.",
+  "Named feedback gets softened.": "تُلطّف الملاحظات المسماة.",
+  "Anonymous ratings on RaytME stay honest — and still count.":
+    "تبقى التقييمات المجهولة على RaytME صادقة — وتُحتسب أيضاً.",
+  "Rating systems get gamed.": "يتم التلاعب بأنظمة التقييم.",
+  "RaytME blocks rings, fake reviews, and flood attempts — automatically.":
+    "تحظر RaytME حلقات التقييم والمراجعات المزيفة ومحاولات الإغراق — تلقائياً.",
+  "Endorsements don't change behavior.": "التزكيات لا تغيّر السلوك.",
+  "Real, visible ratings do — every time, everywhere.":
+    "أما التقييمات الحقيقية والمرئية فتفعل — في كل مرة وكل مكان.",
+  "New job. New country.": "وظيفة جديدة. بلد جديد.",
+  "Reputation reset to zero — except on RaytME. One score, everywhere.":
+    "تُعاد السمعة إلى الصفر — إلا على RaytME. درجة واحدة في كل مكان.",
 };
 
 function shouldSkipText(node: Text) {
