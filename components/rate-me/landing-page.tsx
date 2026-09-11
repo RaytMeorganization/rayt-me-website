@@ -113,7 +113,7 @@ function useLandingLocale() {
   return useContext(LandingLocale);
 }
 
-const USD_PER_EMPLOYEE_YEAR = 16;
+const USD_PER_EMPLOYEE_YEAR = 21;
 const USD_PRO_YEAR = 27;
 
 function formatUsd(amount: number) {
