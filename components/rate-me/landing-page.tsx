@@ -197,36 +197,39 @@ const navLinks = [
   ["#pricing", "Pricing"],
 ] as const;
 
+const solutionsImage =
+  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_0272-HEy0sOwztnJ6s6QZlUiNbaJxKsZWa0.png";
+
 const solutionItems = [
   {
     href: "#how",
     title: "A card that stays current",
     copy: "Update once. Your RaytME profile stays right when a title, number, or company changes.",
-    image: "/landing/james-carter.png",
+    imagePosition: "0% center",
   },
   {
     href: "#how",
     title: "Ratings that carry weight",
     copy: "Honest feedback from people you've worked with — not everyone a five.",
-    image: "/landing/maya-brooks.png",
+    imagePosition: "25% center",
   },
   {
     href: "#share",
     title: "Share anywhere you work",
     copy: "QR, WhatsApp, link, or email signature. Connect without a printed card.",
-    image: "/landing/amelia-hart.png",
+    imagePosition: "50% center",
   },
   {
     href: "#business",
     title: "Built for teams",
     copy: "Give every employee a verified professional identity and a reputation that travels.",
-    image: "/landing/avatar-2.png",
+    imagePosition: "75% center",
   },
   {
     href: "#how",
     title: "Never lose a contact",
     copy: "Save who you meet. Search your list later and reach out when it matters.",
-    image: "/landing/avatar-3.png",
+    imagePosition: "100% center",
   },
 ] as const;
 
@@ -535,7 +538,7 @@ function SolutionsMenu() {
       {open ? (
         <div className="fixed inset-x-4 top-[3.6rem] z-50 mx-auto max-w-7xl pt-2 lg:inset-x-8">
           <div className="rounded-2xl border border-white/10 bg-black/95 p-5 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)] backdrop-blur-xl">
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 xl:grid-cols-5">
               {solutionItems.map((item) => (
                 <a
                   key={item.title}
@@ -543,15 +546,16 @@ function SolutionsMenu() {
                   className="group min-w-0 rounded-xl transition-colors duration-300 hover:bg-white/[0.04]"
                   onClick={() => setOpen(false)}
                 >
-                  <div className="relative aspect-[5/4] overflow-hidden rounded-xl bg-white/5">
-                    <Image
-                      src={item.image}
-                      alt=""
-                      fill
-                      sizes="220px"
-                      className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]"
-                    />
-                  </div>
+                  <div
+                    role="img"
+                    aria-label={item.title}
+                    className="relative aspect-[5/4] overflow-hidden rounded-xl bg-white/5 bg-cover bg-no-repeat transition-transform duration-500 group-hover:scale-[1.02]"
+                    style={{
+                      backgroundImage: `url(${solutionsImage})`,
+                      backgroundPosition: item.imagePosition.replace("center", "top"),
+                      backgroundSize: "500% 147%",
+                    }}
+                  />
                   <p className="mt-3 text-[14px] font-semibold leading-5 text-white">
                     {item.title}
                   </p>
