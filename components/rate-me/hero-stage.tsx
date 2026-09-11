@@ -920,7 +920,7 @@ function PhoneAppInterior({
 
 function PhoneProfile() {
   return (
-    <div className="relative w-[17.75rem] shrink-0">
+    <div className="relative w-[14.5rem] shrink-0 sm:w-[17.75rem]">
       <span className="absolute -left-[3px] top-[5.35rem] h-7 w-[3px] rounded-l-[1px] bg-[#3a3a3c]" />
       <span className="absolute -left-[3px] top-[7.35rem] h-10 w-[3px] rounded-l-[1px] bg-[#3a3a3c]" />
       <span className="absolute -left-[3px] top-[10.1rem] h-10 w-[3px] rounded-l-[1px] bg-[#3a3a3c]" />
@@ -1666,7 +1666,7 @@ export function HeroSkyline() {
       className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-black"
       aria-hidden="true"
     >
-      <div className="absolute inset-y-0 end-[-18%] w-[118%] sm:end-[-10%] sm:w-[88%] lg:end-[-4%] lg:w-[72%]">
+      <div className="absolute inset-y-0 end-[-48%] w-[150%] opacity-60 sm:end-[-10%] sm:w-[88%] sm:opacity-100 lg:end-[-4%] lg:w-[72%]">
         <video
           key={HERO_VIDEOS[activeVideo]}
           autoPlay

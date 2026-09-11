@@ -1882,13 +1882,13 @@ export default function RateMeLanding() {
       <main>
         <section className="rate-premium-hero relative isolate overflow-hidden bg-black">
           <HeroSkyline />
-          <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-7xl grid-cols-1 items-center gap-6 overflow-x-hidden px-5 pb-8 pt-[5.5rem] sm:overflow-x-visible lg:grid-cols-[minmax(0,34rem)_1fr] lg:gap-2 lg:px-8 lg:pb-10 lg:pt-[5.75rem]">
-            <div data-gsap-hero-card className="relative min-w-0 w-full max-w-[21rem] sm:max-w-xl">
+          <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-7xl grid-cols-1 items-center gap-4 overflow-x-hidden px-5 pb-10 pt-[5rem] sm:gap-6 sm:overflow-x-visible lg:grid-cols-[minmax(0,34rem)_1fr] lg:gap-2 lg:px-8 lg:pb-10 lg:pt-[5.75rem]">
+            <div data-gsap-hero-card className="relative min-w-0 w-full max-w-[20rem] sm:max-w-xl">
               <div
                 aria-hidden="true"
                 className="rate-hero-copy-scrim pointer-events-none absolute -inset-x-5 -inset-y-6 -z-10 sm:-inset-x-10 sm:-inset-y-10 lg:-inset-x-12"
               />
-              <h1 className="w-full font-brand text-[2.15rem] font-semibold leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
+              <h1 className="w-full font-brand text-[2rem] font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
                 <span data-gsap-title-line className="block w-full will-change-transform">
                   The Professional
                   <br />
@@ -1896,14 +1896,14 @@ export default function RateMeLanding() {
                 </span>
                 <span
                   data-gsap-title-line
-                  className="mt-4 block w-full font-serif text-[1.45rem] font-normal italic leading-[1.18] tracking-normal text-white/78 sm:text-[2.1rem] lg:text-[2.45rem]"
+                  className="mt-3 block w-full font-serif text-[1.35rem] font-normal italic leading-[1.18] tracking-normal text-white/78 sm:mt-4 sm:text-[2.1rem] lg:text-[2.45rem]"
                 >
                   Built on Verified Reputation.
                 </span>
               </h1>
               <p
                 data-gsap-hero-subtitle
-                className="mt-6 w-full text-[15px] leading-7 text-white/55"
+                className="mt-4 w-full text-[14px] leading-6 text-white/55 sm:mt-6 sm:text-[15px] sm:leading-7"
               >
                 Every interaction you have — a meeting, a call, an introduction
                 — builds your reputation somewhere. RaytME turns it into one
