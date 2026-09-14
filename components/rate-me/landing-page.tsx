@@ -83,7 +83,10 @@ import { LogoLockup } from "@/components/brand/logo-lockup";
 import { applyLandingCopy } from "@/components/rate-me/landing-copy";
 import { RaytmeBot } from "@/components/rate-me/raytme-bot";
 import { cardThemeBarColor } from "@/lib/card-theme";
-import { WEB_SIGN_UP_DISABLED } from "@/lib/web-sign-in";
+import {
+  WEB_SIGN_IN_DISABLED,
+  WEB_SIGN_UP_DISABLED,
+} from "@/lib/web-sign-in";
 import { cn } from "@/lib/utils";
 
 type LandingLocaleValue = {
@@ -149,6 +152,12 @@ const ctaDark = cn(
 const ctaPrimary = ctaWhite;
 const ctaGhost = ctaDark;
 
+function resourceHref(item: string) {
+  if (item === "Privacy") return "/privacy";
+  if (item === "Terms") return "/terms";
+  return "#footer";
+}
+
 function SignUpCta({
   className,
   children,
@@ -167,6 +176,29 @@ function SignUpCta({
   }
   return (
     <a href="/sign-up" className={className} {...rest}>
+      {children}
+    </a>
+  );
+}
+
+function SignInCta({
+  className,
+  children,
+  ...rest
+}: ComponentPropsWithoutRef<"a">) {
+  if (WEB_SIGN_IN_DISABLED) {
+    return (
+      <button
+        type="button"
+        disabled
+        className={cn(className, "pointer-events-none cursor-not-allowed opacity-40")}
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <a href="/sign-in" className={className} {...rest}>
       {children}
     </a>
   );
@@ -589,7 +621,7 @@ function ResourcesMenu() {
           {["Help Center", "Guides", "Privacy", "Terms"].map((item) => (
             <a
               key={item}
-              href="#footer"
+              href={resourceHref(item)}
               className="block rounded-xl px-3 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/5 hover:text-white"
             >
               {item}
@@ -665,14 +697,12 @@ function Navbar() {
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
           <LanguageToggle />
-          <button
-            type="button"
-            disabled
+          <SignInCta
             data-rate-me-copy
-            className="cursor-not-allowed text-[13px] font-medium text-white/35"
+            className="text-[13px] font-medium text-white/75 transition-colors duration-300 ease-out hover:text-white"
           >
             Sign in
-          </button>
+          </SignInCta>
           <SignUpCta className={buttonVariants({ size: "sm", className: ctaWhite })}>
             <span data-rate-me-copy>Get Started</span>
           </SignUpCta>
@@ -750,14 +780,19 @@ function Navbar() {
                     {label}
                   </SheetClose>
                 ))}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  disabled
-                  className="justify-start"
+                <SheetClose
+                  render={
+                    <SignInCta
+                      className={buttonVariants({
+                        variant: "ghost",
+                        className: "justify-start",
+                      })}
+                    />
+                  }
+                  nativeButton={false}
                 >
                   <span data-rate-me-copy>Sign in</span>
-                </Button>
+                </SheetClose>
               </nav>
               <SignUpCta className={buttonVariants({ className: cn("mx-4", ctaPrimary) })}>
                 Get started
@@ -2217,7 +2252,15 @@ export default function RateMeLanding() {
                 {links.map((item) => (
                   <a
                     key={item}
-                    href={item === "About Us" ? "#about" : "#top"}
+                    href={
+                      item === "About Us"
+                        ? "#about"
+                        : item === "Privacy"
+                          ? "/privacy"
+                          : item === "Terms"
+                            ? "/terms"
+                            : "#top"
+                    }
                     className="transition-colors duration-300 ease-out hover:text-white"
                   >
                     {item}

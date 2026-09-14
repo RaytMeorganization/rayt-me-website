@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('landing renders the branded hero and working account CTA', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: /professional identity platform/i })).toBeVisible()
-  await expect(page.getByRole('button', { name: /create your card/i }).first()).toBeDisabled()
+  await expect(page.getByRole('link', { name: /create your card/i }).first()).toHaveAttribute('href', '/sign-up')
   await expect(page.locator('[data-gsap-hero-bg]')).toBeAttached()
   await expect(page.getByText('Your reputation, proven when it matters.')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'James Carter' })).toBeVisible()
@@ -32,7 +32,7 @@ test('public profile supports RTL without exposing app-only actions', async ({ p
   await expect(page.getByRole('button', { name: /^rate$/i })).toHaveCount(0)
 })
 
-test.skip('platform admin can sign in and reach protected operations', async ({ page }) => {
+test('platform admin can sign in and reach protected operations', async ({ page }) => {
   await page.goto('/sign-in')
   await page.getByLabel('Email').fill('admin@demo.rayt.me')
   await page.getByLabel('Password').fill('RaytDev!2026')
@@ -45,7 +45,7 @@ test.skip('platform admin can sign in and reach protected operations', async ({ 
   await expect(page.getByRole('heading', { name: 'Admin dashboard' })).toBeVisible()
 })
 
-test.skip('member entitlements and server-controlled themes load in settings', async ({ page }) => {
+test('member entitlements and server-controlled themes load in settings', async ({ page }) => {
   await page.goto('/sign-in')
   await page.getByLabel('Email').fill('user@demo.rayt.me')
   await page.getByLabel('Password').fill('RaytDev!2026')

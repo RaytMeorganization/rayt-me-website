@@ -5,11 +5,16 @@ const nextConfig = {
   async rewrites() {
     return [{ source: '/backend/:path*', destination: `${backend}/:path*` }]
   },
-  // Temporary: remove these when flags are flipped in lib/web-sign-in.ts
   async redirects() {
+    const signInOff = process.env.NEXT_PUBLIC_WEB_SIGN_IN_DISABLED === 'true'
+    const signUpOff = process.env.NEXT_PUBLIC_WEB_SIGN_UP_DISABLED === 'true'
     return [
-      { source: '/sign-in', destination: '/', permanent: false },
-      { source: '/sign-up', destination: '/', permanent: false },
+      ...(signInOff
+        ? [{ source: '/sign-in', destination: '/', permanent: false }]
+        : []),
+      ...(signUpOff
+        ? [{ source: '/sign-up', destination: '/', permanent: false }]
+        : []),
     ]
   },
 }
