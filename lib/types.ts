@@ -87,9 +87,10 @@ export interface Organization {
 }
 
 export interface BusinessReputation {
-  averageRating: number
   averageReputation: number
+  averageRating: number | null
   ratingCount: number
+  memberCount?: number
 }
 
 export interface BusinessUsage {

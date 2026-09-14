@@ -34,6 +34,11 @@ import type { BusinessReputation, BusinessUsage, Organization } from '@/lib/type
 
 type BusinessTab = 'overview' | 'organization' | 'team' | 'brand' | 'usage'
 
+function formatScore(value: number | null | undefined, decimals = 1): string {
+  if (value == null || Number.isNaN(value)) return '—'
+  return value.toFixed(decimals)
+}
+
 export function BusinessDashboard() {
   const { t } = useI18n()
   const [tab, setTab] = useState<BusinessTab>('overview')
@@ -211,12 +216,12 @@ export function BusinessDashboard() {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <StatCard
                     label={t('reputation')}
-                    value={reputation ? reputation.averageReputation.toFixed(1) : '—'}
+                    value={formatScore(reputation?.averageReputation)}
                     hint={`${reputation?.ratingCount ?? 0} ${t('basedOn')}`}
                   />
                   <StatCard
                     label={t('averageRating')}
-                    value={reputation ? reputation.averageRating.toFixed(1) : '—'}
+                    value={formatScore(reputation?.averageRating)}
                     hint={t('ratingCount')}
                   />
                   <StatCard label={t('members')} value={String(usage?.usage.members ?? members.length)} hint={t('roster')} />
@@ -232,7 +237,11 @@ export function BusinessDashboard() {
                       <div>
                         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('reputation')}</p>
                         <p className="font-serif text-5xl font-semibold tabular-nums tracking-tight text-foreground">
-                          {reputation ? <AnimatedNumber value={reputation.averageReputation} decimals={1} /> : '—'}
+                          {reputation?.averageReputation != null ? (
+                            <AnimatedNumber value={reputation.averageReputation} decimals={1} />
+                          ) : (
+                            '—'
+                          )}
                         </p>
                         <p className="mt-1 text-sm text-muted-foreground">
                           {reputation?.ratingCount || 0} {t('basedOn')}
