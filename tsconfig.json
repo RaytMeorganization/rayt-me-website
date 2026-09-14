@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@rayt-me/plan-pricing": ["../rayt-me-shared/dist/index.d.ts"]
     }
   },
   "files": ["next-env.d.ts"],

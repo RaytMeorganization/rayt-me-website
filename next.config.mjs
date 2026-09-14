@@ -2,6 +2,7 @@
 const backend = (process.env.API_PROXY_TARGET || 'http://localhost:4000').replace(/\/$/, '')
 
 const nextConfig = {
+  transpilePackages: ['@rayt-me/plan-pricing'],
   async rewrites() {
     return [{ source: '/backend/:path*', destination: `${backend}/:path*` }]
   },

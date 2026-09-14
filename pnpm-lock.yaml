@@ -17,6 +17,9 @@ importers:
       '@gsap/react':
         specifier: ^2.1.2
         version: 2.1.2(gsap@3.15.0)(react@19.2.4)
+      '@rayt-me/plan-pricing':
+        specifier: file:../rayt-me-shared
+        version: file:../rayt-me-shared
       '@vercel/analytics':
         specifier: 1.6.1
         version: 1.6.1(next@16.3.0(@babel/core@7.29.7)(@playwright/test@1.62.1)(@types/node@24.10.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
@@ -683,6 +686,9 @@ packages:
     resolution: {integrity: sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ==}
     engines: {node: '>=20'}
     hasBin: true
+
+  '@rayt-me/plan-pricing@file:../rayt-me-shared':
+    resolution: {directory: ../rayt-me-shared, type: directory}
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -3852,6 +3858,8 @@ snapshots:
   '@playwright/test@1.62.1':
     dependencies:
       playwright: 1.62.1
+
+  '@rayt-me/plan-pricing@file:../rayt-me-shared': {}
 
   '@rtsao/scc@1.1.0': {}
 
