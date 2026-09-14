@@ -36,13 +36,13 @@ function AcceptInvite() {
           kind="roster"
           title={t('inviteAccepted')}
           description={t('inviteAcceptedHelp')}
-          action={<Button className="bg-[#11213D]" onClick={() => router.replace('/settings')}>{t('goToWorkspace')}</Button>}
+          action={<Button onClick={() => router.replace('/settings')}>{t('goToWorkspace')}</Button>}
         />
       : <div className="grid gap-4">
-          <p className="text-sm leading-6 text-[#5c6b64]">{t('acceptInviteHelp')}</p>
-          {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
+          <p className="text-sm leading-6 text-muted-foreground">{t('acceptInviteHelp')}</p>
+          {error && <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
           <div className="flex flex-wrap gap-3">
-            <Button disabled={busy} className="bg-[#11213D]" onClick={() => void accept()}>{busy ? t('saving') : t('acceptInvite')}</Button>
+            <Button disabled={busy} onClick={() => void accept()}>{busy ? t('saving') : t('acceptInvite')}</Button>
             <Button variant="outline" render={<Link href="/settings" />}>{t('settings')}</Button>
           </div>
         </div>}

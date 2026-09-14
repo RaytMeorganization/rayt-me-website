@@ -1,9 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { LogoLockup } from '@/components/brand/logo-lockup'
-import { Backdrop } from '@/components/product/brand-art'
-import { LocaleButton } from '@/components/product/shell'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { MarketingShell } from '@/components/product/marketing-shell'
 import { useI18n } from '@/components/product/providers'
 
 export function LegalPage({ kind }: { kind: 'privacy' | 'terms' }) {
@@ -25,29 +32,31 @@ export function LegalPage({ kind }: { kind: 'privacy' | 'terms' }) {
         ]
 
   return (
-    <main className="relative min-h-screen px-5 py-10 text-[#11213D]">
-      <Backdrop />
-      <div className="relative z-10 mx-auto flex max-w-3xl items-center justify-between">
-        <Link href="/" className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AD8547]/30">
-          <LogoLockup size="sm" />
-        </Link>
-        <LocaleButton />
+    <MarketingShell>
+      <div className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
+        <Card className="border-white/10 bg-card/90 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)] backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">
+              {title}
+            </CardTitle>
+            <CardDescription className="text-base leading-relaxed">{t('legalCounselNote')}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-6">
+            {sections.map((section, index) => (
+              <section key={section.heading}>
+                {index > 0 ? <Separator className="mb-6 bg-white/10" /> : null}
+                <h2 className="font-brand text-lg font-semibold text-foreground">{section.heading}</h2>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">{section.body}</p>
+              </section>
+            ))}
+          </CardContent>
+          <CardFooter className="border-t border-white/10 bg-transparent">
+            <Link href="/" className="text-sm font-semibold text-primary underline underline-offset-4">
+              {t('backHome')}
+            </Link>
+          </CardFooter>
+        </Card>
       </div>
-      <article className="relative z-10 mx-auto mt-10 max-w-3xl rounded-[28px] border border-[#eae2d1] bg-white p-6 shadow-xl shadow-emerald-950/5 sm:p-9">
-        <h1 className="font-serif text-3xl font-semibold tracking-[-.02em] text-[#11213D]">{title}</h1>
-        <p className="mt-3 text-sm leading-6 text-[#5c6b64]">{t('legalCounselNote')}</p>
-        <div className="mt-8 grid gap-6">
-          {sections.map((section) => (
-            <section key={section.heading}>
-              <h2 className="text-lg font-semibold text-[#11213D]">{section.heading}</h2>
-              <p className="mt-2 text-sm leading-7 text-[#4a5a53]">{section.body}</p>
-            </section>
-          ))}
-        </div>
-        <p className="mt-10 text-sm">
-          <Link href="/" className="font-semibold text-[#8C6B37] underline">{t('backHome')}</Link>
-        </p>
-      </article>
-    </main>
+    </MarketingShell>
   )
 }

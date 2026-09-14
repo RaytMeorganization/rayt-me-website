@@ -151,8 +151,8 @@ export function EmptyState({
   return (
     <div className="flex flex-col items-center gap-4 px-6 py-12 text-center">
       <Illustration kind={kind} className="w-40 max-w-full" />
-      <h3 className="text-lg font-semibold tracking-tight text-[#11213D]">{title}</h3>
-      <p className="max-w-sm text-sm leading-6 text-[#5c6b64]">{description}</p>
+      <h3 className="text-lg font-semibold tracking-tight text-foreground">{title}</h3>
+      <p className="max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>
       {action}
     </div>
   )
@@ -160,12 +160,12 @@ export function EmptyState({
 
 export function StatCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div data-premium-reveal className="rate-premium-card group rounded-2xl border border-[#eae2d1] bg-white p-4">
-      <p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#5c6b64]">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tabular-nums tracking-[-.05em] text-[#11213D]">
+    <div data-premium-reveal className="group rounded-2xl border border-white/10 bg-card/80 p-4 backdrop-blur-xl">
+      <p className="text-[10px] font-bold uppercase tracking-[.14em] text-muted-foreground">{label}</p>
+      <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-foreground">
         <AnimatedValue value={value} />
       </p>
-      {hint && <p className="mt-1 text-xs text-[#7a8780]">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
   )
 }

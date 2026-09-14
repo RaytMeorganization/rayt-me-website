@@ -4,17 +4,26 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { LogoLockup } from '@/components/brand/logo-lockup'
-import { LocaleButton, inputClass } from '@/components/product/shell'
-import { Backdrop } from '@/components/product/brand-art'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { MarketingShell } from '@/components/product/marketing-shell'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import { WEB_SIGN_IN_DISABLED, WEB_SIGN_UP_DISABLED } from '@/lib/web-sign-in'
 import type { AccountType, Role } from '@/lib/types'
 
-const homeFor = (role?: Role) => role === 'admin' ? '/admin-dashboard' : role === 'business' ? '/business-dashboard' : '/settings'
+const homeFor = (role?: Role) =>
+  role === 'admin' ? '/admin-dashboard' : role === 'business' ? '/business-dashboard' : '/settings'
 
-/** `next` is caller-supplied: keep it same-origin and within the role's reach. */
 function safeNext(next: string | null, role?: Role) {
   if (!next || !next.startsWith('/') || next.startsWith('//')) return null
   if (next.startsWith('/admin-dashboard')) return role === 'admin' ? next : null
@@ -33,51 +42,190 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setBusy(true); setError('')
+    setBusy(true)
+    setError('')
     const form = new FormData(event.currentTarget)
     const payload = Object.fromEntries(form.entries())
     try {
       await api(mode === 'sign-in' ? '/auth/login' : '/auth/register', {
-        method: 'POST', body: JSON.stringify(payload),
+        method: 'POST',
+        body: JSON.stringify(payload),
       })
       const session = await refresh()
       const fallback = mode === 'sign-up' ? '/verify' : homeFor(session?.role)
       router.replace(safeNext(search.get('next'), session?.role) ?? fallback)
     } catch (cause) {
       setError(errorMessage(cause, t('error')))
-    } finally { setBusy(false) }
+    } finally {
+      setBusy(false)
+    }
   }
 
   const signUp = mode === 'sign-up'
-  return <main className="relative min-h-screen px-5 py-10 text-[#11213D]">
-    <Backdrop />
-    <div className="relative z-10 mx-auto flex max-w-lg items-center justify-between"><Link href="/" className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AD8547]/30"><LogoLockup size="sm" /></Link><LocaleButton /></div>
-    <form onSubmit={submit} className="relative z-10 mx-auto mt-12 max-w-lg rounded-[28px] border border-[#eae2d1] bg-white p-6 shadow-xl shadow-emerald-950/5 sm:p-9">
-      <h1 className="font-serif text-3xl font-semibold tracking-[-.02em] text-[#11213D]">{signUp ? t('signUp') : t('signIn')}</h1>
-      <p className="mt-2 text-sm text-[#5c6b64]">{signUp ? t('signUpIntro') : t('signInRequiredHelp')}</p>
-      <div className="mt-8 grid gap-5">
-        {signUp && <><label className="grid gap-2 text-sm">{t('name')}<input required name="name" autoComplete="name" className={inputClass} /></label>
-          <fieldset><legend className="mb-2 text-sm">{t('profile')}</legend><div className="grid grid-cols-2 gap-2">{(['professional','student'] as const).map(type => <label key={type} className={`cursor-pointer rounded-[18px] border-2 p-3 text-sm ${accountType === type ? (type === 'professional' ? 'border-[#AD8547] bg-[#F4E9D3]' : 'border-[#2E6B4C] bg-[#E1EEE6]') : 'border-[#eae2d1]'}`}><input className="sr-only" type="radio" name="accountType" value={type} checked={accountType === type} onChange={() => setAccountType(type)} />{t(type)}</label>)}</div></fieldset>
-          <label className="grid gap-2 text-sm">{t('personalEmail')}<input required type="email" name="personalEmail" autoComplete="email" className={inputClass} /></label>
-          {accountType === 'professional' ? <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm">{t('workEmail')}<input required type="email" name="workEmail" className={inputClass} /></label><label className="grid gap-2 text-sm">{t('jobTitle')}<input required name="jobTitle" className={inputClass} /></label><label className="grid gap-2 text-sm">{t('company')}<input required name="company" className={inputClass} /></label><label className="grid gap-2 text-sm">{t('industry')}<input required name="industry" className={inputClass} /></label></div> : <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm">{t('universityEmail')}<input required type="email" name="universityEmail" className={inputClass} /></label><label className="grid gap-2 text-sm">{t('university')}<input required name="university" className={inputClass} /></label><label className="grid gap-2 text-sm">{t('fieldOfStudy')}<input required name="fieldOfStudy" className={inputClass} /></label></div>}
-          <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm">{t('city')}<input required name="city" className={inputClass} /></label><label className="grid gap-2 text-sm">{t('country')}<input required name="country" className={inputClass} /></label></div></>}
-        <label className="grid gap-2 text-sm">{t('email')}<input required type="email" name="email" autoComplete="email" className={inputClass} /></label>
-        {signUp && accountType === 'professional' && <label className="grid gap-2 text-sm">{t('phone')}<input required type="tel" name="phone" autoComplete="tel" className={inputClass} /></label>}
-        <label className="grid gap-2 text-sm">{t('password')}<input required minLength={8} type="password" name="password" autoComplete={signUp ? 'new-password' : 'current-password'} className={inputClass} /></label>
-        {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-        <Button type="submit" disabled={busy} className="min-h-11 rounded-xl bg-[#11213D]">{busy ? t('loading') : t('continue')}</Button>
+
+  return (
+    <MarketingShell hideAuthLinks>
+      <div className="mx-auto max-w-lg px-5 py-10 sm:py-14">
+        <Card className="border-white/10 bg-card/90 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)] backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">
+              {signUp ? t('signUp') : t('signIn')}
+            </CardTitle>
+            <CardDescription className="text-base leading-relaxed">
+              {signUp ? t('signUpIntro') : t('signInRequiredHelp')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form id="auth-form" onSubmit={submit}>
+              <FieldGroup>
+                {signUp ? (
+                  <>
+                    <Field>
+                      <FieldLabel htmlFor="name">{t('name')}</FieldLabel>
+                      <Input id="name" required name="name" autoComplete="name" className="min-h-11" />
+                    </Field>
+                    <Field>
+                      <FieldLabel>{t('profile')}</FieldLabel>
+                      <input type="hidden" name="accountType" value={accountType} />
+                      <ToggleGroup
+                        variant="outline"
+                        spacing={2}
+                        value={[accountType]}
+                        onValueChange={(next) => {
+                          const selected = Array.isArray(next) ? next[0] : next
+                          if (selected === 'professional' || selected === 'student') {
+                            setAccountType(selected)
+                          }
+                        }}
+                        className="grid w-full grid-cols-2"
+                      >
+                        <ToggleGroupItem value="professional" className="min-h-11 justify-center rounded-xl">
+                          {t('professional')}
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="student" className="min-h-11 justify-center rounded-xl">
+                          {t('student')}
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    </Field>
+                    <Field>
+                      <FieldLabel htmlFor="personalEmail">{t('personalEmail')}</FieldLabel>
+                      <Input
+                        id="personalEmail"
+                        required
+                        type="email"
+                        name="personalEmail"
+                        autoComplete="email"
+                        className="min-h-11"
+                      />
+                    </Field>
+                    {accountType === 'professional' ? (
+                      <div className="grid gap-5 sm:grid-cols-2">
+                        <Field>
+                          <FieldLabel htmlFor="workEmail">{t('workEmail')}</FieldLabel>
+                          <Input id="workEmail" required type="email" name="workEmail" className="min-h-11" />
+                        </Field>
+                        <Field>
+                          <FieldLabel htmlFor="jobTitle">{t('jobTitle')}</FieldLabel>
+                          <Input id="jobTitle" required name="jobTitle" className="min-h-11" />
+                        </Field>
+                        <Field>
+                          <FieldLabel htmlFor="company">{t('company')}</FieldLabel>
+                          <Input id="company" required name="company" className="min-h-11" />
+                        </Field>
+                        <Field>
+                          <FieldLabel htmlFor="industry">{t('industry')}</FieldLabel>
+                          <Input id="industry" required name="industry" className="min-h-11" />
+                        </Field>
+                      </div>
+                    ) : (
+                      <div className="grid gap-5 sm:grid-cols-2">
+                        <Field>
+                          <FieldLabel htmlFor="universityEmail">{t('universityEmail')}</FieldLabel>
+                          <Input
+                            id="universityEmail"
+                            required
+                            type="email"
+                            name="universityEmail"
+                            className="min-h-11"
+                          />
+                        </Field>
+                        <Field>
+                          <FieldLabel htmlFor="university">{t('university')}</FieldLabel>
+                          <Input id="university" required name="university" className="min-h-11" />
+                        </Field>
+                        <Field className="sm:col-span-2">
+                          <FieldLabel htmlFor="fieldOfStudy">{t('fieldOfStudy')}</FieldLabel>
+                          <Input id="fieldOfStudy" required name="fieldOfStudy" className="min-h-11" />
+                        </Field>
+                      </div>
+                    )}
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <Field>
+                        <FieldLabel htmlFor="city">{t('city')}</FieldLabel>
+                        <Input id="city" required name="city" className="min-h-11" />
+                      </Field>
+                      <Field>
+                        <FieldLabel htmlFor="country">{t('country')}</FieldLabel>
+                        <Input id="country" required name="country" className="min-h-11" />
+                      </Field>
+                    </div>
+                  </>
+                ) : null}
+                <Field>
+                  <FieldLabel htmlFor="email">{t('email')}</FieldLabel>
+                  <Input
+                    id="email"
+                    required
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    className="min-h-11"
+                  />
+                </Field>
+                {signUp && accountType === 'professional' ? (
+                  <Field>
+                    <FieldLabel htmlFor="phone">{t('phone')}</FieldLabel>
+                    <Input id="phone" required type="tel" name="phone" autoComplete="tel" className="min-h-11" />
+                  </Field>
+                ) : null}
+                <Field>
+                  <FieldLabel htmlFor="password">{t('password')}</FieldLabel>
+                  <Input
+                    id="password"
+                    required
+                    minLength={8}
+                    type="password"
+                    name="password"
+                    autoComplete={signUp ? 'new-password' : 'current-password'}
+                    className="min-h-11"
+                  />
+                </Field>
+                {error ? (
+                  <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {error}
+                  </p>
+                ) : null}
+                <Button type="submit" disabled={busy} className="min-h-11 w-full">
+                  {busy ? t('loading') : t('continue')}
+                </Button>
+              </FieldGroup>
+            </form>
+          </CardContent>
+          <CardFooter className="justify-center border-t border-white/10 bg-transparent">
+            <p className="text-center text-sm text-muted-foreground">
+              {signUp && WEB_SIGN_IN_DISABLED ? (
+                <span className="font-medium opacity-40">{t('signIn')}</span>
+              ) : !signUp && WEB_SIGN_UP_DISABLED ? (
+                <span className="font-medium opacity-40">{t('signUp')}</span>
+              ) : (
+                <Link className="font-semibold text-primary underline underline-offset-4" href={signUp ? '/sign-in' : '/sign-up'}>
+                  {signUp ? t('signIn') : t('signUp')}
+                </Link>
+              )}
+            </p>
+          </CardFooter>
+        </Card>
       </div>
-      <p className="mt-6 text-center text-sm text-[#6e7480]">
-        {signUp && WEB_SIGN_IN_DISABLED ? (
-          <span className="font-semibold text-[#8C6B37]/40">{t('signIn')}</span>
-        ) : !signUp && WEB_SIGN_UP_DISABLED ? (
-          <span className="font-semibold text-[#8C6B37]/40">{t('signUp')}</span>
-        ) : (
-          <Link className="font-semibold text-[#8C6B37] underline" href={signUp ? '/sign-in' : '/sign-up'}>
-            {signUp ? t('signIn') : t('signUp')}
-          </Link>
-        )}
-      </p>
-    </form>
-  </main>
+    </MarketingShell>
+  )
 }
