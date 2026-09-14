@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
@@ -36,14 +36,6 @@ export function AdminOrganizationCard({
 
   const subscription = org.subscription as { status?: string; plan?: { code?: string; name?: string } } | undefined
   const [planCode, setPlanCode] = useState(String(subscription?.plan?.code || 'business'))
-
-  useEffect(() => {
-    setName(String(org.name || ''))
-    setWebsite(String(org.website || ''))
-    setDescription(String(org.description || ''))
-    setBrandColor(String(org.brandColor || '#11213D'))
-    setPlanCode(String(subscription?.plan?.code || 'business'))
-  }, [org.id, org.name, org.website, org.description, org.brandColor, subscription?.plan?.code])
 
   const memberCount = (org._count as { memberships?: number } | undefined)?.memberships
   const planLabel = subscription?.plan?.name || subscription?.plan?.code

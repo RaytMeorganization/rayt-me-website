@@ -537,7 +537,7 @@ export function AdminDashboard() {
                 if (!item.id) return null
                 return (
                   <AdminPlanCard
-                    key={String(item.id)}
+                    key={`${String(item.id)}-${String(item.updatedAt ?? '')}`}
                     plan={item}
                     busy={busy}
                     onToggleActive={() => void updatePlan(item, !Boolean(item.active))}
@@ -569,7 +569,7 @@ export function AdminDashboard() {
                 if (!item.id) return null
                 return (
                   <AdminOrganizationCard
-                    key={String(item.id)}
+                    key={`${String(item.id)}-${String(item.updatedAt ?? '')}`}
                     org={item}
                     busy={busy}
                     onSave={data => void updateOrganization(item, data)}

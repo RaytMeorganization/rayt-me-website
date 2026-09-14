@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
@@ -37,11 +37,6 @@ export function AdminPlanCard({
   const [draftValue, setDraftValue] = useState('')
   const [name, setName] = useState(String(plan.name || ''))
   const [priceUsd, setPriceUsd] = useState(String(centsToUsd(Number(plan.priceCents ?? 0))))
-
-  useEffect(() => {
-    setName(String(plan.name || ''))
-    setPriceUsd(String(centsToUsd(Number(plan.priceCents ?? 0))))
-  }, [plan.id, plan.name, plan.priceCents])
 
   const entitlements = Array.isArray(plan.entitlements)
     ? (plan.entitlements as Entitlement[])
