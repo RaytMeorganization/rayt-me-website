@@ -215,10 +215,10 @@ export function SettingsWorkspace() {
                   <Button size="sm" variant="outline" onClick={() => setTab('profile')}>{t('editProfile')}</Button>
                   <Button size="sm" variant="outline" onClick={() => setTab('verification')}>{t('verificationCenter')}</Button>
                   {user?.role === 'admin' ? (
-                    <Button size="sm" render={<Link href="/admin-dashboard" />}>{t('admin')}</Button>
+                    <Button size="sm" nativeButton={false} render={<Link href="/admin-dashboard" />}>{t('admin')}</Button>
                   ) : null}
                   {user?.role === 'business' ? (
-                    <Button size="sm" render={<Link href="/business-dashboard" />}>{t('business')}</Button>
+                    <Button size="sm" nativeButton={false} render={<Link href="/business-dashboard" />}>{t('business')}</Button>
                   ) : null}
                 </div>
               </Panel>

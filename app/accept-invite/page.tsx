@@ -43,7 +43,7 @@ function AcceptInvite() {
           {error && <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
           <div className="flex flex-wrap gap-3">
             <Button disabled={busy} onClick={() => void accept()}>{busy ? t('saving') : t('acceptInvite')}</Button>
-            <Button variant="outline" render={<Link href="/settings" />}>{t('settings')}</Button>
+            <Button variant="outline" nativeButton={false} render={<Link href="/settings" />}>{t('settings')}</Button>
           </div>
         </div>}
     </Panel>

@@ -96,7 +96,7 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
         description={t('signInRequiredHelp')}
         action={
           WEB_SIGN_IN_DISABLED ? undefined : (
-            <Button render={<Link href={`/sign-in?next=${encodeURIComponent(pathname)}`} />}>
+            <Button nativeButton={false} render={<Link href={`/sign-in?next=${encodeURIComponent(pathname)}`} />}>
               {t('signIn')}
             </Button>
           )
@@ -111,7 +111,7 @@ export function ProductShell({ children, role = 'user' }: { children: React.Reac
         kind="locked"
         title={t('accessRestricted')}
         description={t('accessRestrictedHelp')}
-        action={<Button render={<Link href={homeFor(user.role)} />}>{t('goToWorkspace')}</Button>}
+        action={<Button nativeButton={false} render={<Link href={homeFor(user.role)} />}>{t('goToWorkspace')}</Button>}
       />
     </Gate>
   }
