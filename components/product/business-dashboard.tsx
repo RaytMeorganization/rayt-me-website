@@ -28,7 +28,8 @@ import {
 import { WorkspaceMemberCard } from '@/components/product/workspace-member-card'
 import { EmptyState, Illustration, StatCard } from '@/components/product/brand-art'
 import { AnimatedNumber } from '@/components/product/premium-motion'
-import { useI18n } from '@/components/product/providers'
+import { useAuth, useI18n } from '@/components/product/providers'
+import { formatAdminDate } from '@/components/product/interactive-value'
 import { api, errorMessage } from '@/lib/api'
 import type { BusinessReputation, BusinessUsage, Organization } from '@/lib/types'
 
@@ -41,6 +42,7 @@ function formatScore(value: number | null | undefined, decimals = 1): string {
 
 export function BusinessDashboard() {
   const { t } = useI18n()
+  const { user } = useAuth()
   const [tab, setTab] = useState<BusinessTab>('overview')
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [members, setMembers] = useState<Record<string, unknown>[]>([])
@@ -51,6 +53,7 @@ export function BusinessDashboard() {
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<'MEMBER' | 'ADMIN'>('MEMBER')
   const [message, setMessage] = useState('')
+  const [messageIsError, setMessageIsError] = useState(false)
   const [busy, setBusy] = useState(true)
   const [ready, setReady] = useState(false)
 
@@ -68,22 +71,37 @@ export function BusinessDashboard() {
   const load = useCallback(async () => {
     setBusy(true)
     setMessage('')
+    setMessageIsError(false)
     const results = await Promise.allSettled([
-      api<Organization>('/business/organization'),
+      api<{
+        organization: Organization
+        members: number
+        pendingInvitations: number
+        reputation: BusinessReputation
+      }>('/business/overview'),
       api<Record<string, unknown>[]>('/business/members'),
       api<Record<string, unknown>[]>('/business/invites'),
-      api<BusinessReputation>('/business/reputation'),
       api<{ logoUrl: string | null; brandColor: string | null }>('/business/theme'),
       api<BusinessUsage>('/business/usage'),
     ])
-    if (results[0].status === 'fulfilled') setOrganization(results[0].value)
+    if (results[0].status === 'fulfilled') {
+      const overview = results[0].value
+      setOrganization(overview.organization)
+      setReputation(overview.reputation)
+    }
     if (results[1].status === 'fulfilled') setMembers(results[1].value)
     if (results[2].status === 'fulfilled') setInvites(results[2].value)
-    if (results[3].status === 'fulfilled') setReputation(results[3].value)
-    if (results[4].status === 'fulfilled') setTheme(results[4].value)
-    if (results[5].status === 'fulfilled') setUsage(results[5].value)
-    const failure = results.find(result => result.status === 'rejected')
-    if (failure?.status === 'rejected') setMessage(errorMessage(failure.reason, t('loadFailed')))
+    if (results[3].status === 'fulfilled') setTheme(results[3].value)
+    if (results[4].status === 'fulfilled') setUsage(results[4].value)
+    const failures = results.filter(result => result.status === 'rejected')
+    if (failures.length) {
+      setMessage(
+        failures
+          .map(result => errorMessage((result as PromiseRejectedResult).reason, t('loadFailed')))
+          .join(' · '),
+      )
+      setMessageIsError(true)
+    }
     setBusy(false)
     setReady(true)
   }, [t])
@@ -97,6 +115,7 @@ export function BusinessDashboard() {
     if (!organization) return
     setBusy(true)
     setMessage('')
+    setMessageIsError(false)
     try {
       const payload = {
         name: organization.name,
@@ -106,8 +125,10 @@ export function BusinessDashboard() {
       }
       setOrganization(await api<Organization>('/business/organization', { method: 'PATCH', body: JSON.stringify(payload) }))
       setMessage(t('complete'))
+      setMessageIsError(false)
     } catch (cause) {
       setMessage(errorMessage(cause, t('error')))
+      setMessageIsError(true)
     } finally {
       setBusy(false)
     }
@@ -117,6 +138,7 @@ export function BusinessDashboard() {
     event.preventDefault()
     setBusy(true)
     setMessage('')
+    setMessageIsError(false)
     try {
       const created = await api<{ devToken?: string }>('/business/invites', {
         method: 'POST',
@@ -124,9 +146,11 @@ export function BusinessDashboard() {
       })
       setInviteEmail('')
       setMessage(created.devToken ? `${t('inviteLink')}: ${window.location.origin}/accept-invite?token=${created.devToken}` : t('complete'))
+      setMessageIsError(false)
       await load()
     } catch (cause) {
       setMessage(errorMessage(cause, t('error')))
+      setMessageIsError(true)
     } finally {
       setBusy(false)
     }
@@ -136,11 +160,31 @@ export function BusinessDashboard() {
     if (!window.confirm(t('confirmRevoke'))) return
     setBusy(true)
     setMessage('')
+    setMessageIsError(false)
     try {
       await api(`/business/invites/${encodeURIComponent(id)}`, { method: 'DELETE' })
       await load()
     } catch (cause) {
       setMessage(errorMessage(cause, t('error')))
+      setMessageIsError(true)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function changeMemberRole(membershipId: string, role: 'MEMBER' | 'ADMIN') {
+    setBusy(true)
+    setMessage('')
+    setMessageIsError(false)
+    try {
+      await api(`/business/members/${encodeURIComponent(membershipId)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ role }),
+      })
+      await load()
+    } catch (cause) {
+      setMessage(errorMessage(cause, t('error')))
+      setMessageIsError(true)
     } finally {
       setBusy(false)
     }
@@ -150,11 +194,13 @@ export function BusinessDashboard() {
     if (!window.confirm(t('confirmRemoveMember'))) return
     setBusy(true)
     setMessage('')
+    setMessageIsError(false)
     try {
       await api(`/business/members/${encodeURIComponent(id)}`, { method: 'DELETE' })
       await load()
     } catch (cause) {
       setMessage(errorMessage(cause, t('error')))
+      setMessageIsError(true)
     } finally {
       setBusy(false)
     }
@@ -163,6 +209,7 @@ export function BusinessDashboard() {
   async function saveTheme() {
     setBusy(true)
     setMessage('')
+    setMessageIsError(false)
     try {
       const payload = {
         logoUrl: theme.logoUrl || null,
@@ -173,13 +220,16 @@ export function BusinessDashboard() {
         body: JSON.stringify(payload),
       }))
       setMessage(t('complete'))
+      setMessageIsError(false)
     } catch (cause) {
       setMessage(errorMessage(cause, t('error')))
+      setMessageIsError(true)
     } finally {
       setBusy(false)
     }
   }
 
+  const memberSeatLimit = usage?.entitlements.find(item => item.key === 'members')?.value
   const orgInitials = (organization?.name || 'OR').slice(0, 2).toUpperCase()
 
   return (
@@ -198,7 +248,14 @@ export function BusinessDashboard() {
         />
 
         {message ? (
-          <p role="status" className="mt-5 rounded-xl border border-white/10 bg-card/80 px-4 py-3 text-sm text-foreground">
+          <p
+            role="status"
+            className={
+              messageIsError
+                ? 'mt-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive'
+                : 'mt-5 rounded-xl border border-white/10 bg-card/80 px-4 py-3 text-sm text-foreground'
+            }
+          >
             {message}
           </p>
         ) : null}
@@ -213,7 +270,7 @@ export function BusinessDashboard() {
 
             {tab === 'overview' && (
               <div className="mt-5 grid gap-4">
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                   <StatCard
                     label={t('reputation')}
                     value={formatScore(reputation?.averageReputation)}
@@ -224,7 +281,16 @@ export function BusinessDashboard() {
                     value={formatScore(reputation?.averageRating)}
                     hint={t('ratingCount')}
                   />
-                  <StatCard label={t('members')} value={String(usage?.usage.members ?? members.length)} hint={t('roster')} />
+                  <StatCard
+                    label={t('members')}
+                    value={String(reputation?.memberCount ?? usage?.usage.members ?? members.length)}
+                    hint={t('roster')}
+                  />
+                  <StatCard
+                    label={t('pendingInvites')}
+                    value={String(usage?.usage.pendingInvites ?? 0)}
+                    hint={t('status')}
+                  />
                   <StatCard label={t('plan')} value={usage?.plan || '—'} hint={usage?.status || t('status')} />
                 </div>
 
@@ -326,21 +392,25 @@ export function BusinessDashboard() {
                 {members.length ? (
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {members.map((member, index) => {
-                      const user = member.user as Record<string, unknown> | undefined
-                      const name = String(user?.name || t('members'))
-                      const email = String(user?.email || '')
+                      const memberUser = member.user as Record<string, unknown> | undefined
+                      const memberUserId = memberUser?.id ? String(memberUser.id) : ''
+                      const name = String(memberUser?.name || t('members'))
+                      const email = String(memberUser?.email || '')
+                      const isSelf = Boolean(user?.id && memberUserId && user.id === memberUserId)
                       return (
                         <WorkspaceMemberCard
                           key={String(member.id || index)}
                           name={name}
                           email={email}
-                          jobTitle={user?.jobTitle ? String(user.jobTitle) : null}
-                          score={user?.score != null ? Number(user.score) : null}
-                          isVerified={Boolean(user?.isVerified)}
+                          jobTitle={memberUser?.jobTitle ? String(memberUser.jobTitle) : null}
+                          score={memberUser?.score != null ? Number(memberUser.score) : null}
+                          isVerified={Boolean(memberUser?.isVerified)}
                           role={String(member.role)}
-                          accentColor={theme.brandColor || organization?.logoUrl}
-                          canRemove={String(member.role) !== 'ADMIN'}
+                          accentColor={theme.brandColor || organization?.brandColor}
+                          canRemove={!isSelf && String(member.role) !== 'ADMIN'}
+                          canChangeRole={!isSelf}
                           busy={busy}
+                          onRoleChange={role => void changeMemberRole(String(member.id), role)}
                           onRemove={() => void removeMember(String(member.id))}
                         />
                       )
@@ -351,9 +421,9 @@ export function BusinessDashboard() {
                 )}
 
                 <h3 className="mt-8 text-sm font-semibold text-foreground">{t('pendingInvites')}</h3>
-                {invites.length ? (
+                {invites.filter(item => String(item.status) === 'PENDING').length ? (
                   <div className="mt-3 grid gap-2">
-                    {invites.map((item, index) => (
+                    {invites.filter(item => String(item.status) === 'PENDING').map((item, index) => (
                       <RecordShell
                         key={String(item.id || index)}
                         title={String(item.email)}
@@ -412,11 +482,25 @@ export function BusinessDashboard() {
 
             {tab === 'usage' && (
               <DashboardSurface title={t('usage')}>
+                {usage?.currentPeriodEnd ? (
+                  <p className="mb-4 text-sm text-muted-foreground">
+                    {t('renewalDate')}: {formatAdminDate(usage.currentPeriodEnd)}
+                  </p>
+                ) : null}
                 <div className="grid gap-4 sm:grid-cols-3">
                   <StatCard label={t('plan')} value={usage?.plan || '—'} hint={usage?.status || t('status')} />
-                  <StatCard label={t('members')} value={String(usage?.usage.members ?? 0)} />
+                  <StatCard
+                    label={t('members')}
+                    value={String(usage?.usage.members ?? 0)}
+                    hint={
+                      memberSeatLimit != null
+                        ? `${t('seatsUsed')}: ${usage?.usage.members ?? 0} / ${memberSeatLimit}`
+                        : undefined
+                    }
+                  />
                   <StatCard label={t('pendingInvites')} value={String(usage?.usage.pendingInvites ?? 0)} />
                 </div>
+                <p className="mt-4 text-sm text-muted-foreground">{t('billingUnavailable')}</p>
                 <h3 className="mt-8 text-sm font-semibold text-foreground">{t('entitlements')}</h3>
                 {usage?.entitlements.length ? (
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">

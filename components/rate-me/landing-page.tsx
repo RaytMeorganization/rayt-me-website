@@ -87,6 +87,11 @@ import {
   WEB_SIGN_IN_DISABLED,
   WEB_SIGN_UP_DISABLED,
 } from "@/lib/web-sign-in";
+import {
+  formatMarketingUsd as formatUsd,
+  USD_PER_EMPLOYEE_YEAR,
+  USD_PRO_YEAR,
+} from "@/lib/plan-pricing";
 import { cn } from "@/lib/utils";
 
 type LandingLocaleValue = {
@@ -114,17 +119,6 @@ function getLocaleSnapshot() {
 
 function useLandingLocale() {
   return useContext(LandingLocale);
-}
-
-const USD_PER_EMPLOYEE_YEAR = 16;
-const USD_PRO_YEAR = 27;
-
-function formatUsd(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
 }
 
 const glass = cn(

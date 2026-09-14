@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ScoreRing } from '@/components/product/score-ring'
+import { inputClass } from '@/components/product/shell'
 import { cardThemeBarColor } from '@/lib/card-theme'
 import { useI18n } from '@/components/product/providers'
 
@@ -17,8 +18,10 @@ export type WorkspaceMemberCardProps = {
   role: string
   accentColor?: string | null
   canRemove?: boolean
+  canChangeRole?: boolean
   busy?: boolean
   onRemove?: () => void
+  onRoleChange?: (role: 'MEMBER' | 'ADMIN') => void
 }
 
 function initials(name: string) {
@@ -39,8 +42,10 @@ export function WorkspaceMemberCard({
   role,
   accentColor,
   canRemove = false,
+  canChangeRole = false,
   busy = false,
   onRemove,
+  onRoleChange,
 }: WorkspaceMemberCardProps) {
   const { t } = useI18n()
   const bar = cardThemeBarColor(accentColor ?? 'forest')
@@ -81,9 +86,22 @@ export function WorkspaceMemberCard({
               ) : null}
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <Badge variant={role === 'ADMIN' ? 'default' : 'secondary'} className="rounded-full px-2.5">
-                {roleLabel}
-              </Badge>
+              {canChangeRole && onRoleChange ? (
+                <select
+                  aria-label={t('role')}
+                  className={`${inputClass} max-w-[11rem] text-xs`}
+                  value={role}
+                  disabled={busy}
+                  onChange={event => onRoleChange(event.target.value as 'MEMBER' | 'ADMIN')}
+                >
+                  <option value="MEMBER">{t('memberRole')}</option>
+                  <option value="ADMIN">{t('organizationAdminRole')}</option>
+                </select>
+              ) : (
+                <Badge variant={role === 'ADMIN' ? 'default' : 'secondary'} className="rounded-full px-2.5">
+                  {roleLabel}
+                </Badge>
+              )}
               <ScoreRing score={Number(score ?? 0)} verified={isVerified} size={52} />
             </div>
           </div>

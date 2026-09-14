@@ -5,6 +5,7 @@ import { Check, Copy, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/components/product/providers'
+import { formatPriceCentsUsd } from '@/lib/plan-pricing'
 
 export function CopyableText({
   value,
@@ -81,7 +82,5 @@ export function formatAdminDate(value: unknown) {
 }
 
 export function formatPriceCents(cents: unknown) {
-  const amount = Number(cents)
-  if (!Number.isFinite(amount)) return '—'
-  return (amount / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return formatPriceCentsUsd(cents)
 }

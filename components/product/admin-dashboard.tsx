@@ -37,10 +37,12 @@ import { AdminMetricsCharts } from '@/components/product/admin-metrics-charts'
 import { AdminFieldValue, shouldSkipAdminField } from '@/components/product/admin-field-value'
 import { AdminOrganizationCard } from '@/components/product/admin-organization-card'
 import { AdminPlanCard } from '@/components/product/admin-plan-card'
+import { AdminAuditRecord, AdminRatingRecord } from '@/components/product/admin-ops-record'
 import { AdminUserCard, normalizeDbRole } from '@/components/product/admin-user-card'
 import { InteractiveLink } from '@/components/product/interactive-value'
 import { EmptyState, StatCard } from '@/components/product/brand-art'
 import { useI18n } from '@/components/product/providers'
+import { formatPriceCentsUsd, MARKETING_PLANS, marketingPlanByCode } from '@/lib/plan-pricing'
 import { api, errorMessage } from '@/lib/api'
 
 const sections = [
@@ -58,6 +60,36 @@ const sections = [
 
 type SectionKey = (typeof sections)[number][0]
 type VerificationType = 'personalEmail' | 'workEmail' | 'universityEmail' | 'phone'
+
+const COLLECTION_SECTIONS = new Set<SectionKey>(['ratings', 'disputes', 'audit', 'verifications'])
+const COLLECTION_PAGE_SIZE = 50
+
+function CollectionList({
+  children,
+  busy,
+  collectionMeta,
+  recordCount,
+  onLoadMore,
+  loadMoreLabel,
+}: {
+  children: React.ReactNode
+  busy: boolean
+  collectionMeta: { total: number; limit: number } | null
+  recordCount: number
+  onLoadMore: () => void
+  loadMoreLabel: string
+}) {
+  return (
+    <div className="grid gap-3">
+      {children}
+      {collectionMeta && recordCount < collectionMeta.total ? (
+        <Button type="button" variant="outline" disabled={busy} onClick={onLoadMore}>
+          {loadMoreLabel}
+        </Button>
+      ) : null}
+    </div>
+  )
+}
 
 const verificationFields: { type: VerificationType; status: string }[] = [
   { type: 'personalEmail', status: 'personalEmailStatus' },
@@ -86,7 +118,14 @@ export function AdminDashboard() {
   const [records, setRecords] = useState<unknown[]>([])
   const [busy, setBusy] = useState(true)
   const [error, setError] = useState('')
-  const [search, setSearch] = useState('')
+  const [success, setSuccess] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [appliedSearch, setAppliedSearch] = useState('')
+  const [userPage, setUserPage] = useState(1)
+  const [listMeta, setListMeta] = useState<{ total: number; page: number; limit: number } | null>(null)
+  const [collectionMeta, setCollectionMeta] = useState<{ total: number; limit: number } | null>(null)
+  const [ratingsSearchInput, setRatingsSearchInput] = useState('')
+  const [appliedRatingsSearch, setAppliedRatingsSearch] = useState('')
   const [metrics, setMetrics] = useState<Record<string, number> | null>(null)
 
   const active = sections.find(([key]) => key === section) ?? sections[0]
@@ -99,20 +138,49 @@ export function AdminDashboard() {
   const load = useCallback(async () => {
     setBusy(true)
     setError('')
+    setSuccess('')
     const endpoint = sections.find(([key]) => key === section)?.[2] || 'overview'
-    const query = section === 'users' && search.trim() ? `?search=${encodeURIComponent(search.trim())}` : ''
+    let query = ''
+    if (section === 'users') {
+      const params = new URLSearchParams()
+      if (appliedSearch.trim()) params.set('search', appliedSearch.trim())
+      params.set('page', String(userPage))
+      query = `?${params.toString()}`
+    } else if (COLLECTION_SECTIONS.has(section)) {
+      const params = new URLSearchParams()
+      params.set('skip', '0')
+      params.set('limit', String(COLLECTION_PAGE_SIZE))
+      if (section === 'ratings' && appliedRatingsSearch.trim()) {
+        params.set('search', appliedRatingsSearch.trim())
+      }
+      query = `?${params.toString()}`
+    }
     try {
-      const raw = await api<Record<string, unknown>>(`/admin/${endpoint}${query}`)
+      const raw = await api<unknown>(`/admin/${endpoint}${query}`)
       if (section === 'overview' || section === 'analytics') {
         const numeric: Record<string, number> = {}
-        for (const [key, value] of Object.entries(raw)) {
+        for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
           if (typeof value === 'number') numeric[key] = value
         }
         setMetrics(numeric)
       } else {
         setMetrics(null)
       }
-      setRecords(normalize(raw))
+      if (raw && typeof raw === 'object' && Array.isArray((raw as { items?: unknown[] }).items)) {
+        const paginated = raw as { items: unknown[]; total: number; page?: number; limit: number }
+        if (section === 'users') {
+          setListMeta({ total: paginated.total, page: paginated.page ?? 1, limit: paginated.limit })
+          setCollectionMeta(null)
+        } else if (COLLECTION_SECTIONS.has(section)) {
+          setCollectionMeta({ total: paginated.total, limit: paginated.limit })
+          setListMeta(null)
+        }
+        setRecords(paginated.items)
+      } else {
+        setListMeta(null)
+        setCollectionMeta(null)
+        setRecords(normalize(raw))
+      }
     } catch (cause) {
       setMetrics(null)
       setError(errorMessage(cause, t('loadFailed')))
@@ -120,14 +188,49 @@ export function AdminDashboard() {
     } finally {
       setBusy(false)
     }
-  }, [search, section, t])
+  }, [appliedRatingsSearch, appliedSearch, section, t, userPage])
+
+  const loadMore = useCallback(async () => {
+    if (!COLLECTION_SECTIONS.has(section) || !collectionMeta) return
+    if (records.length >= collectionMeta.total) return
+    setBusy(true)
+    setError('')
+    const endpoint = sections.find(([key]) => key === section)?.[2] || 'overview'
+    const params = new URLSearchParams()
+    params.set('skip', String(records.length))
+    params.set('limit', String(collectionMeta.limit))
+    if (section === 'ratings' && appliedRatingsSearch.trim()) {
+      params.set('search', appliedRatingsSearch.trim())
+    }
+    try {
+      const raw = await api<{ items: unknown[]; total: number; limit: number }>(
+        `/admin/${endpoint}?${params.toString()}`,
+      )
+      setRecords(current => [...current, ...raw.items])
+      setCollectionMeta({ total: raw.total, limit: raw.limit })
+    } catch (cause) {
+      setError(errorMessage(cause, t('loadFailed')))
+    } finally {
+      setBusy(false)
+    }
+  }, [appliedRatingsSearch, collectionMeta, records.length, section, t])
 
   useEffect(() => {
     const timer = window.setTimeout(() => { void load() }, 0)
     return () => window.clearTimeout(timer)
   }, [load])
 
-  async function review(item: Record<string, unknown>, status: 'verified' | 'rejected' | 'resolved' | 'dismissed', type?: VerificationType) {
+  useEffect(() => {
+    const timer = window.setTimeout(() => { setUserPage(1) }, 0)
+    return () => window.clearTimeout(timer)
+  }, [section])
+
+  async function review(
+    item: Record<string, unknown>,
+    status: 'verified' | 'rejected' | 'resolved' | 'dismissed',
+    type?: VerificationType,
+    disputeReply?: string,
+  ) {
     const prompt = status === 'resolved' ? t('confirmResolve') : status === 'dismissed' ? t('confirmDismiss') : status === 'verified' ? t('confirmApprove') : t('confirmReject')
     if (!window.confirm(prompt)) return
     setBusy(true)
@@ -144,9 +247,13 @@ export function AdminDashboard() {
         const ratingId = String(item.ratingId || item.id)
         await api(`/admin/disputes/${encodeURIComponent(ratingId)}`, {
           method: 'PATCH',
-          body: JSON.stringify({ status }),
+          body: JSON.stringify({
+            status,
+            ...(disputeReply?.trim() ? { reply: disputeReply.trim() } : {}),
+          }),
         })
       }
+      setSuccess(t('saved'))
       await load()
     } catch (cause) {
       setError(errorMessage(cause, t('error')))
@@ -162,6 +269,7 @@ export function AdminDashboard() {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
+      setSuccess(t('saved'))
       await load()
     } catch (cause) {
       setError(errorMessage(cause, t('error')))
@@ -184,6 +292,21 @@ export function AdminDashboard() {
     }
   }
 
+  async function savePlanDetails(item: Record<string, unknown>, data: { name: string; priceCents: number }) {
+    setBusy(true)
+    setError('')
+    try {
+      await api(`/admin/plans/${encodeURIComponent(String(item.id))}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      })
+      await load()
+    } catch (cause) {
+      setError(errorMessage(cause, t('error')))
+      setBusy(false)
+    }
+  }
+
   async function createRecord(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = event.currentTarget
@@ -197,12 +320,14 @@ export function AdminDashboard() {
           body: JSON.stringify({ name: values.name, slug: values.slug }),
         })
       } else if (section === 'plans') {
+        const catalog = marketingPlanByCode(String(values.planCode || ''))
+        if (!catalog) throw new Error(t('error'))
         await api('/admin/plans', {
           method: 'POST',
           body: JSON.stringify({
-            name: values.name,
-            code: values.code,
-            priceCents: Number(values.priceCents),
+            name: catalog.name,
+            code: catalog.code,
+            priceCents: catalog.priceCents,
             entitlements: {},
           }),
         })
@@ -230,7 +355,15 @@ export function AdminDashboard() {
     }
   }
 
-  async function updateOrganization(item: Record<string, unknown>, data: { name?: string; website?: string | null }) {
+  async function updateOrganization(
+    item: Record<string, unknown>,
+    data: {
+      name?: string
+      website?: string | null
+      description?: string | null
+      brandColor?: string | null
+    },
+  ) {
     setBusy(true)
     setError('')
     try {
@@ -238,6 +371,23 @@ export function AdminDashboard() {
         method: 'PATCH',
         body: JSON.stringify(data),
       })
+      setSuccess(t('saved'))
+      await load()
+    } catch (cause) {
+      setError(errorMessage(cause, t('error')))
+      setBusy(false)
+    }
+  }
+
+  async function assignOrganizationPlan(item: Record<string, unknown>, planCode: string) {
+    setBusy(true)
+    setError('')
+    try {
+      await api(`/admin/organizations/${encodeURIComponent(String(item.id))}/subscription`, {
+        method: 'PUT',
+        body: JSON.stringify({ planCode }),
+      })
+      setSuccess(t('saved'))
       await load()
     } catch (cause) {
       setError(errorMessage(cause, t('error')))
@@ -265,12 +415,48 @@ export function AdminDashboard() {
 
         <WorkspaceTabs tabs={tabItems} value={section} onChange={setSection} ariaLabel={t('admin')} />
 
+        {success && !busy ? (
+          <p role="status" className="mt-4 rounded-xl border border-white/10 bg-card/80 px-4 py-3 text-sm text-foreground">
+            {success}
+          </p>
+        ) : null}
+
         <DashboardSurface title={t(active[1])}>
-          {section === 'users' && (
-            <form className="mb-6 flex flex-col gap-2 sm:flex-row" onSubmit={event => { event.preventDefault(); void load() }}>
+          {error && !busy && records.length > 0 ? (
+            <div className="mb-6">
+              <ErrorBanner message={error} onRetry={() => void load()} retryLabel={t('retry')} />
+            </div>
+          ) : null}
+          {section === 'ratings' && (
+            <form
+              className="mb-6 flex flex-col gap-2 sm:flex-row"
+              onSubmit={event => {
+                event.preventDefault()
+                setAppliedRatingsSearch(ratingsSearchInput.trim())
+              }}
+            >
               <Input
-                value={search}
-                onChange={event => setSearch(event.target.value)}
+                value={ratingsSearchInput}
+                onChange={event => setRatingsSearchInput(event.target.value)}
+                placeholder={t('search')}
+                className="h-11 bg-input/30"
+              />
+              <Button type="submit" variant="secondary" className="shrink-0">{t('search')}</Button>
+            </form>
+          )}
+
+          {section === 'users' && (
+            <form
+              className="mb-6 flex flex-col gap-2 sm:flex-row"
+              onSubmit={event => {
+                event.preventDefault()
+                setAppliedSearch(searchInput.trim())
+                setUserPage(1)
+              }}
+            >
+              <Input
+                value={searchInput}
+                onChange={event => setSearchInput(event.target.value)}
                 placeholder={t('search')}
                 className="h-11 bg-input/30"
               />
@@ -296,16 +482,16 @@ export function AdminDashboard() {
                         <Input required name="slug" pattern="[a-z0-9-]+" className="bg-input/30" />
                       </Field>
                     ) : (
-                      <>
-                        <Field>
-                          <FieldLabel>{t('code')}</FieldLabel>
-                          <Input required name="code" pattern="[a-z0-9-]+" className="bg-input/30" />
-                        </Field>
-                        <Field>
-                          <FieldLabel>{t('price')}</FieldLabel>
-                          <Input required min={0} step={1} type="number" name="priceCents" className="bg-input/30" />
-                        </Field>
-                      </>
+                      <Field className="sm:col-span-2">
+                        <FieldLabel>{t('plan')}</FieldLabel>
+                        <select name="planCode" required className="h-11 w-full rounded-lg border border-white/10 bg-input/30 px-3 text-sm">
+                          {MARKETING_PLANS.map(plan => (
+                            <option key={plan.code} value={plan.code}>
+                              {plan.name} — {formatPriceCentsUsd(plan.priceCents)}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
                     )}
                     <Button type="submit" disabled={busy} className="self-end">{t('create')}</Button>
                   </form>
@@ -332,7 +518,15 @@ export function AdminDashboard() {
               ) : null}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {statEntries.map(entry => (
-                  <StatCard key={entry.label} label={humanize(entry.label)} value={String(entry.data)} />
+                  <StatCard
+                    key={entry.label}
+                    label={humanize(entry.label)}
+                    value={
+                      section === 'health'
+                        ? String(entry.data).toLowerCase() === 'ok' ? t('systemOk') : t('systemDown')
+                        : String(entry.data)
+                    }
+                  />
                 ))}
               </div>
             </>
@@ -347,6 +541,7 @@ export function AdminDashboard() {
                     plan={item}
                     busy={busy}
                     onToggleActive={() => void updatePlan(item, !Boolean(item.active))}
+                    onSaveDetails={data => void savePlanDetails(item, data)}
                     onUpsertEntitlement={(key, value) => {
                       void (async () => {
                         setBusy(true)
@@ -378,53 +573,143 @@ export function AdminDashboard() {
                     org={item}
                     busy={busy}
                     onSave={data => void updateOrganization(item, data)}
+                    onAssignPlan={planCode => void assignOrganizationPlan(item, planCode)}
                   />
                 )
               })}
             </div>
           ) : section === 'users' ? (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {records.map((record, index) => {
+                  const item = record as Record<string, unknown>
+                  if (!item.id) return null
+                  return (
+                    <AdminUserCard
+                      key={String(item.id)}
+                      name={String(item.name || t('users'))}
+                      email={String(item.email || '')}
+                      role={normalizeDbRole(item.role)}
+                      isVerified={Boolean(item.isVerified)}
+                      isActive={Boolean(item.isActive)}
+                      createdAt={item.createdAt ? String(item.createdAt) : undefined}
+                      busy={busy}
+                      onRoleChange={role => void updateUser(item, { role })}
+                      onToggleActive={() => void updateUser(item, { isActive: !Boolean(item.isActive) })}
+                    />
+                  )
+                })}
+              </div>
+              {listMeta ? (
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm text-muted-foreground">
+                    {t('totalUsers').replace('{count}', String(listMeta.total))}
+                    {listMeta.total > listMeta.limit
+                      ? ` · ${t('pageOf')
+                        .replace('{page}', String(listMeta.page))
+                        .replace('{pages}', String(Math.max(1, Math.ceil(listMeta.total / listMeta.limit))))}`
+                      : ''}
+                  </p>
+                  {listMeta.total > listMeta.limit ? (
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={busy || listMeta.page <= 1}
+                        onClick={() => setUserPage(current => Math.max(1, current - 1))}
+                      >
+                        {t('previous')}
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={busy || listMeta.page >= Math.ceil(listMeta.total / listMeta.limit)}
+                        onClick={() => setUserPage(current => current + 1)}
+                      >
+                        {t('next')}
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </>
+          ) : section === 'ratings' ? (
+            <CollectionList
+              busy={busy}
+              collectionMeta={collectionMeta}
+              recordCount={records.length}
+              onLoadMore={() => void loadMore()}
+              loadMoreLabel={t('loadMore')}
+            >
               {records.map((record, index) => {
                 const item = record as Record<string, unknown>
                 if (!item.id) return null
                 return (
-                  <AdminUserCard
+                  <AdminRatingRecord
                     key={String(item.id)}
-                    name={String(item.name || t('users'))}
-                    email={String(item.email || '')}
-                    role={normalizeDbRole(item.role)}
-                    isVerified={Boolean(item.isVerified)}
-                    isActive={Boolean(item.isActive)}
-                    createdAt={item.createdAt ? String(item.createdAt) : undefined}
+                    item={item}
+                    mode="ratings"
                     busy={busy}
-                    onRoleChange={role => void updateUser(item, { role })}
-                    onToggleActive={() => void updateUser(item, { isActive: !Boolean(item.isActive) })}
+                    onModerate={hidden => void moderateRating(item, hidden)}
                   />
                 )
               })}
-            </div>
-          ) : (
-            <div className="grid gap-3">
+            </CollectionList>
+          ) : section === 'disputes' ? (
+            <CollectionList
+              busy={busy}
+              collectionMeta={collectionMeta}
+              recordCount={records.length}
+              onLoadMore={() => void loadMore()}
+              loadMoreLabel={t('loadMore')}
+            >
               {records.map((record, index) => {
                 const item = record as Record<string, unknown>
-                const id = String(item?.id || item?.label || index)
-                const title = section === 'verifications'
-                  ? String(item.name || item.id)
-                  : String(item.name || item.code || item.id || index)
-
+                if (!item.id) return null
+                return (
+                  <AdminRatingRecord
+                    key={String(item.id)}
+                    item={item}
+                    mode="disputes"
+                    busy={busy}
+                    onDispute={(status, reply) => void review(item, status, undefined, reply)}
+                  />
+                )
+              })}
+            </CollectionList>
+          ) : section === 'audit' ? (
+            <CollectionList
+              busy={busy}
+              collectionMeta={collectionMeta}
+              recordCount={records.length}
+              onLoadMore={() => void loadMore()}
+              loadMoreLabel={t('loadMore')}
+            >
+              {records.map((record, index) => {
+                const item = record as Record<string, unknown>
+                return <AdminAuditRecord key={String(item.id || index)} item={item} />
+              })}
+            </CollectionList>
+          ) : section === 'verifications' ? (
+            <CollectionList
+              busy={busy}
+              collectionMeta={collectionMeta}
+              recordCount={records.length}
+              onLoadMore={() => void loadMore()}
+              loadMoreLabel={t('loadMore')}
+            >
+              {records.map((record, index) => {
+                const item = record as Record<string, unknown>
+                const id = String(item?.id || index)
+                const title = String(item.name || item.id)
                 const email = String(item.personalEmail || item.workEmail || item.email || '')
-                const subtitle = section === 'verifications' && email
-                  ? undefined
-                  : email || undefined
 
                 return (
-                  <RecordShell
-                    key={id}
-                    title={title}
-                    subtitle={subtitle && section !== 'verifications' ? subtitle : undefined}
-                  >
+                  <RecordShell key={id} title={title}>
                     <div className="flex w-full min-w-0 flex-col gap-4 lg:max-w-3xl">
-                      {section === 'verifications' && email ? (
+                      {email ? (
                         <InteractiveLink href={`mailto:${email}`}>{email}</InteractiveLink>
                       ) : null}
                       <FieldGrid>
@@ -435,7 +720,7 @@ export function AdminDashboard() {
                             <FieldItem key={key} label={humanize(key)} value={<AdminFieldValue fieldKey={key} value={value} />} />
                           ))}
                       </FieldGrid>
-                      {section === 'verifications' && (item.id || item.userId) ? (
+                      {item.id || item.userId ? (
                         <div className="grid gap-2 sm:grid-cols-2">
                           {verificationFields
                             .filter(field => {
@@ -444,29 +729,45 @@ export function AdminDashboard() {
                                 : field.type === 'personalEmail' || field.type === 'workEmail' || field.type === 'phone'
                               return required && item[field.status] === 'pending'
                             })
-                            .map(field => (
-                              <div key={field.type} className="rounded-xl border border-white/10 bg-background/40 p-3">
-                                <p className="mb-2 text-xs font-semibold text-foreground">{t(field.type)}</p>
-                                <div className="flex gap-2">
-                                  <Button size="sm" onClick={() => void review(item, 'verified', field.type)}>{t('approve')}</Button>
-                                  <Button size="sm" variant="outline" onClick={() => void review(item, 'rejected', field.type)}>{t('reject')}</Button>
+                            .map(field => {
+                              const channelValue = item[field.type]
+                              return (
+                                <div key={field.type} className="rounded-xl border border-white/10 bg-background/40 p-3">
+                                  <p className="mb-2 text-xs font-semibold text-foreground">{t(field.type)}</p>
+                                  {channelValue ? (
+                                    <p className="mb-2 text-sm text-muted-foreground">{String(channelValue)}</p>
+                                  ) : null}
+                                  <div className="flex gap-2">
+                                    <Button size="sm" onClick={() => void review(item, 'verified', field.type)}>{t('approve')}</Button>
+                                    <Button size="sm" variant="outline" onClick={() => void review(item, 'rejected', field.type)}>{t('reject')}</Button>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              )
+                            })}
                         </div>
-                      ) : null}
-                      {section === 'disputes' && (item.id || item.ratingId) ? (
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => void review(item, 'resolved')}>{t('resolve')}</Button>
-                          <Button size="sm" variant="outline" onClick={() => void review(item, 'dismissed')}>{t('dismiss')}</Button>
-                        </div>
-                      ) : null}
-                      {section === 'ratings' && item.id ? (
-                        <Button size="sm" variant="outline" onClick={() => void moderateRating(item, !Boolean(item.isHidden))}>
-                          {Boolean(item.isHidden) ? t('showRating') : t('hideRating')}
-                        </Button>
                       ) : null}
                     </div>
+                  </RecordShell>
+                )
+              })}
+            </CollectionList>
+          ) : (
+            <div className="grid gap-3">
+              {records.map((record, index) => {
+                const item = record as Record<string, unknown>
+                const id = String(item?.id || item?.label || index)
+                const title = String(item.name || item.code || item.id || index)
+                const email = String(item.personalEmail || item.workEmail || item.email || '')
+                return (
+                  <RecordShell key={id} title={title} subtitle={email || undefined}>
+                    <FieldGrid>
+                      {Object.entries(item)
+                        .filter(([key]) => !shouldSkipAdminField(key))
+                        .slice(0, 10)
+                        .map(([key, value]) => (
+                          <FieldItem key={key} label={humanize(key)} value={<AdminFieldValue fieldKey={key} value={value} />} />
+                        ))}
+                    </FieldGrid>
                   </RecordShell>
                 )
               })}
