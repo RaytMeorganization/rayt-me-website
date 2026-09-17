@@ -405,6 +405,14 @@ export function BusinessDashboard() {
                           jobTitle={memberUser?.jobTitle ? String(memberUser.jobTitle) : null}
                           score={memberUser?.score != null ? Number(memberUser.score) : null}
                           isVerified={Boolean(memberUser?.isVerified)}
+                          avatarUrl={memberUser?.avatarUrl ? String(memberUser.avatarUrl) : null}
+                          employmentStatus={
+                            memberUser?.employmentStatus === 'working' ||
+                            memberUser?.employmentStatus === 'not_working' ||
+                            memberUser?.employmentStatus === 'open_to_work'
+                              ? memberUser.employmentStatus
+                              : null
+                          }
                           role={String(member.role)}
                           accentColor={theme.brandColor || organization?.brandColor}
                           canRemove={!isSelf && String(member.role) !== 'ADMIN'}

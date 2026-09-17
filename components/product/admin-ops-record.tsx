@@ -119,6 +119,55 @@ export function AdminRatingRecord({
   )
 }
 
+export function AdminCommunityReportRecord({
+  item,
+  busy,
+  onResolve,
+}: {
+  item: Record<string, unknown>
+  busy?: boolean
+  onResolve?(status: 'resolved' | 'dismissed', reply?: string): void
+}) {
+  const { t } = useI18n()
+  const [reply, setReply] = useState('')
+  const target = item.target
+  const reporter = item.reporter
+  const community = item.community as { country?: string; professionKey?: string } | undefined
+  const title = personLabel(target)
+  const subtitle = personLabel(reporter)
+
+  return (
+    <RecordShell
+      title={title}
+      subtitle={`${t('communityReport')}: ${subtitle}`}
+      badges={<StatusBadge tone="warn">{String(item.status || 'flagged')}</StatusBadge>}
+    >
+      <div className="flex w-full min-w-0 flex-col gap-4 lg:max-w-3xl">
+        <FieldGrid>
+          <FieldItem label={t('country')} value={<span>{String(community?.country || '—')}</span>} />
+          <FieldItem label={t('professionGroup')} value={<span>{String(community?.professionKey || '—')}</span>} />
+          <FieldItem label={t('description')} value={<span className="text-sm">{String(item.reason || '—')}</span>} />
+          <FieldItem label={t('createdAt')} value={<span>{formatAdminDate(item.createdAt)}</span>} />
+        </FieldGrid>
+        {onResolve && item.id ? (
+          <div className="grid gap-2">
+            <Input
+              value={reply}
+              onChange={event => setReply(event.target.value)}
+              placeholder={t('disputeReplyPrompt')}
+              className="bg-input/30"
+            />
+            <div className="flex gap-2">
+              <Button size="sm" disabled={busy} onClick={() => onResolve('resolved', reply)}>{t('resolve')}</Button>
+              <Button size="sm" variant="outline" disabled={busy} onClick={() => onResolve('dismissed')}>{t('dismiss')}</Button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </RecordShell>
+  )
+}
+
 export function AdminAuditRecord({ item }: { item: Record<string, unknown> }) {
   const { t } = useI18n()
   const actor = item.actor as Record<string, unknown> | undefined
