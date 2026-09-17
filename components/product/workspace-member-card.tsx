@@ -15,6 +15,8 @@ export type WorkspaceMemberCardProps = {
   jobTitle?: string | null
   score?: number | null
   isVerified?: boolean
+  avatarUrl?: string | null
+  employmentStatus?: 'working' | 'not_working' | 'open_to_work' | null
   role: string
   accentColor?: string | null
   canRemove?: boolean
@@ -39,6 +41,8 @@ export function WorkspaceMemberCard({
   jobTitle,
   score,
   isVerified = false,
+  avatarUrl,
+  employmentStatus,
   role,
   accentColor,
   canRemove = false,
@@ -50,6 +54,22 @@ export function WorkspaceMemberCard({
   const { t } = useI18n()
   const bar = cardThemeBarColor(accentColor ?? 'forest')
   const roleLabel = role === 'ADMIN' ? t('organizationAdminRole') : t('memberRole')
+  const ring =
+    employmentStatus === 'working'
+      ? '#22C55E'
+      : employmentStatus === 'not_working'
+        ? '#EF4444'
+        : employmentStatus === 'open_to_work'
+          ? '#3B82F6'
+          : '#9CA3AF'
+  const statusLabel =
+    employmentStatus === 'working'
+      ? t('statusWorking')
+      : employmentStatus === 'not_working'
+        ? t('statusNotWorking')
+        : employmentStatus === 'open_to_work'
+          ? t('statusOpenToWork')
+          : null
 
   return (
     <Card className="group overflow-hidden border-white/10 bg-card/90 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.9)] backdrop-blur-xl transition hover:border-white/20">
@@ -57,10 +77,15 @@ export function WorkspaceMemberCard({
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-start gap-3">
           <div
-            className="grid size-14 shrink-0 place-items-center rounded-[16px] bg-accent font-serif text-lg font-semibold text-foreground"
+            className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-[16px] bg-accent font-serif text-lg font-semibold text-foreground"
+            style={{ boxShadow: `0 0 0 3px ${ring}` }}
             aria-hidden
           >
-            {initials(name)}
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="size-full object-cover" />
+            ) : (
+              initials(name)
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
@@ -77,6 +102,7 @@ export function WorkspaceMemberCard({
                   ) : null}
                 </div>
                 {jobTitle ? <p className="mt-0.5 truncate text-sm text-muted-foreground">{jobTitle}</p> : null}
+                {statusLabel ? <p className="mt-0.5 truncate text-xs text-muted-foreground">{statusLabel}</p> : null}
                 <p className="mt-1 truncate text-xs text-muted-foreground">{email}</p>
               </div>
               {canRemove && onRemove ? (

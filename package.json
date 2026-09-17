@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tests/e2e/tsconfig.json",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "postinstall": "tsc -p node_modules/@rayt-me/plan-pricing/tsconfig.json"
   },
   "dependencies": {
     "@rayt-me/plan-pricing": "file:../rayt-me-shared",

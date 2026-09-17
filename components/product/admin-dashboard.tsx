@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   Star,
   Users,
+  UsersRound,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,7 +38,7 @@ import { AdminMetricsCharts } from '@/components/product/admin-metrics-charts'
 import { AdminFieldValue, shouldSkipAdminField } from '@/components/product/admin-field-value'
 import { AdminOrganizationCard } from '@/components/product/admin-organization-card'
 import { AdminPlanCard } from '@/components/product/admin-plan-card'
-import { AdminAuditRecord, AdminRatingRecord } from '@/components/product/admin-ops-record'
+import { AdminAuditRecord, AdminCommunityReportRecord, AdminRatingRecord } from '@/components/product/admin-ops-record'
 import { AdminUserCard, normalizeDbRole } from '@/components/product/admin-user-card'
 import { InteractiveLink } from '@/components/product/interactive-value'
 import { EmptyState, StatCard } from '@/components/product/brand-art'
@@ -51,6 +52,7 @@ const sections = [
   ['verifications', 'queue', 'verifications', 'queue', ShieldCheck],
   ['ratings', 'ratings', 'ratings', 'reputation', Star],
   ['disputes', 'disputes', 'disputes', 'disputes', Scale],
+  ['communities', 'communities', 'community-reports', 'disputes', UsersRound],
   ['organizations', 'organizations', 'organizations', 'roster', Building2],
   ['plans', 'plans', 'plans', 'plans', CreditCard],
   ['audit', 'audit', 'audit-log', 'audit', ClipboardList],
@@ -61,7 +63,7 @@ const sections = [
 type SectionKey = (typeof sections)[number][0]
 type VerificationType = 'personalEmail' | 'workEmail' | 'universityEmail' | 'phone'
 
-const COLLECTION_SECTIONS = new Set<SectionKey>(['ratings', 'disputes', 'audit', 'verifications'])
+const COLLECTION_SECTIONS = new Set<SectionKey>(['ratings', 'disputes', 'audit', 'verifications', 'communities'])
 const COLLECTION_PAGE_SIZE = 50
 
 function CollectionList({
@@ -113,9 +115,10 @@ function isStatEntry(record: unknown): record is { label: string; data: string |
 }
 
 export function AdminDashboard() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [section, setSection] = useState<SectionKey>('overview')
   const [records, setRecords] = useState<unknown[]>([])
+  const [communityGroups, setCommunityGroups] = useState<unknown[]>([])
   const [busy, setBusy] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -181,10 +184,21 @@ export function AdminDashboard() {
         setCollectionMeta(null)
         setRecords(normalize(raw))
       }
+      if (section === 'communities') {
+        try {
+          const groups = await api<{ items: unknown[] }>('/admin/communities?limit=100&skip=0')
+          setCommunityGroups(groups.items ?? [])
+        } catch {
+          setCommunityGroups([])
+        }
+      } else {
+        setCommunityGroups([])
+      }
     } catch (cause) {
       setMetrics(null)
       setError(errorMessage(cause, t('loadFailed')))
       setRecords([])
+      setCommunityGroups([])
     } finally {
       setBusy(false)
     }
@@ -231,7 +245,16 @@ export function AdminDashboard() {
     type?: VerificationType,
     disputeReply?: string,
   ) {
-    const prompt = status === 'resolved' ? t('confirmResolve') : status === 'dismissed' ? t('confirmDismiss') : status === 'verified' ? t('confirmApprove') : t('confirmReject')
+    const prompt =
+      section === 'communities' && status === 'resolved'
+        ? t('confirmCommunityResolve')
+        : status === 'resolved'
+          ? t('confirmResolve')
+          : status === 'dismissed'
+            ? t('confirmDismiss')
+            : status === 'verified'
+              ? t('confirmApprove')
+              : t('confirmReject')
     if (!window.confirm(prompt)) return
     setBusy(true)
     setError('')
@@ -242,6 +265,14 @@ export function AdminDashboard() {
         await api(`/admin/verifications/${encodeURIComponent(userId)}`, {
           method: 'PATCH',
           body: JSON.stringify({ type, status }),
+        })
+      } else if (section === 'communities') {
+        await api(`/admin/community-reports/${encodeURIComponent(String(item.id))}`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            status,
+            ...(disputeReply?.trim() ? { reply: disputeReply.trim() } : {}),
+          }),
         })
       } else {
         const ratingId = String(item.ratingId || item.id)
@@ -504,7 +535,7 @@ export function AdminDashboard() {
             <LoadingBlock rows={4} />
           ) : error ? (
             <ErrorBanner message={error} onRetry={() => void load()} retryLabel={t('retry')} />
-          ) : records.length === 0 ? (
+          ) : records.length === 0 && !(section === 'communities' && communityGroups.length > 0) ? (
             <EmptyState
               kind={active[3]}
               title={t('emptySection')}
@@ -679,6 +710,60 @@ export function AdminDashboard() {
                 )
               })}
             </CollectionList>
+          ) : section === 'communities' ? (
+            <div className="grid gap-8">
+              {communityGroups.length ? (
+                <div className="grid gap-3">
+                  <h3 className="text-sm font-semibold text-foreground">{t('communityGroups')}</h3>
+                  {communityGroups.map(record => {
+                    const item = record as {
+                      id?: string
+                      country?: string
+                      countryLabelEn?: string
+                      countryLabelAr?: string
+                      professionKey?: string
+                      professionLabelEn?: string
+                      professionLabelAr?: string
+                      _count?: { memberships?: number; reports?: number }
+                    }
+                    if (!item.id) return null
+                    const countryLabel = locale === 'ar' ? item.countryLabelAr || item.country : item.countryLabelEn || item.country
+                    const professionLabel = locale === 'ar' ? item.professionLabelAr || item.professionKey : item.professionLabelEn || item.professionKey
+                    return (
+                      <RecordShell
+                        key={String(item.id)}
+                        title={`${countryLabel} · ${professionLabel}`}
+                        subtitle={`${Number(item._count?.memberships ?? 0)} ${t('members')}`}
+                      />
+                    )
+                  })}
+                </div>
+              ) : null}
+              {records.length ? (
+                <CollectionList
+                  busy={busy}
+                  collectionMeta={collectionMeta}
+                  recordCount={records.length}
+                  onLoadMore={() => void loadMore()}
+                  loadMoreLabel={t('loadMore')}
+                >
+                  {records.map(record => {
+                    const item = record as Record<string, unknown>
+                    if (!item.id) return null
+                    return (
+                      <AdminCommunityReportRecord
+                        key={String(item.id)}
+                        item={item}
+                        busy={busy}
+                        onResolve={(status, reply) => void review(item, status, undefined, reply)}
+                      />
+                    )
+                  })}
+                </CollectionList>
+              ) : (
+                <p className="text-sm text-muted-foreground">{t('emptyCommunityReports')}</p>
+              )}
+            </div>
           ) : section === 'audit' ? (
             <CollectionList
               busy={busy}

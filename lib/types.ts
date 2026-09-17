@@ -40,6 +40,9 @@ export interface User {
   locationPublic: boolean
   companyPublic: boolean
   profilePublic: boolean
+  professionKey?: string | null
+  employmentStatus?: 'working' | 'not_working' | 'open_to_work' | null
+  employmentStatusVisibility?: 'public' | 'private'
 }
 
 export interface PublicProfile {
