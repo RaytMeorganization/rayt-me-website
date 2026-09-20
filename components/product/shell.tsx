@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Globe2, LogOut } from 'lucide-react'
@@ -14,13 +13,13 @@ import { WEB_SIGN_IN_DISABLED } from '@/lib/web-sign-in'
 import type { Role } from '@/lib/types'
 
 export function LocaleButton({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
-  const { locale, setLocale } = useI18n()
+  const { locale, setLocale, t } = useI18n()
   const dark = tone === 'dark'
   return (
     <button
       type="button"
       onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')}
-      aria-label="Change language"
+      aria-label={t('language')}
       className={
         dark
           ? 'inline-flex h-8 items-center justify-center gap-1 rounded-lg border border-white/15 bg-white/5 px-2.5 text-[.8rem] font-medium text-white/80 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'

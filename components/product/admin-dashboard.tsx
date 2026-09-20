@@ -624,6 +624,11 @@ export function AdminDashboard() {
                       isVerified={Boolean(item.isVerified)}
                       isActive={Boolean(item.isActive)}
                       createdAt={item.createdAt ? String(item.createdAt) : undefined}
+                      jobTitle={item.jobTitle ? String(item.jobTitle) : null}
+                      company={item.company ? String(item.company) : null}
+                      tier={item.tier ? String(item.tier) : null}
+                      accountType={item.accountType ? String(item.accountType) : null}
+                      profileId={String(item.id)}
                       busy={busy}
                       onRoleChange={role => void updateUser(item, { role })}
                       onToggleActive={() => void updateUser(item, { isActive: !Boolean(item.isActive) })}
@@ -808,12 +813,7 @@ export function AdminDashboard() {
                       {item.id || item.userId ? (
                         <div className="grid gap-2 sm:grid-cols-2">
                           {verificationFields
-                            .filter(field => {
-                              const required = item.accountType === 'student'
-                                ? field.type === 'personalEmail' || field.type === 'universityEmail'
-                                : field.type === 'personalEmail' || field.type === 'workEmail' || field.type === 'phone'
-                              return required && item[field.status] === 'pending'
-                            })
+                            .filter(field => item[field.status] === 'pending')
                             .map(field => {
                               const channelValue = item[field.type]
                               return (

@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { PageHeader, ProductShell, inputClass } from '@/components/product/shell'
@@ -270,7 +269,7 @@ export function BusinessDashboard() {
 
             {tab === 'overview' && (
               <div className="mt-5 grid gap-4">
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <StatCard
                     label={t('reputation')}
                     value={formatScore(reputation?.averageReputation)}
@@ -282,9 +281,26 @@ export function BusinessDashboard() {
                     hint={t('ratingCount')}
                   />
                   <StatCard
+                    label={t('lowestReputation')}
+                    value={formatScore(reputation?.lowestReputation)}
+                  />
+                  <StatCard
+                    label={t('highestReputation')}
+                    value={formatScore(reputation?.highestReputation)}
+                  />
+                  <StatCard
                     label={t('members')}
                     value={String(reputation?.memberCount ?? usage?.usage.members ?? members.length)}
-                    hint={t('roster')}
+                    hint={
+                      memberSeatLimit != null
+                        ? `${t('seatsUsed')}: ${usage?.usage.members ?? reputation?.memberCount ?? members.length} / ${memberSeatLimit}`
+                        : t('roster')
+                    }
+                  />
+                  <StatCard
+                    label={t('verifiedMembers')}
+                    value={String(reputation?.verifiedMemberCount ?? 0)}
+                    hint={t('verificationStatus')}
                   />
                   <StatCard
                     label={t('pendingInvites')}
@@ -403,8 +419,15 @@ export function BusinessDashboard() {
                           name={name}
                           email={email}
                           jobTitle={memberUser?.jobTitle ? String(memberUser.jobTitle) : null}
+                          company={memberUser?.company ? String(memberUser.company) : null}
                           score={memberUser?.score != null ? Number(memberUser.score) : null}
+                          ratingsCount={
+                            memberUser?.credibleRatingCount != null
+                              ? Number(memberUser.credibleRatingCount)
+                              : null
+                          }
                           isVerified={Boolean(memberUser?.isVerified)}
+                          profileHref={memberUserId ? `/p/${encodeURIComponent(memberUserId)}` : null}
                           avatarUrl={memberUser?.avatarUrl ? String(memberUser.avatarUrl) : null}
                           employmentStatus={
                             memberUser?.employmentStatus === 'working' ||

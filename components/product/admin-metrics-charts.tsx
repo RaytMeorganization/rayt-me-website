@@ -126,21 +126,51 @@ export function AdminMetricsCharts({
 
   if (mode === 'overview') {
     const volume = toRows(metrics, ['users', 'organizations', 'ratings', 'openDisputes'], overviewLabels)
+    const verification = toRows(
+      metrics,
+      ['verifiedUsers', 'unverifiedUsers', 'pendingVerifications'],
+      {
+        verifiedUsers: t('verifiedUsers'),
+        unverifiedUsers: t('unverifiedUsers'),
+        pendingVerifications: t('pendingVerifications'),
+      },
+    )
+    const tiers = toRows(metrics, ['tierBasic', 'tierPro', 'tierBusiness'], {
+      tierBasic: t('tierBasic'),
+      tierPro: t('tierPro'),
+      tierBusiness: t('tierBusiness'),
+    })
     return (
       <div className="mb-6 grid gap-4">
         <MetricBarChart title={t('overview')} description={t('adminIntro')} data={volume} />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <MetricBarChart title={t('verificationStatus')} data={verification} />
+          <MetricBarChart title={t('subscriptionTiers')} data={tiers} />
+        </div>
       </div>
     )
   }
 
-  const growth = toRows(metrics, ['verifiedUsers', 'activeSubscriptions', 'activeProfiles'], analyticsLabels)
+  const growth = toRows(metrics, ['verifiedUsers', 'unverifiedUsers', 'pendingVerifications', 'activeSubscriptions', 'activeProfiles'], {
+    ...analyticsLabels,
+    unverifiedUsers: t('unverifiedUsers'),
+    pendingVerifications: t('pendingVerifications'),
+  })
+  const tiers = toRows(metrics, ['tierBasic', 'tierPro', 'tierBusiness'], {
+    tierBasic: t('tierBasic'),
+    tierPro: t('tierPro'),
+    tierBusiness: t('tierBusiness'),
+  })
   const reputation = metrics.averageReputation != null
     ? [{ name: t('reputation'), value: Number(metrics.averageReputation) }]
     : []
 
   return (
-    <div className="mb-6 grid gap-4 lg:grid-cols-2">
-      <MetricBarChart title={t('analytics')} description={t('adminIntro')} data={growth} />
+    <div className="mb-6 grid gap-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <MetricBarChart title={t('analytics')} description={t('adminIntro')} data={growth} />
+        <MetricBarChart title={t('subscriptionTiers')} data={tiers} />
+      </div>
       <MetricBarChart
         title={t('averageRating')}
         description={t('basedOn')}

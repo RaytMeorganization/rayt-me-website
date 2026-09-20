@@ -13,12 +13,15 @@ export type WorkspaceMemberCardProps = {
   name: string
   email: string
   jobTitle?: string | null
+  company?: string | null
   score?: number | null
+  ratingsCount?: number | null
   isVerified?: boolean
   avatarUrl?: string | null
   employmentStatus?: 'working' | 'not_working' | 'open_to_work' | null
   role: string
   accentColor?: string | null
+  profileHref?: string | null
   canRemove?: boolean
   canChangeRole?: boolean
   busy?: boolean
@@ -39,12 +42,15 @@ export function WorkspaceMemberCard({
   name,
   email,
   jobTitle,
+  company,
   score,
+  ratingsCount,
   isVerified = false,
   avatarUrl,
   employmentStatus,
   role,
   accentColor,
+  profileHref,
   canRemove = false,
   canChangeRole = false,
   busy = false,
@@ -94,7 +100,7 @@ export function WorkspaceMemberCard({
                   <h3 className="truncate font-serif text-lg font-semibold tracking-tight text-foreground">{name}</h3>
                   {isVerified ? (
                     <span
-                      className="grid size-5 place-items-center rounded-full bg-primary text-primary-foreground"
+                      className="grid size-5 place-items-center rounded-full bg-emerald-700 text-white"
                       aria-label={t('verifiedReputation')}
                     >
                       <Check className="size-3" />
@@ -102,6 +108,7 @@ export function WorkspaceMemberCard({
                   ) : null}
                 </div>
                 {jobTitle ? <p className="mt-0.5 truncate text-sm text-muted-foreground">{jobTitle}</p> : null}
+                {company ? <p className="mt-0.5 truncate text-xs text-muted-foreground">{company}</p> : null}
                 {statusLabel ? <p className="mt-0.5 truncate text-xs text-muted-foreground">{statusLabel}</p> : null}
                 <p className="mt-1 truncate text-xs text-muted-foreground">{email}</p>
               </div>
@@ -130,6 +137,22 @@ export function WorkspaceMemberCard({
               )}
               <ScoreRing score={Number(score ?? 0)} verified={isVerified} size={52} />
             </div>
+            {ratingsCount != null ? (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {ratingsCount} {t('basedOn')}
+              </p>
+            ) : null}
+            {profileHref ? (
+              <Button
+                nativeButton={false}
+                size="sm"
+                variant="ghost"
+                className="mt-3 px-0"
+                render={<a href={profileHref} />}
+              >
+                {t('viewPublicCard')}
+              </Button>
+            ) : null}
           </div>
         </div>
       </CardContent>

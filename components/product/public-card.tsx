@@ -6,11 +6,12 @@ import { Card, CardContent } from '@/components/ui/card'
 import { MarketingShell } from '@/components/product/marketing-shell'
 import { ScoreRing } from '@/components/product/score-ring'
 import { useI18n } from '@/components/product/providers'
-import { cardThemeBarColor } from '@/lib/card-theme'
+import { cardThemeSurface } from '@/lib/card-theme'
 import type { PublicProfile } from '@/lib/types'
 
 export function PublicCard({ profile }: { profile: PublicProfile }) {
   const { t } = useI18n()
+  const surface = cardThemeSurface(profile.theme)
   const title = profile.jobTitle || profile.education?.fieldOfStudy
   const organization = profile.company || profile.education?.university
   const location = profile.location
@@ -29,8 +30,11 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
         <p className="mb-4 text-center text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
           {t('publicPreview')}
         </p>
-        <Card className="overflow-hidden border-white/10 bg-card/95 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)] backdrop-blur-xl">
-          <div className="h-[3px]" style={{ backgroundColor: cardThemeBarColor(profile.theme) }} />
+        <Card
+          className="overflow-hidden border-white/10 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)] backdrop-blur-xl"
+          style={{ backgroundColor: surface.background }}
+        >
+          <div className="h-[3px]" style={{ backgroundColor: surface.accent }} />
           <CardContent className="p-6 sm:p-9">
             <div className="flex items-start gap-4">
               {profile.avatarUrl ? (
@@ -42,11 +46,11 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">{profile.name}</h1>
+                  <h1 className="font-serif text-2xl font-semibold tracking-tight" style={{ color: surface.light ? '#11213D' : '#FFFFFF' }}>{profile.name}</h1>
                   {profile.isVerified ? (
                     <span
                       aria-label={t('verifiedReputation')}
-                      className="grid size-5 place-items-center rounded-full bg-primary text-primary-foreground"
+                      className="grid size-5 place-items-center rounded-full bg-emerald-700 text-white"
                     >
                       <Check data-icon="inline-start" />
                     </span>
@@ -66,6 +70,9 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
                 ) : null}
               </div>
               <ScoreRing score={Number(profile.reputation.score)} verified={profile.isVerified} />
+              {surface.logoUrl ? (
+                <img src={surface.logoUrl} alt="" className="size-12 shrink-0 rounded-xl object-contain" />
+              ) : null}
             </div>
             {profile.bio ? <p className="mt-6 text-sm leading-6 text-foreground/90">{profile.bio}</p> : null}
             <p className="mt-6 text-xs text-muted-foreground">
@@ -79,12 +86,12 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
               ) : null}
               {profile.phone ? (
                 <a className="underline underline-offset-4" href={`tel:${profile.phone}`}>{profile.phone}</a>
-              ) : (
+              ) : profile.phonePrivate ? (
                 <p className="flex items-center gap-2 text-muted-foreground">
                   <Lock data-icon="inline-start" />
                   {t('requestPhone')}
                 </p>
-              )}
+              ) : null}
             </div>
           </CardContent>
         </Card>

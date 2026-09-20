@@ -70,6 +70,7 @@ export interface PublicProfile {
   } | null
   email?: string | null
   phone?: string | null
+  phonePrivate?: boolean
 }
 
 export interface Verification {
@@ -94,6 +95,9 @@ export interface BusinessReputation {
   averageRating: number | null
   ratingCount: number
   memberCount?: number
+  verifiedMemberCount?: number
+  lowestReputation?: number | null
+  highestReputation?: number | null
 }
 
 export interface BusinessUsage {

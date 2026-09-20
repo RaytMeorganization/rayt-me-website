@@ -4,11 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { PageHeader, Panel, ProductShell, inputClass } from '@/components/product/shell'
+import { PageHeader, Panel, ProductShell, inputClass, LocaleButton } from '@/components/product/shell'
 import { VerificationPanel } from '@/components/product/verification-panel'
+import { ThemeStudioPanel } from '@/components/product/theme-studio-panel'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { User } from '@/lib/types'
+import type { CustomThemeColors, ThemeCatalogItem } from '@/lib/card-theme'
 
 type Entitlements = {
   tier: User['tier']
@@ -16,8 +18,10 @@ type Entitlements = {
   ratingsReceived: 'unlimited'
   activeTheme: string | null
   themes: string[]
+  catalog?: ThemeCatalogItem[]
+  rotatingUntil?: string | null
   customTheme: boolean
-  companyBrand: { logoUrl: string | null; brandColor: string | null } | null
+  companyBrand: { logoUrl: string | null; brandColor: string | null; name?: string | null } | null
   billingCheckoutAvailable: boolean
 }
 
@@ -42,7 +46,6 @@ export function SettingsWorkspace() {
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [entitlements, setEntitlements] = useState<Entitlements | null>(null)
-  const [customTheme, setCustomTheme] = useState({ background: '#FAF6EE', accent: '#11213D' })
   const [deleteConfirmation, setDeleteConfirmation] = useState('')
 
   const setTab = useCallback((next: SettingsTab) => {
@@ -109,17 +112,51 @@ export function SettingsWorkspace() {
     }
   }
 
-  async function saveCustomTheme() {
+  async function saveCustomTheme(custom: CustomThemeColors) {
     setBusy(true)
     setMessage('')
     try {
-      const result = await api<{ theme: string }>('/me/theme', { method: 'PATCH', body: JSON.stringify({ custom: customTheme }) })
+      const payload = {
+        background: custom.background,
+        accent: custom.accent,
+        ...(custom.logoUrl ? { logoUrl: custom.logoUrl } : {}),
+        ...(custom.name ? { name: custom.name } : {}),
+      }
+      const result = await api<{ theme: string }>('/me/theme', { method: 'PATCH', body: JSON.stringify({ custom: payload }) })
       setEntitlements(current => (current ? { ...current, activeTheme: result.theme } : current))
       setMessage(t('complete'))
     } catch (error) {
       setMessage(errorMessage(error, t('error')))
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function applyCompanyTheme() {
+    setBusy(true)
+    setMessage('')
+    try {
+      const result = await api<{ theme: string }>('/me/theme', { method: 'PATCH', body: JSON.stringify({ company: true }) })
+      setEntitlements(current => (current ? { ...current, activeTheme: result.theme } : current))
+      setMessage(t('complete'))
+    } catch (error) {
+      setMessage(errorMessage(error, t('error')))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function suggestTheme(mood: string) {
+    try {
+      return await api<{
+        background: string
+        accent: string
+        label: string
+        suggestions?: CustomThemeColors[]
+      }>('/me/ai/theme-draft', { method: 'POST', body: JSON.stringify({ mood }) })
+    } catch (error) {
+      setMessage(errorMessage(error, t('error')))
+      return null
     }
   }
 
@@ -211,6 +248,13 @@ export function SettingsWorkspace() {
                 <p className="mt-1 text-sm capitalize text-muted-foreground">
                   {user?.isVerified ? t('complete') : t('pending')} · {entitlements?.tier ?? user?.tier}
                 </p>
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-muted/20 px-3 py-2">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t('language')}</p>
+                    <p className="text-xs text-muted-foreground">{t('languageHint')}</p>
+                  </div>
+                  <LocaleButton />
+                </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" onClick={() => setTab('profile')}>{t('editProfile')}</Button>
                   <Button size="sm" variant="outline" onClick={() => setTab('verification')}>{t('verificationCenter')}</Button>
@@ -273,7 +317,7 @@ export function SettingsWorkspace() {
           {tab === 'verification' && <VerificationPanel />}
 
           {tab === 'plan' && (
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid gap-6">
               <Panel title={t('plan')}>
                 <p className="text-3xl font-semibold capitalize">{entitlements?.tier ?? user?.tier}</p>
                 <div className="mt-4 grid gap-2 text-sm">
@@ -285,56 +329,18 @@ export function SettingsWorkspace() {
                 </div>
               </Panel>
               <Panel title={t('theme')}>
-                <div className="grid gap-3">
-                  <label className="grid gap-2 text-sm">
-                    {t('theme')}
-                    <select
-                      className={inputClass}
-                      value={entitlements?.activeTheme && entitlements.themes.includes(entitlements.activeTheme) ? entitlements.activeTheme : 'forest'}
-                      disabled={busy || !entitlements}
-                      onChange={event => void saveTheme(event.target.value)}
-                    >
-                      {entitlements?.themes.map(theme => (
-                        <option key={theme} value={theme}>{theme}</option>
-                      ))}
-                    </select>
-                  </label>
-                  {entitlements?.customTheme && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="grid gap-2 text-sm">
-                        {t('appearance')}
-                        <input
-                          aria-label={`${t('customTheme')} ${t('appearance')}`}
-                          type="color"
-                          className="h-11 w-full"
-                          value={customTheme.background}
-                          onChange={event => setCustomTheme(current => ({ ...current, background: event.target.value }))}
-                        />
-                      </label>
-                      <label className="grid gap-2 text-sm">
-                        {t('brandColor')}
-                        <input
-                          aria-label={`${t('customTheme')} ${t('brandColor')}`}
-                          type="color"
-                          className="h-11 w-full"
-                          value={customTheme.accent}
-                          onChange={event => setCustomTheme(current => ({ ...current, accent: event.target.value }))}
-                        />
-                      </label>
-                      <Button variant="outline" className="col-span-2" disabled={busy} onClick={() => void saveCustomTheme()}>
-                        {t('customTheme')}
-                      </Button>
-                    </div>
-                  )}
-                  {entitlements?.companyBrand && (
-                    <div
-                      className="rounded-xl p-3 text-sm"
-                      style={{ borderInlineStart: `4px solid ${entitlements.companyBrand.brandColor || '#11213D'}` }}
-                    >
-                      {t('brandedTheme')}
-                    </div>
-                  )}
-                </div>
+                {entitlements ? (
+                  <ThemeStudioPanel
+                    entitlements={entitlements}
+                    busy={busy}
+                    onSavePack={theme => void saveTheme(theme)}
+                    onSaveCustom={theme => void saveCustomTheme(theme)}
+                    onApplyCompany={() => void applyCompanyTheme()}
+                    onSuggest={suggestTheme}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">{t('loading')}</p>
+                )}
               </Panel>
             </div>
           )}

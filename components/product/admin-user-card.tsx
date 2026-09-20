@@ -57,6 +57,11 @@ export function AdminUserCard({
   isVerified,
   isActive,
   createdAt,
+  jobTitle,
+  company,
+  tier,
+  accountType,
+  profileId,
   busy,
   onRoleChange,
   onToggleActive,
@@ -67,6 +72,11 @@ export function AdminUserCard({
   isVerified: boolean
   isActive: boolean
   createdAt?: string
+  jobTitle?: string | null
+  company?: string | null
+  tier?: string | null
+  accountType?: string | null
+  profileId?: string
   busy?: boolean
   onRoleChange: (role: DbRole) => void
   onToggleActive: () => void
@@ -90,7 +100,7 @@ export function AdminUserCard({
               <h3 className="truncate font-serif text-lg font-semibold tracking-tight text-foreground">{name}</h3>
               {isVerified ? (
                 <span
-                  className="grid size-5 place-items-center rounded-full bg-primary text-primary-foreground"
+                  className="grid size-5 place-items-center rounded-full bg-emerald-700 text-white"
                   aria-label={t('verifiedReputation')}
                 >
                   <Check className="size-3" />
@@ -98,6 +108,11 @@ export function AdminUserCard({
               ) : null}
             </div>
             <p className="mt-1 truncate text-sm text-muted-foreground">{email}</p>
+            {jobTitle || company ? (
+              <p className="mt-1 truncate text-sm text-muted-foreground">
+                {[jobTitle, company].filter(Boolean).join(' · ')}
+              </p>
+            ) : null}
             {joined ? (
               <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">
                 {joined}
@@ -113,6 +128,16 @@ export function AdminUserCard({
               <Badge variant={isActive ? 'secondary' : 'destructive'} className="rounded-full px-2.5">
                 {isActive ? t('activate') : t('deactivate')}
               </Badge>
+              {tier ? (
+                <Badge variant="outline" className="rounded-full px-2.5">
+                  {tier === 'pro' ? t('tierPro') : tier === 'business' ? t('tierBusiness') : t('tierBasic')}
+                </Badge>
+              ) : null}
+              {accountType === 'student' ? (
+                <Badge variant="outline" className="rounded-full px-2.5">
+                  {t('student')}
+                </Badge>
+              ) : null}
             </div>
           </div>
         </div>
@@ -141,6 +166,17 @@ export function AdminUserCard({
         >
           {isActive ? t('deactivate') : t('activate')}
         </Button>
+        {profileId ? (
+          <Button
+            nativeButton={false}
+            size="sm"
+            variant="ghost"
+            className="w-full shrink-0 sm:w-auto"
+            render={<a href={`/p/${encodeURIComponent(profileId)}`} />}
+          >
+            {t('viewPublicCard')}
+          </Button>
+        ) : null}
       </CardFooter>
     </Card>
   )
