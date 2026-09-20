@@ -59,6 +59,8 @@ export function AdminUserCard({
   createdAt,
   jobTitle,
   company,
+  city,
+  country,
   tier,
   accountType,
   profileId,
@@ -74,6 +76,8 @@ export function AdminUserCard({
   createdAt?: string
   jobTitle?: string | null
   company?: string | null
+  city?: string | null
+  country?: string | null
   tier?: string | null
   accountType?: string | null
   profileId?: string
@@ -111,6 +115,11 @@ export function AdminUserCard({
             {jobTitle || company ? (
               <p className="mt-1 truncate text-sm text-muted-foreground">
                 {[jobTitle, company].filter(Boolean).join(' · ')}
+              </p>
+            ) : null}
+            {city || country ? (
+              <p className="mt-1 truncate text-sm text-muted-foreground">
+                {[city, country].filter(Boolean).join(', ')}
               </p>
             ) : null}
             {joined ? (

@@ -160,7 +160,7 @@ export function EmptyState({
 
 export function StatCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div data-premium-reveal className="group rounded-2xl border border-white/10 bg-card/80 p-4 backdrop-blur-xl">
+    <div className="group rounded-2xl border border-white/10 bg-card/80 p-4 backdrop-blur-xl">
       <p className="text-[10px] font-bold uppercase tracking-[.14em] text-muted-foreground">{label}</p>
       <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-foreground">
         <AnimatedValue value={value} />

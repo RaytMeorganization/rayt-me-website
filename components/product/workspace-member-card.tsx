@@ -14,6 +14,8 @@ export type WorkspaceMemberCardProps = {
   email: string
   jobTitle?: string | null
   company?: string | null
+  city?: string | null
+  country?: string | null
   score?: number | null
   ratingsCount?: number | null
   isVerified?: boolean
@@ -43,6 +45,8 @@ export function WorkspaceMemberCard({
   email,
   jobTitle,
   company,
+  city,
+  country,
   score,
   ratingsCount,
   isVerified = false,
@@ -109,6 +113,11 @@ export function WorkspaceMemberCard({
                 </div>
                 {jobTitle ? <p className="mt-0.5 truncate text-sm text-muted-foreground">{jobTitle}</p> : null}
                 {company ? <p className="mt-0.5 truncate text-xs text-muted-foreground">{company}</p> : null}
+                {city || country ? (
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {[city, country].filter(Boolean).join(', ')}
+                  </p>
+                ) : null}
                 {statusLabel ? <p className="mt-0.5 truncate text-xs text-muted-foreground">{statusLabel}</p> : null}
                 <p className="mt-1 truncate text-xs text-muted-foreground">{email}</p>
               </div>

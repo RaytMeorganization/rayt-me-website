@@ -229,6 +229,7 @@ export function BusinessDashboard() {
   }
 
   const memberSeatLimit = usage?.entitlements.find(item => item.key === 'members')?.value
+  const seatCount = usage?.usage.members ?? reputation?.memberCount ?? members.length
   const orgInitials = (organization?.name || 'OR').slice(0, 2).toUpperCase()
 
   return (
@@ -293,8 +294,8 @@ export function BusinessDashboard() {
                     value={String(reputation?.memberCount ?? usage?.usage.members ?? members.length)}
                     hint={
                       memberSeatLimit != null
-                        ? `${t('seatsUsed')}: ${usage?.usage.members ?? reputation?.memberCount ?? members.length} / ${memberSeatLimit}`
-                        : t('roster')
+                        ? `${t('seatsUsed')}: ${seatCount} / ${memberSeatLimit}`
+                        : `${t('seatsUsed')}: ${seatCount}`
                     }
                   />
                   <StatCard
@@ -382,7 +383,7 @@ export function BusinessDashboard() {
 
             {tab === 'team' && (
               <DashboardSurface title={t('roster')} description={t('emptyRosterHelp')}>
-                <form onSubmit={invite} className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+                <form onSubmit={invite} className="relative z-10 grid max-w-3xl gap-3 sm:grid-cols-[1fr_auto_auto]">
                   <Input
                     required
                     type="email"
@@ -390,6 +391,7 @@ export function BusinessDashboard() {
                     value={inviteEmail}
                     onChange={e => setInviteEmail(e.target.value)}
                     placeholder={t('email')}
+                    aria-label={t('email')}
                   />
                   <select
                     aria-label={t('role')}
@@ -420,6 +422,8 @@ export function BusinessDashboard() {
                           email={email}
                           jobTitle={memberUser?.jobTitle ? String(memberUser.jobTitle) : null}
                           company={memberUser?.company ? String(memberUser.company) : null}
+                          city={memberUser?.city ? String(memberUser.city) : null}
+                          country={memberUser?.country ? String(memberUser.country) : null}
                           score={memberUser?.score != null ? Number(memberUser.score) : null}
                           ratingsCount={
                             memberUser?.credibleRatingCount != null
@@ -438,7 +442,7 @@ export function BusinessDashboard() {
                           }
                           role={String(member.role)}
                           accentColor={theme.brandColor || organization?.brandColor}
-                          canRemove={!isSelf && String(member.role) !== 'ADMIN'}
+                          canRemove={!isSelf}
                           canChangeRole={!isSelf}
                           busy={busy}
                           onRoleChange={role => void changeMemberRole(String(member.id), role)}
@@ -526,7 +530,7 @@ export function BusinessDashboard() {
                     hint={
                       memberSeatLimit != null
                         ? `${t('seatsUsed')}: ${usage?.usage.members ?? 0} / ${memberSeatLimit}`
-                        : undefined
+                        : `${t('seatsUsed')}: ${usage?.usage.members ?? 0}`
                     }
                   />
                   <StatCard label={t('pendingInvites')} value={String(usage?.usage.pendingInvites ?? 0)} />

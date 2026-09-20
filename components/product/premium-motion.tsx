@@ -33,10 +33,9 @@ export function AnimatedNumber({
 
     let frame = 0
     let started = false
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry?.isIntersecting || started) return
+    const run = () => {
+      if (started) return
       started = true
-      observer.disconnect()
       const start = performance.now()
       const tick = (now: number) => {
         const progress = Math.min((now - start) / duration, 1)
@@ -44,9 +43,18 @@ export function AnimatedNumber({
         if (progress < 1) frame = window.requestAnimationFrame(tick)
       }
       frame = window.requestAnimationFrame(tick)
-    }, { threshold: 0.35 })
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting) return
+      observer.disconnect()
+      run()
+    }, { threshold: 0.01, rootMargin: '80px 0px' })
 
     observer.observe(element)
+    const rect = element.getBoundingClientRect()
+    if (rect.bottom > 0 && rect.top < (window.innerHeight || 0) + 80) run()
+
     return () => {
       observer.disconnect()
       window.cancelAnimationFrame(frame)

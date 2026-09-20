@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
   BarChart3,
@@ -62,6 +62,10 @@ const sections = [
 
 type SectionKey = (typeof sections)[number][0]
 type VerificationType = 'personalEmail' | 'workEmail' | 'universityEmail' | 'phone'
+type VerificationChannel = {
+  type: VerificationType
+  status: 'personalEmailStatus' | 'workEmailStatus' | 'universityEmailStatus' | 'phoneStatus'
+}
 
 const COLLECTION_SECTIONS = new Set<SectionKey>(['ratings', 'disputes', 'audit', 'verifications', 'communities'])
 const COLLECTION_PAGE_SIZE = 50
@@ -93,12 +97,21 @@ function CollectionList({
   )
 }
 
-const verificationFields: { type: VerificationType; status: string }[] = [
+const VERIFICATION_CHANNELS: readonly VerificationChannel[] = [
   { type: 'personalEmail', status: 'personalEmailStatus' },
   { type: 'workEmail', status: 'workEmailStatus' },
   { type: 'universityEmail', status: 'universityEmailStatus' },
   { type: 'phone', status: 'phoneStatus' },
 ]
+
+function pendingVerificationChannels(accountType: unknown): VerificationChannel[] {
+  return VERIFICATION_CHANNELS.filter((field: VerificationChannel) => {
+    if (accountType === 'student') {
+      return field.type === 'personalEmail' || field.type === 'universityEmail'
+    }
+    return field.type !== 'universityEmail'
+  })
+}
 
 function normalize(value: unknown): unknown[] {
   if (Array.isArray(value)) return value
@@ -130,6 +143,7 @@ export function AdminDashboard() {
   const [ratingsSearchInput, setRatingsSearchInput] = useState('')
   const [appliedRatingsSearch, setAppliedRatingsSearch] = useState('')
   const [metrics, setMetrics] = useState<Record<string, number> | null>(null)
+  const loadGeneration = useRef(0)
 
   const active = sections.find(([key]) => key === section) ?? sections[0]
 
@@ -138,7 +152,21 @@ export function AdminDashboard() {
     [t],
   )
 
+  const changeSection = useCallback((next: SectionKey) => {
+    setSection(next)
+    setBusy(true)
+    setRecords([])
+    setCommunityGroups([])
+    setMetrics(null)
+    setError('')
+    setSuccess('')
+    setListMeta(null)
+    setCollectionMeta(null)
+    setUserPage(1)
+  }, [])
+
   const load = useCallback(async () => {
+    const generation = ++loadGeneration.current
     setBusy(true)
     setError('')
     setSuccess('')
@@ -160,6 +188,7 @@ export function AdminDashboard() {
     }
     try {
       const raw = await api<unknown>(`/admin/${endpoint}${query}`)
+      if (generation !== loadGeneration.current) return
       if (section === 'overview' || section === 'analytics') {
         const numeric: Record<string, number> = {}
         for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
@@ -187,26 +216,30 @@ export function AdminDashboard() {
       if (section === 'communities') {
         try {
           const groups = await api<{ items: unknown[] }>('/admin/communities?limit=100&skip=0')
+          if (generation !== loadGeneration.current) return
           setCommunityGroups(groups.items ?? [])
         } catch {
+          if (generation !== loadGeneration.current) return
           setCommunityGroups([])
         }
       } else {
         setCommunityGroups([])
       }
     } catch (cause) {
+      if (generation !== loadGeneration.current) return
       setMetrics(null)
       setError(errorMessage(cause, t('loadFailed')))
       setRecords([])
       setCommunityGroups([])
     } finally {
-      setBusy(false)
+      if (generation === loadGeneration.current) setBusy(false)
     }
   }, [appliedRatingsSearch, appliedSearch, section, t, userPage])
 
   const loadMore = useCallback(async () => {
     if (!COLLECTION_SECTIONS.has(section) || !collectionMeta) return
     if (records.length >= collectionMeta.total) return
+    const generation = ++loadGeneration.current
     setBusy(true)
     setError('')
     const endpoint = sections.find(([key]) => key === section)?.[2] || 'overview'
@@ -220,12 +253,14 @@ export function AdminDashboard() {
       const raw = await api<{ items: unknown[]; total: number; limit: number }>(
         `/admin/${endpoint}?${params.toString()}`,
       )
+      if (generation !== loadGeneration.current) return
       setRecords(current => [...current, ...raw.items])
       setCollectionMeta({ total: raw.total, limit: raw.limit })
     } catch (cause) {
+      if (generation !== loadGeneration.current) return
       setError(errorMessage(cause, t('loadFailed')))
     } finally {
-      setBusy(false)
+      if (generation === loadGeneration.current) setBusy(false)
     }
   }, [appliedRatingsSearch, collectionMeta, records.length, section, t])
 
@@ -233,11 +268,6 @@ export function AdminDashboard() {
     const timer = window.setTimeout(() => { void load() }, 0)
     return () => window.clearTimeout(timer)
   }, [load])
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => { setUserPage(1) }, 0)
-    return () => window.clearTimeout(timer)
-  }, [section])
 
   async function review(
     item: Record<string, unknown>,
@@ -444,7 +474,7 @@ export function AdminDashboard() {
           }
         />
 
-        <WorkspaceTabs tabs={tabItems} value={section} onChange={setSection} ariaLabel={t('admin')} />
+        <WorkspaceTabs tabs={tabItems} value={section} onChange={changeSection} ariaLabel={t('admin')} />
 
         {success && !busy ? (
           <p role="status" className="mt-4 rounded-xl border border-white/10 bg-card/80 px-4 py-3 text-sm text-foreground">
@@ -460,7 +490,7 @@ export function AdminDashboard() {
           ) : null}
           {section === 'ratings' && (
             <form
-              className="mb-6 flex flex-col gap-2 sm:flex-row"
+              className="relative z-10 mb-6 flex max-w-xl flex-col gap-2 sm:flex-row"
               onSubmit={event => {
                 event.preventDefault()
                 setAppliedRatingsSearch(ratingsSearchInput.trim())
@@ -470,15 +500,23 @@ export function AdminDashboard() {
                 value={ratingsSearchInput}
                 onChange={event => setRatingsSearchInput(event.target.value)}
                 placeholder={t('search')}
+                aria-label={t('search')}
                 className="h-11 bg-input/30"
               />
-              <Button type="submit" variant="secondary" className="shrink-0">{t('search')}</Button>
+              <Button
+                type="submit"
+                variant="secondary"
+                className="shrink-0"
+                onClick={() => setAppliedRatingsSearch(ratingsSearchInput.trim())}
+              >
+                {t('search')}
+              </Button>
             </form>
           )}
 
           {section === 'users' && (
             <form
-              className="mb-6 flex flex-col gap-2 sm:flex-row"
+              className="relative z-10 mb-6 flex max-w-xl flex-col gap-2 sm:flex-row"
               onSubmit={event => {
                 event.preventDefault()
                 setAppliedSearch(searchInput.trim())
@@ -489,9 +527,20 @@ export function AdminDashboard() {
                 value={searchInput}
                 onChange={event => setSearchInput(event.target.value)}
                 placeholder={t('search')}
+                aria-label={t('search')}
                 className="h-11 bg-input/30"
               />
-              <Button type="submit" variant="secondary" className="shrink-0">{t('search')}</Button>
+              <Button
+                type="submit"
+                variant="secondary"
+                className="shrink-0"
+                onClick={() => {
+                  setAppliedSearch(searchInput.trim())
+                  setUserPage(1)
+                }}
+              >
+                {t('search')}
+              </Button>
             </form>
           )}
 
@@ -626,6 +675,8 @@ export function AdminDashboard() {
                       createdAt={item.createdAt ? String(item.createdAt) : undefined}
                       jobTitle={item.jobTitle ? String(item.jobTitle) : null}
                       company={item.company ? String(item.company) : null}
+                      city={item.city ? String(item.city) : null}
+                      country={item.country ? String(item.country) : null}
                       tier={item.tier ? String(item.tier) : null}
                       accountType={item.accountType ? String(item.accountType) : null}
                       profileId={String(item.id)}
@@ -804,7 +855,7 @@ export function AdminDashboard() {
                       ) : null}
                       <FieldGrid>
                         {Object.entries(item)
-                          .filter(([key]) => !shouldSkipAdminField(key))
+                          .filter(([key]) => !shouldSkipAdminField(key) && key !== 'name' && key !== 'id')
                           .slice(0, 10)
                           .map(([key, value]) => (
                             <FieldItem key={key} label={humanize(key)} value={<AdminFieldValue fieldKey={key} value={value} />} />
@@ -812,9 +863,9 @@ export function AdminDashboard() {
                       </FieldGrid>
                       {item.id || item.userId ? (
                         <div className="grid gap-2 sm:grid-cols-2">
-                          {verificationFields
-                            .filter(field => item[field.status] === 'pending')
-                            .map(field => {
+                          {pendingVerificationChannels(item.accountType)
+                            .filter((field: VerificationChannel) => item[field.status] === 'pending')
+                            .map((field: VerificationChannel) => {
                               const channelValue = item[field.type]
                               return (
                                 <div key={field.type} className="rounded-xl border border-white/10 bg-background/40 p-3">

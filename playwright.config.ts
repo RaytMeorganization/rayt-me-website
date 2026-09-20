@@ -11,8 +11,21 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile-chromium', use: { ...devices['Pixel 7'] } },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        // Bundled Chromium is unavailable on this macOS version; system Chrome is.
+        ...(process.platform === 'darwin' ? { channel: 'chrome' } : {}),
+      },
+    },
+    {
+      name: 'mobile-chromium',
+      use: {
+        ...devices['Pixel 7'],
+        ...(process.platform === 'darwin' ? { channel: 'chrome' } : {}),
+      },
+    },
   ],
   webServer: [
     {

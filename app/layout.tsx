@@ -95,6 +95,7 @@ export default function RootLayout({
     <html
       lang="en"
       dir="ltr"
+      suppressHydrationWarning
       className={`${outfit.variable} ${syne.variable} ${figtree.variable} ${newsreader.variable} ${plexArabic.variable} ${naskh.variable} ${notoArabic.variable}`}
     >
       <body className="antialiased">
