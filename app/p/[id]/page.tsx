@@ -3,6 +3,7 @@ import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { PublicCard } from '@/components/product/public-card'
 import { api, ApiError } from '@/lib/api'
+import { siteUrl } from '@/lib/site'
 import type { PublicProfile } from '@/lib/types'
 
 const getProfile = cache(async (id: string) => {
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     const profile = await getProfile(id)
     const role = profile.jobTitle || profile.education?.fieldOfStudy || 'Professional'
     const description = profile.bio?.slice(0, 160) || `View ${profile.name}'s verified professional reputation card on RaytME.`
-    const url = `https://rate.me/p/${encodeURIComponent(id)}`
+    const url = siteUrl(`/p/${encodeURIComponent(id)}`)
     return {
       title: `${profile.name} — ${role} | RaytME`,
       description,
@@ -48,7 +49,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
     name: profile.name,
     jobTitle: profile.jobTitle,
     image: profile.avatarUrl,
-    url: `https://rate.me/p/${encodeURIComponent(profile.id)}`,
+    url: siteUrl(`/p/${encodeURIComponent(profile.id)}`),
   }
   return (
     <>

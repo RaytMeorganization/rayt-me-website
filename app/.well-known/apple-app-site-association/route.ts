@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-/** Universal Links for Rayt Me on https://rate.me (not api.rate.me). */
+/** Universal Links for Rayt Me on https://raytme.me (not api.raytme.me). */
 export function GET() {
   const teamId = process.env.APPLE_TEAM_ID?.trim()
   const details = teamId

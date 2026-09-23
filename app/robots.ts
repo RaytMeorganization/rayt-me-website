@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next'
+import { SITE_ORIGIN, siteUrl } from '@/lib/site'
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: '*', allow: '/', disallow: ['/settings', '/admin', '/business'] },
-    sitemap: 'https://rate.me/sitemap.xml',
-    host: 'https://rate.me',
+    sitemap: siteUrl('/sitemap.xml'),
+    host: SITE_ORIGIN,
   }
 }

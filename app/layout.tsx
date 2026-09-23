@@ -10,6 +10,7 @@ import {
 } from 'next/font/google'
 import type { Metadata, Viewport } from 'next'
 import { Providers } from '@/components/product/providers'
+import { SITE_ORIGIN } from '@/lib/site'
 import './globals.css'
 
 const outfit = Outfit({
@@ -49,12 +50,12 @@ const notoArabic = Noto_Sans_Arabic({ subsets: ['arabic'], variable: '--font-ara
 export const metadata: Metadata = {
   title: 'RaytME — Virtual Business Card & Professional Reputation',
   description: 'Your RaytME profile is your virtual business card. Share it, connect instantly, and carry a portable professional reputation that stays current.',
-  metadataBase: new URL('https://rate.me'),
+  metadataBase: new URL(SITE_ORIGIN),
   alternates: { canonical: '/' },
   openGraph: {
     title: 'RaytME — Virtual Business Card & Professional Reputation',
     description: 'Your RaytME profile is your virtual business card — with a reputation that travels.',
-    url: 'https://rate.me',
+    url: SITE_ORIGIN,
     siteName: 'RaytME',
     type: 'website',
   },
@@ -100,7 +101,7 @@ export default function RootLayout({
     >
       <body className="antialiased">
         <Providers>{children}</Providers>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ '@context': 'https://schema.org', '@graph': [{ '@type': 'Organization', name: 'RaytME', url: 'https://rate.me', description: 'Your virtual business card, with a portable professional reputation.' }, { '@type': 'SoftwareApplication', name: 'RaytME', applicationCategory: 'BusinessApplication', operatingSystem: 'iOS, Android, Web', description: 'A virtual business card and portable professional reputation profile you can share by link, QR, or email signature.' }, { '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What is RaytME?', acceptedAnswer: { '@type': 'Answer', text: 'RaytME is a verified professional reputation platform and virtual business card. It converts real professional interactions into a credibility-weighted reputation score, shareable via QR code, NFC, link, or email signature.' } }, { '@type': 'Question', name: 'Does RaytME sell my data?', acceptedAnswer: { '@type': 'Answer', text: 'No. RaytME does not sell user data or rating information.' } }, { '@type': 'Question', name: 'Can I dispute a rating?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Rated users can flag a rating for review and respond publicly.' } }] }] }) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ '@context': 'https://schema.org', '@graph': [{ '@type': 'Organization', name: 'RaytME', url: SITE_ORIGIN, description: 'Your virtual business card, with a portable professional reputation.' }, { '@type': 'SoftwareApplication', name: 'RaytME', applicationCategory: 'BusinessApplication', operatingSystem: 'iOS, Android, Web', description: 'A virtual business card and portable professional reputation profile you can share by link, QR, or email signature.' }, { '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What is RaytME?', acceptedAnswer: { '@type': 'Answer', text: 'RaytME is a verified professional reputation platform and virtual business card. It converts real professional interactions into a credibility-weighted reputation score, shareable via QR code, NFC, link, or email signature.' } }, { '@type': 'Question', name: 'Does RaytME sell my data?', acceptedAnswer: { '@type': 'Answer', text: 'No. RaytME does not sell user data or rating information.' } }, { '@type': 'Question', name: 'Can I dispute a rating?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Rated users can flag a rating for review and respond publicly.' } }] }] }) }} />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

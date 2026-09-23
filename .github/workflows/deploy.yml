@@ -1,0 +1,39 @@
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SSH key
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/vps
+          chmod 600 ~/.ssh/vps
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      # rayt-me-shared lives only on the VPS workspace (no public GitHub repo).
+      # Sync website sources, then rebuild the web image on the server.
+      - name: Sync website to VPS and rebuild
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          rsync -az --delete \
+            --exclude node_modules --exclude .next --exclude .git \
+            -e 'ssh -i ~/.ssh/vps -o IdentitiesOnly=yes' \
+            ./ "${VPS_USER}@${VPS_HOST}:/opt/rayt-me/rayt-me-website/"
+          ssh -i ~/.ssh/vps -o IdentitiesOnly=yes "${VPS_USER}@${VPS_HOST}" \
+            'cd /opt/rayt-me/deploy && unset WEB_IMAGE API_IMAGE && ./remote-deploy.sh web'
