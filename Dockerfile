@@ -15,14 +15,14 @@ RUN pnpm install --frozen-lockfile || pnpm install
 RUN pnpm exec tsc -p tsconfig.json
 
 FROM base AS deps
-COPY --from=shared /app/rayt-me-shared /app/rayt-me-shared
+COPY --from=shared /app/rayt-me-shared /app/rayt-me-website/.local-packages/rayt-me-shared
 COPY rayt-me-website/package.json rayt-me-website/pnpm-lock.yaml ./rayt-me-website/
 WORKDIR /app/rayt-me-website
-# postinstall expects plan-pricing tsconfig; shared is already built — skip scripts
+# postinstall syncs sibling when present; in Docker the vendored copy is already in place
 RUN pnpm install --frozen-lockfile --ignore-scripts || pnpm install --ignore-scripts
 RUN mkdir -p node_modules/@rayt-me \
   && rm -rf node_modules/@rayt-me/plan-pricing \
-  && ln -s /app/rayt-me-shared node_modules/@rayt-me/plan-pricing
+  && ln -s /app/rayt-me-website/.local-packages/rayt-me-shared node_modules/@rayt-me/plan-pricing
 
 FROM base AS build
 ARG API_PROXY_TARGET=http://api:4000
@@ -32,15 +32,15 @@ ENV API_PROXY_TARGET=$API_PROXY_TARGET
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
-COPY --from=deps /app/rayt-me-shared /app/rayt-me-shared
 COPY --from=deps /app/rayt-me-website /app/rayt-me-website
 COPY rayt-me-website /app/rayt-me-website-src
-# overlay sources but keep node_modules from deps
+# overlay sources but keep node_modules + vendored shared from deps
 RUN rm -rf /app/rayt-me-website-src/node_modules \
+  && rm -rf /app/rayt-me-website-src/.local-packages \
   && cp -a /app/rayt-me-website-src/. /app/rayt-me-website/ \
   && mkdir -p /app/rayt-me-website/node_modules/@rayt-me \
   && rm -rf /app/rayt-me-website/node_modules/@rayt-me/plan-pricing \
-  && ln -s /app/rayt-me-shared /app/rayt-me-website/node_modules/@rayt-me/plan-pricing
+  && ln -s /app/rayt-me-website/.local-packages/rayt-me-shared /app/rayt-me-website/node_modules/@rayt-me/plan-pricing
 WORKDIR /app/rayt-me-website
 RUN pnpm build
 
@@ -50,10 +50,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 WORKDIR /app/rayt-me-website
-COPY --from=build /app/rayt-me-shared /app/rayt-me-shared
 COPY --from=build /app/rayt-me-website ./
 RUN mkdir -p node_modules/@rayt-me \
   && rm -rf node_modules/@rayt-me/plan-pricing \
-  && ln -s /app/rayt-me-shared node_modules/@rayt-me/plan-pricing
+  && ln -s /app/rayt-me-website/.local-packages/rayt-me-shared node_modules/@rayt-me/plan-pricing
 EXPOSE 3000
 CMD ["pnpm", "start"]

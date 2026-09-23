@@ -10,10 +10,11 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tests/e2e/tsconfig.json",
     "test:e2e": "playwright test",
-    "postinstall": "tsc -p node_modules/@rayt-me/plan-pricing/tsconfig.json"
+    "postinstall": "bash scripts/sync-shared.sh",
+    "sync:shared": "bash scripts/sync-shared.sh"
   },
   "dependencies": {
-    "@rayt-me/plan-pricing": "file:../rayt-me-shared",
+    "@rayt-me/plan-pricing": "file:.local-packages/rayt-me-shared",
     "@base-ui/react": "^1.5.0",
     "@gsap/react": "^2.1.2",
     "@vercel/analytics": "1.6.1",

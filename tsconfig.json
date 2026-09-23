@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@rayt-me/plan-pricing": ["../rayt-me-shared/src/plan-pricing.ts"]
+      "@rayt-me/plan-pricing": ["./.local-packages/rayt-me-shared/src/plan-pricing.ts"]
     }
   },
   "files": ["next-env.d.ts"],
