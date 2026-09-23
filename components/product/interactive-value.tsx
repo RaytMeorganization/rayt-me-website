@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Check, Copy, ExternalLink } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/components/product/providers'
 import { formatPriceCentsUsd } from '@/lib/plan-pricing'

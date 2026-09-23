@@ -34,13 +34,14 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/rayt-me-website /app/rayt-me-website
 COPY rayt-me-website /app/rayt-me-website-src
-# overlay sources but keep node_modules + vendored shared from deps
+# Overlay app sources; keep deps node_modules. Do not strip .local-packages —
+# lib/plan-pricing.ts imports the committed vendored sources directly.
 RUN rm -rf /app/rayt-me-website-src/node_modules \
-  && rm -rf /app/rayt-me-website-src/.local-packages \
   && cp -a /app/rayt-me-website-src/. /app/rayt-me-website/ \
   && mkdir -p /app/rayt-me-website/node_modules/@rayt-me \
   && rm -rf /app/rayt-me-website/node_modules/@rayt-me/plan-pricing \
-  && ln -s /app/rayt-me-website/.local-packages/rayt-me-shared /app/rayt-me-website/node_modules/@rayt-me/plan-pricing
+  && ln -sfn /app/rayt-me-website/.local-packages/rayt-me-shared /app/rayt-me-website/node_modules/@rayt-me/plan-pricing \
+  && test -f /app/rayt-me-website/.local-packages/rayt-me-shared/src/plan-pricing.ts
 WORKDIR /app/rayt-me-website
 RUN pnpm build
 
