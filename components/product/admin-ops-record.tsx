@@ -168,30 +168,47 @@ export function AdminCommunityReportRecord({
   )
 }
 
+function humanizeAction(action: unknown): string {
+  const raw = String(action || '').trim()
+  if (!raw) return ''
+  return raw
+    .replace(/[._]/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+}
+
 export function AdminAuditRecord({ item }: { item: Record<string, unknown> }) {
   const { t } = useI18n()
   const actor = item.actor as Record<string, unknown> | undefined
   const actorEmail = actor?.email ? String(actor.email) : null
-  const title = String(item.action || t('audit'))
-  const subtitle = actorEmail || personLabel(actor)
+  const actorName = personLabel(actor)
+  const title = humanizeAction(item.action) || t('audit')
+  const subtitle = actorName !== '—' ? actorName : actorEmail || undefined
 
   return (
-    <RecordShell title={title} subtitle={subtitle !== '—' ? subtitle : undefined}>
-      <div className="flex w-full min-w-0 flex-col gap-3 lg:max-w-3xl">
-        {actorEmail ? (
-          <InteractiveLink href={`mailto:${actorEmail}`}>{actorEmail}</InteractiveLink>
-        ) : null}
+    <RecordShell title={title} subtitle={subtitle}>
+      <div className="flex w-full min-w-0 flex-col gap-3">
         <FieldGrid>
-          <FieldItem label={t('role')} value={<span>{String(item.resourceType || '—')}</span>} />
           <FieldItem
-            label={t('code')}
+            label={t('actor')}
+            value={
+              actorEmail ? (
+                <InteractiveLink href={`mailto:${actorEmail}`}>{actorEmail}</InteractiveLink>
+              ) : (
+                <span>{actorName}</span>
+              )
+            }
+          />
+          <FieldItem label={t('resourceType')} value={<span>{String(item.resourceType || '—')}</span>} />
+          <FieldItem
+            label={t('resourceId')}
             value={item.resourceId ? <CopyableText value={String(item.resourceId)} /> : <>—</>}
           />
           <FieldItem label={t('createdAt')} value={<span>{formatAdminDate(item.createdAt)}</span>} />
         </FieldGrid>
         {item.metadata && typeof item.metadata === 'object' ? (
           <FieldItem
-            label={t('entitlements')}
+            label={t('metadata')}
             value={<AdminFieldValue fieldKey="metadata" value={item.metadata} />}
           />
         ) : null}

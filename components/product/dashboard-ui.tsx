@@ -129,15 +129,15 @@ export function RecordShell({
 }) {
   return (
     <Card className="border-white/10 bg-muted/20 shadow-none ring-1 ring-white/5">
-      <CardContent className="flex flex-wrap items-start justify-between gap-4 py-4">
-        <div className="min-w-0 flex-1">
+      <CardContent className="flex flex-col gap-4 py-4">
+        <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-medium text-foreground">{title}</h3>
             {badges}
           </div>
           {subtitle ? <p className="mt-1 truncate text-sm text-muted-foreground">{subtitle}</p> : null}
         </div>
-        {children}
+        {children ? <div className="min-w-0 w-full">{children}</div> : null}
       </CardContent>
     </Card>
   )

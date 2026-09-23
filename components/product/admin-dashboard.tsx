@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   Activity,
   BarChart3,
@@ -68,7 +69,14 @@ type VerificationChannel = {
 }
 
 const COLLECTION_SECTIONS = new Set<SectionKey>(['ratings', 'disputes', 'audit', 'verifications', 'communities'])
+const STAT_SECTIONS = new Set<SectionKey>(['overview', 'analytics', 'health'])
 const COLLECTION_PAGE_SIZE = 50
+const SECTION_KEYS = new Set<string>(sections.map(([key]) => key))
+
+function parseSection(value: string | null): SectionKey {
+  if (value && SECTION_KEYS.has(value)) return value as SectionKey
+  return 'overview'
+}
 
 function CollectionList({
   children,
@@ -129,7 +137,10 @@ function isStatEntry(record: unknown): record is { label: string; data: string |
 
 export function AdminDashboard() {
   const { t, locale } = useI18n()
-  const [section, setSection] = useState<SectionKey>('overview')
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const section = parseSection(searchParams.get('section'))
   const [records, setRecords] = useState<unknown[]>([])
   const [communityGroups, setCommunityGroups] = useState<unknown[]>([])
   const [busy, setBusy] = useState(true)
@@ -143,9 +154,11 @@ export function AdminDashboard() {
   const [ratingsSearchInput, setRatingsSearchInput] = useState('')
   const [appliedRatingsSearch, setAppliedRatingsSearch] = useState('')
   const [metrics, setMetrics] = useState<Record<string, number> | null>(null)
+  const [fetchedFor, setFetchedFor] = useState<SectionKey | null>(null)
   const loadGeneration = useRef(0)
 
   const active = sections.find(([key]) => key === section) ?? sections[0]
+  const sectionPending = fetchedFor !== section
 
   const tabItems = useMemo(
     () => sections.map(([key, label, , , icon]) => ({ id: key, label: t(label), icon })),
@@ -153,7 +166,8 @@ export function AdminDashboard() {
   )
 
   const changeSection = useCallback((next: SectionKey) => {
-    setSection(next)
+    loadGeneration.current += 1
+    setFetchedFor(null)
     setBusy(true)
     setRecords([])
     setCommunityGroups([])
@@ -163,7 +177,12 @@ export function AdminDashboard() {
     setListMeta(null)
     setCollectionMeta(null)
     setUserPage(1)
-  }, [])
+    const params = new URLSearchParams(searchParams.toString())
+    if (next === 'overview') params.delete('section')
+    else params.set('section', next)
+    const query = params.toString()
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+  }, [pathname, router, searchParams])
 
   const load = useCallback(async () => {
     const generation = ++loadGeneration.current
@@ -225,12 +244,14 @@ export function AdminDashboard() {
       } else {
         setCommunityGroups([])
       }
+      setFetchedFor(section)
     } catch (cause) {
       if (generation !== loadGeneration.current) return
       setMetrics(null)
       setError(errorMessage(cause, t('loadFailed')))
       setRecords([])
       setCommunityGroups([])
+      setFetchedFor(section)
     } finally {
       if (generation === loadGeneration.current) setBusy(false)
     }
@@ -457,7 +478,12 @@ export function AdminDashboard() {
   }
 
   const statEntries = records.filter(isStatEntry)
-  const showStats = statEntries.length > 0 && statEntries.length === records.length
+  const showStats =
+    !sectionPending &&
+    STAT_SECTIONS.has(section) &&
+    statEntries.length > 0 &&
+    statEntries.length === records.length
+  const showLoading = busy || sectionPending
 
   return (
     <ProductShell role="admin">
@@ -482,8 +508,8 @@ export function AdminDashboard() {
           </p>
         ) : null}
 
-        <DashboardSurface title={t(active[1])}>
-          {error && !busy && records.length > 0 ? (
+        <DashboardSurface title={t(active[1])} key={section}>
+          {error && !showLoading && records.length > 0 ? (
             <div className="mb-6">
               <ErrorBanner message={error} onRetry={() => void load()} retryLabel={t('retry')} />
             </div>
@@ -580,7 +606,7 @@ export function AdminDashboard() {
             </Accordion>
           )}
 
-          {busy ? (
+          {showLoading ? (
             <LoadingBlock rows={4} />
           ) : error ? (
             <ErrorBanner message={error} onRetry={() => void load()} retryLabel={t('retry')} />
@@ -612,7 +638,7 @@ export function AdminDashboard() {
             </>
           ) : section === 'plans' ? (
             <div className="grid gap-4 lg:grid-cols-2">
-              {records.map((record, index) => {
+              {records.map((record) => {
                 const item = record as Record<string, unknown>
                 if (!item.id) return null
                 return (
@@ -644,7 +670,7 @@ export function AdminDashboard() {
             </div>
           ) : section === 'organizations' ? (
             <div className="grid gap-4 lg:grid-cols-2">
-              {records.map((record, index) => {
+              {records.map((record) => {
                 const item = record as Record<string, unknown>
                 if (!item.id) return null
                 return (
@@ -661,7 +687,7 @@ export function AdminDashboard() {
           ) : section === 'users' ? (
             <>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {records.map((record, index) => {
+                {records.map((record) => {
                   const item = record as Record<string, unknown>
                   if (!item.id) return null
                   return (
@@ -730,7 +756,7 @@ export function AdminDashboard() {
               onLoadMore={() => void loadMore()}
               loadMoreLabel={t('loadMore')}
             >
-              {records.map((record, index) => {
+              {records.map((record) => {
                 const item = record as Record<string, unknown>
                 if (!item.id) return null
                 return (
@@ -752,7 +778,7 @@ export function AdminDashboard() {
               onLoadMore={() => void loadMore()}
               loadMoreLabel={t('loadMore')}
             >
-              {records.map((record, index) => {
+              {records.map((record) => {
                 const item = record as Record<string, unknown>
                 if (!item.id) return null
                 return (

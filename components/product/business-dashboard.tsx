@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   Building2,
   CreditCard,
@@ -34,6 +35,13 @@ import type { BusinessReputation, BusinessUsage, Organization } from '@/lib/type
 
 type BusinessTab = 'overview' | 'organization' | 'team' | 'brand' | 'usage'
 
+const BUSINESS_TABS = new Set<BusinessTab>(['overview', 'organization', 'team', 'brand', 'usage'])
+
+function parseTab(value: string | null): BusinessTab {
+  if (value && BUSINESS_TABS.has(value as BusinessTab)) return value as BusinessTab
+  return 'overview'
+}
+
 function formatScore(value: number | null | undefined, decimals = 1): string {
   if (value == null || Number.isNaN(value)) return '—'
   return value.toFixed(decimals)
@@ -42,7 +50,10 @@ function formatScore(value: number | null | undefined, decimals = 1): string {
 export function BusinessDashboard() {
   const { t } = useI18n()
   const { user } = useAuth()
-  const [tab, setTab] = useState<BusinessTab>('overview')
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const tab = parseTab(searchParams.get('tab'))
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [members, setMembers] = useState<Record<string, unknown>[]>([])
   const [invites, setInvites] = useState<Record<string, unknown>[]>([])
@@ -66,6 +77,14 @@ export function BusinessDashboard() {
     ],
     [t],
   )
+
+  const changeTab = useCallback((next: BusinessTab) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (next === 'overview') params.delete('tab')
+    else params.set('tab', next)
+    const query = params.toString()
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+  }, [pathname, router, searchParams])
 
   const load = useCallback(async () => {
     setBusy(true)
@@ -247,14 +266,14 @@ export function BusinessDashboard() {
           }
         />
 
-        {message ? (
+        {messageIsError && message ? (
+          <div className="mt-5">
+            <ErrorBanner message={message} onRetry={() => void load()} retryLabel={t('retry')} />
+          </div>
+        ) : message ? (
           <p
             role="status"
-            className={
-              messageIsError
-                ? 'mt-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive'
-                : 'mt-5 rounded-xl border border-white/10 bg-card/80 px-4 py-3 text-sm text-foreground'
-            }
+            className="mt-5 rounded-xl border border-white/10 bg-card/80 px-4 py-3 text-sm text-foreground"
           >
             {message}
           </p>
@@ -265,8 +284,8 @@ export function BusinessDashboard() {
             <LoadingBlock rows={4} />
           </div>
         ) : (
-          <>
-            <WorkspaceTabs tabs={tabs} value={tab} onChange={setTab} ariaLabel={t('business')} />
+          <div key={tab}>
+            <WorkspaceTabs tabs={tabs} value={tab} onChange={changeTab} ariaLabel={t('business')} />
 
             {tab === 'overview' && (
               <div className="mt-5 grid gap-4">
@@ -551,10 +570,8 @@ export function BusinessDashboard() {
                 )}
               </DashboardSurface>
             )}
-          </>
+          </div>
         )}
-
-        {!ready && message ? <ErrorBanner message={message} retryLabel={t('retry')} onRetry={() => void load()} /> : null}
       </main>
     </ProductShell>
   )

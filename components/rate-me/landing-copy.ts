@@ -180,55 +180,46 @@ export const arabicCopy: Record<string, string> = {
   "Professional reputation today lives in scattered, unverifiable places — a recommendation written as a favor, a testimonial from a screenshot, a “trust me” during a pitch. RaytME is a portable, tamper-resistant way to demonstrate real-world credibility at the exact moment it matters.":
     "السمعة المهنية اليوم تعيش في أماكن متفرقة وغير قابلة للتحقق — توصية كُتبت مجاملة، أو شهادة من لقطة شاشة، أو «ثق بي» أثناء عرض. RaytME طريقة محمولة ومقاومة للتلاعب لإثبات المصداقية الحقيقية في اللحظة التي تهم.",
   "RETIRE THE PAPER CARD": "تقاعد البطاقة الورقية",
-  "Paper cards lock you into a title you've already outgrown.":
-    "البطاقات الورقية تحبسك في مسمى وظيفي تجاوزته.",
-  "Companies and individuals pay for business cards in bulk. When a role or title changes mid-year, the cards don't — reprinting isn't worth the cost, so people keep handing out cards that are already wrong. RaytME replaces printed cards with a digital business card that can be updated anytime, at no reprint cost. Companies get custom, on-brand themes they can roll out and edit across the whole team instantly, so a title change is a two-second edit instead of a reorder.":
-    "تدفع الشركات والأفراد ثمن بطاقات بالجملة. عندما يتغيّر الدور أو المسمى في منتصف العام، البطاقات لا تتغيّر — وإعادة الطباعة لا تستحق التكلفة، فيستمر الناس في توزيع بطاقات خاطئة. RaytME يستبدل البطاقات المطبوعة ببطاقة رقمية يمكن تحديثها في أي وقت دون تكلفة إعادة طباعة. وتحصل الشركات على ثيمات مخصصة يمكن نشرها وتعديلها عبر الفريق فوراً، فيصبح تغيير المسمى تعديلاً يستغرق ثانيتين بدل طلب جديد.",
+  "Titles change. Printed cards don't.": "المسميات تتغيّر. البطاقات المطبوعة لا.",
+  "Your RaytME card updates instantly — no reprints, ever.":
+    "بطاقتك على RaytME تتحدّث فوراً — بلا إعادة طباعة أبداً.",
   "TURN CONTACTS INTO A NETWORK": "حوّل جهات الاتصال إلى شبكة",
-  "A drawer full of business cards is a dead end, not a network.":
-    "درج ممتلئ ببطاقات العمل طريق مسدود، لا شبكة.",
-  "Offices end up stacked with business cards from people you met once — most get thrown out, and the ones you keep are useless the moment you need to remember who was good at what. There's no way to search a pile of paper. Add anyone you meet to your list with one tap — you choose who to save, it's not automatic, and you don't need to rate someone to keep them. Organized by profession, your list turns every card you'd normally lose into something searchable: need a reliable accountant, a contractor, a designer you worked with last year? Search by profession and RaytME surfaces exactly who you saved, any rating you gave them, and where you met.":
-    "تنتهي المكاتب بأكوام بطاقات من أشخاص قابلتهم مرة — معظمها يُرمى، وما تبقيه يصبح عديم الفائدة عندما تحتاج أن تتذكر من كان جيداً في ماذا. لا توجد طريقة للبحث في كومة ورق. أضف من تقابلهم إلى قائمتك بضغطة — أنت تختار من تحفظ، وليس تلقائياً، ولا تحتاج إلى تقييم شخص للاحتفاظ به. منظّمة حسب المهنة، قائمتك تحوّل كل بطاقة كنت ستفقدها إلى شيء قابل للبحث.",
+  "Stop losing business cards.": "توقّف عن فقدان بطاقات العمل.",
+  "Save everyone you meet, searchable by profession, whenever you need them.":
+    "احفظ كل من تقابلهم، قابلين للبحث حسب المهنة، متى احتجتهم.",
   "TRACK GROWTH, NOT GUESSWORK": "تتبّع النمو لا التخمين",
-  "HR can't see who's actually improving.":
-    "الموارد البشرية لا ترى من يتحسّن فعلاً.",
-  "Performance reviews rely on self-reported updates and manager memory. HR has no ongoing, independent signal of how someone is actually developing — with colleagues, or on work delivered to outside clients. HR and managers can track a staff member's credible score over time, built from real ratings by colleagues and by the third parties they work with. It's a running, verifiable view of growth — not a once-a-year snapshot based on what someone chose to report.":
-    "مراجعات الأداء تعتمد على تحديثات ذاتية وذاكرة المدير. لا تملك الموارد البشرية إشارة مستقلة مستمرة لكيفية تطوّر الشخص. يمكن للموارد البشرية والمديرين تتبّع الدرجة الموثوقة للموظف عبر الوقت، من تقييمات الزملاء والأطراف الثالثة. إنها رؤية مستمرة وقابلة للتحقق للنمو — لا لقطة سنوية.",
+  "Reviews rely on memory.": "المراجعات تعتمد على الذاكرة.",
+  "RaytME gives HR a real, running score built from real ratings.":
+    "يمنح RaytME الموارد البشرية درجة حقيقية ومستمرة مبنية على تقييمات فعلية.",
   "BUILD TRUST ACROSS ANY BORDER": "ابنِ الثقة عبر أي حدود",
-  "Working across borders, credibility doesn't travel with you.":
-    "عند العمل عبر الحدود، المصداقية لا تسافر معك.",
-  "Work is global now — you can be based in one country and collaborating with companies in several others. But there's no simple way to establish and confirm mutual credibility with someone you may only ever meet through a screen. Share your RaytME code the moment you connect — through an email signature, or a link sent once the work is done. The other side checks your card, saves you to their list, and once the engagement wraps, you rate each other on the work itself. Distance stops being a barrier to trust.":
-    "العمل عالمي الآن — قد تكون في بلد وتتعاون مع شركات في عدة بلدان. لكن لا توجد طريقة بسيطة لتأكيد المصداقية المتبادلة مع شخص قد لا تقابله إلا عبر الشاشة. شارك رمز RaytME لحظة التواصل. الطرف الآخر يتحقق من بطاقتك ويحفظك، وبعد انتهاء العمل تقيّمون بعضكم على العمل نفسه. المسافة تتوقف عن أن تكون عائقاً للثقة.",
+  "Never met in person?": "لم تلتقيا وجهاً لوجه؟",
+  "Share your code, rate the work, build trust with zero distance.":
+    "شارك رمزك، قيّم العمل، وابنِ الثقة بلا مسافة.",
   "BE CREDIBLE THE MOMENT IT COUNTS": "كن موثوقاً في اللحظة التي تهم",
-  "Credibility doesn't show up when it counts.":
-    "المصداقية لا تظهر عندما تُحتسب.",
-  "By the time someone checks you out — searching your name, scrolling a profile, asking around — the meeting, the pitch, or the handshake is already over. Credibility arrives too late to change the outcome. Every RaytME profile is instantly shareable via QR code, NFC tap, direct link, or embedded email signature — no app download required for the person viewing it. Update your information once and every card, link, and signature reflects it immediately, so your credibility is visible at the exact moment of the interaction.":
-    "عندما يبحث عنك أحدهم يكون الاجتماع أو العرض قد انتهى. المصداقية تصل متأخرة. كل ملف RaytME قابل للمشاركة فوراً عبر QR أو NFC أو رابط أو توقيع البريد — دون تحميل تطبيق للمشاهد. حدّث معلوماتك مرة وتنعكس على كل بطاقة ورابط وتوقيع فوراً.",
+  "Credibility that shows up late is useless.":
+    "المصداقية التي تظهر متأخّرة بلا فائدة.",
+  "RaytME makes yours visible the moment it matters.":
+    "يجعل RaytME مصداقيتك مرئية في اللحظة التي تهم.",
   "SEE THE FULL PICTURE, NOT ONE SCORE": "انظر الصورة كاملة لا درجة واحدة",
-  "A single star rating hides more than it reveals.":
-    "تقييم النجوم الواحد يخفي أكثر مما يظهر.",
-  "A great communicator who's unreliable and a reliable person who under-communicates look identical under one generic score. Viewers can't tell what kind of trust they're actually getting. RaytME breaks every score into five distinct categories — Professionalism, Communication, Reliability, Knowledge, and Collaboration — so viewers see the shape of someone's reputation, not just a headline number, and professionals know exactly where to improve.":
-    "المتواصل الرائع غير الموثوق والشخص الموثوق ضعيف التواصل يبدوان متطابقين تحت درجة عامة. RaytME يقسم كل درجة إلى خمس فئات: الاحترافية، التواصل، الموثوقية، المعرفة، والتعاون.",
+  "One star hides everything.": "نجمة واحدة تخفي كل شيء.",
+  "RaytME scores five categories — so your real strengths actually show.":
+    "يقيم RaytME خمس فئات — فتظهر قوّتك الحقيقية فعلاً.",
   "GET HONEST FEEDBACK, WITHOUT THE FEAR": "احصل على ملاحظات صادقة دون الخوف",
-  "Honest feedback and public exposure are in tension.":
-    "الملاحظات الصادقة والظهور العلني في توتر.",
-  "People soften or withhold honest feedback when their name is permanently attached to it — which means the ratings that do get left are often the polite version, not the true one. Raters can submit feedback anonymously, while profile owners control what's shown publicly versus kept private or aggregate-only. Anonymity protects the rater; the rating still counts toward the score.":
-    "يلطّف الناس ملاحظاتهم عندما يرتبط اسمهم بها دائماً. يمكن للمقيّمين الإرسال بسرية، ويتحكم صاحب الملف بما يظهر علناً. السرية تحمي المقيّم؛ والتقييم يبقى محسوباً في الدرجة.",
+  "Named feedback gets softened.": "الملاحظات بالاسم تُلطَّف.",
+  "Anonymous ratings on RaytME stay honest — and still count.":
+    "التقييمات المجهولة على RaytME تبقى صادقة — وتُحتسب أيضاً.",
   "RATINGS YOU CAN ACTUALLY TRUST": "تقييمات يمكن الوثوق بها",
-  "Reputation systems are easy to game.":
-    "أنظمة السمعة سهلة التلاعب.",
-  "Star ratings, review platforms, and endorsement systems are routinely manipulated — rating rings, reciprocal reviews, fake accounts — which erodes trust in the score itself. A built-in anti-manipulation engine flags patterns consistent with brigading or coordinated rating rings, relationship-type weighting naturally discounts low-context or unverified raters, and a monthly cap on ratings given makes it impossible to flood the system with fake positive reviews. The system is monitored on an ongoing basis as manipulation tactics evolve.":
-    "تُتلاعب التقييمات ومنصات المراجعات وأنظمة التزكية بانتظام — حلقات تقييم ومراجعات متبادلة وحسابات وهمية — وهذا يضعف الثقة في الدرجة نفسها. محرّك مكافحة التلاعب يكتشف أنماط الإغراق وحلقات التقييم المنسّقة، والترجيح حسب نوع العلاقة يقلّل وزن المقيّمين ضعيفي السياق أو غير الموثّقين، والحد الشهري على التقييمات الممنوحة يمنع إغراق النظام بمراجعات إيجابية مزيفة.",
+  "Rating systems get gamed.": "أنظمة التقييم تُتلاعب بها.",
+  "RaytME blocks rings, fake reviews, and flood attempts — automatically.":
+    "يحظر RaytME الحلقات والمراجعات المزيفة ومحاولات الإغراق — تلقائياً.",
   "MAKE EVERY RATING COUNT": "اجعل كل تقييم يُحتسب",
-  "Real ratings drive real performance, not just perception.":
-    "التقييمات الحقيقية تحرّك الأداء الحقيقي لا المظهر فقط.",
-  "On most platforms, endorsements and appraisals are easy to hand out and hold little weight — so they don't influence day-to-day behavior. Nobody works harder because of a one-click endorsement. When a company puts its RaytME code in every email signature, the rating becomes real and visible — colleagues know they'll be rated by the people they work with, and employees know third-party clients will rate the service they deliver. That single shift quietly drives better collaboration internally and better service externally, improving how the company performs without anyone having to mandate it.":
-    "في معظم المنصات التزكيات سهلة ولا وزن لها. عندما تضع الشركة رمز RaytME في كل توقيع بريد يصبح التقييم حقيقياً ومرئياً — فيتحسّن التعاون الداخلي والخدمة الخارجية دون إلزام.",
+  "Endorsements don't change behavior.": "التزكيات لا تغيّر السلوك.",
+  "Real, visible ratings do — every time, everywhere.":
+    "التقييمات الحقيقية المرئية تفعل — في كل مرة، وفي كل مكان.",
   "ONE REPUTATION, EVERYWHERE YOU GO": "سمعة واحدة أينما ذهبت",
-  "Reputation is fragmented by platform, role, and geography.":
-    "السمعة مجزأة حسب المنصة والدور والجغرافيا.",
-  "Your credibility gets rebuilt from scratch every time you change companies, roles, or countries — nothing portable carries forward what you've actually earned. RaytME is a single global platform, not tied to one region, industry, or job type. Relationship-type weighting adapts to how you actually work — manager, client, collaborator, vendor, peer — and your score and profile travel with you across roles, companies, and countries.":
-    "تُعاد بناء مصداقيتك من الصفر كلما غيّرت شركة أو دوراً أو بلداً. RaytME منصة عالمية واحدة، ودرجتك وملفك يسافران معك عبر الأدوار والشركات والدول.",
+  "New job. New country.": "وظيفة جديدة. بلد جديد.",
+  "Reputation reset to zero — except on RaytME. One score, everywhere.":
+    "السمعة تُصفَّر — إلا على RaytME. درجة واحدة، في كل مكان.",
 
   // Share stage
   "QR Code": "رمز QR",

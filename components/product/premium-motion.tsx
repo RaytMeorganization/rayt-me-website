@@ -78,28 +78,64 @@ export function AnimatedValue({ value, className }: { value: string; className?:
   return <AnimatedNumber value={parsed} decimals={decimals} prefix={prefix} suffix={suffix} className={className} />
 }
 
+const REVEAL_SELECTOR = '[data-premium-reveal], main > section'
+
 /**
  * Adds restrained scroll reveals and hero depth without a runtime animation
  * dependency. The observer writes state to CSS and respects reduced motion.
+ * Re-observes nodes mounted after first paint (Settings tabs, dashboard panels).
  */
 export function MotionDirector() {
   useEffect(() => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const targets = document.querySelectorAll<HTMLElement>('[data-premium-reveal], main > section')
-    if (reduceMotion) {
-      targets.forEach(target => target.dataset.premiumVisible = 'true')
-      return
+    const seen = new WeakSet<Element>()
+
+    const revealNow = (target: HTMLElement) => {
+      target.dataset.premiumVisible = 'true'
+    }
+
+    const inViewport = (target: HTMLElement) => {
+      const rect = target.getBoundingClientRect()
+      const vh = window.innerHeight || 0
+      return rect.bottom > 0 && rect.top < vh
     }
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return
         const target = entry.target as HTMLElement
-        target.dataset.premiumVisible = 'true'
+        revealNow(target)
         observer.unobserve(target)
       })
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' })
-    targets.forEach(target => observer.observe(target))
+
+    const observeTarget = (target: HTMLElement) => {
+      if (seen.has(target)) return
+      seen.add(target)
+      if (reduceMotion) {
+        revealNow(target)
+        return
+      }
+      observer.observe(target)
+      if (inViewport(target)) revealNow(target)
+    }
+
+    const watch = (root: ParentNode = document) => {
+      root.querySelectorAll?.<HTMLElement>(REVEAL_SELECTOR).forEach(observeTarget)
+    }
+
+    watch()
+
+    const mutations = new MutationObserver(records => {
+      for (const record of records) {
+        record.addedNodes.forEach(node => {
+          if (!(node instanceof Element)) return
+          if (node.matches(REVEAL_SELECTOR)) observeTarget(node as HTMLElement)
+          watch(node)
+        })
+      }
+    })
+    mutations.observe(document.body, { childList: true, subtree: true })
 
     let frame = 0
     const updateDepth = () => {
@@ -113,6 +149,7 @@ export function MotionDirector() {
     window.addEventListener('scroll', onScroll, { passive: true })
 
     return () => {
+      mutations.disconnect()
       observer.disconnect()
       window.removeEventListener('scroll', onScroll)
       window.cancelAnimationFrame(frame)

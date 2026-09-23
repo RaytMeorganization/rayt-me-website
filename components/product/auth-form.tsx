@@ -211,19 +211,21 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
               </FieldGroup>
             </form>
           </CardContent>
-          <CardFooter className="justify-center border-t border-white/10 bg-transparent">
-            <p className="text-center text-sm text-muted-foreground">
-              {signUp && WEB_SIGN_IN_DISABLED ? (
+          {signUp && WEB_SIGN_IN_DISABLED ? (
+            <CardFooter className="justify-center border-t border-white/10 bg-transparent">
+              <p className="text-center text-sm text-muted-foreground">
                 <span className="font-medium opacity-40">{t('signIn')}</span>
-              ) : !signUp && WEB_SIGN_UP_DISABLED ? (
-                <span className="font-medium opacity-40">{t('signUp')}</span>
-              ) : (
+              </p>
+            </CardFooter>
+          ) : !signUp && WEB_SIGN_UP_DISABLED ? null : (
+            <CardFooter className="justify-center border-t border-white/10 bg-transparent">
+              <p className="text-center text-sm text-muted-foreground">
                 <Link className="font-semibold text-primary underline underline-offset-4" href={signUp ? '/sign-in' : '/sign-up'}>
                   {signUp ? t('signIn') : t('signUp')}
                 </Link>
-              )}
-            </p>
-          </CardFooter>
+              </p>
+            </CardFooter>
+          )}
         </Card>
       </div>
     </MarketingShell>

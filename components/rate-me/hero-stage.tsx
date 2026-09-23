@@ -1642,39 +1642,50 @@ export function CrossDeviceStage() {
   );
 }
 
+/** Hero background reel — same assets as raytme-website.vercel.app */
+const HERO_VIDEOS = [
+  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/New%20Project%20-%20Arcads%20video%20asset%20%281%29-vcMLAdCnmrG2mLVdaga0LV1TALirFf.mp4",
+  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/New%20Project%20-%20Arcads%20video%20asset-3q96o2Ep4Lmfpwy5RdjUCkbbPWfIxa.mp4",
+  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/New%20Project%20-%20Arcads%20video%20asset%203-q7JD1gP8pBbb6BBmbjtmHte3Tadbgs.mp4",
+  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Your%20business%20card%20is%20-%20Arcads%20video%20asset%204-Rat0A0SPlL7dvuKvS2t50u5QPrfzul.mp4",
+] as const;
+
 export function HeroSkyline() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setIndex((current) => (current + 1) % HERO_VIDEOS.length);
+    }, 9000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const advance = () => setIndex((current) => (current + 1) % HERO_VIDEOS.length);
+  const src = HERO_VIDEOS[index];
+
   return (
     <div
       data-gsap-hero-bg
       className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-black"
       aria-hidden="true"
     >
-      <div className="absolute -top-[18%] right-0 bottom-0 left-0 origin-[80%_0%] scale-[1.12] sm:-top-[22%] lg:-top-[26%]">
-        <div className="absolute inset-0 mix-blend-lighten">
-          <Image
-            src="/landing/doha-skyline-bw.png"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[78%_42%] grayscale contrast-[1.45] brightness-[0.68] opacity-90"
-          />
-          <div className="rate-skyline-upper absolute inset-0">
-            <Image
-              src="/landing/doha-skyline-bw.png"
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover object-[78%_42%] grayscale brightness-[1.15] contrast-[1.9] mix-blend-screen opacity-80"
-            />
-          </div>
-        </div>
-        <div className="rate-skyline-inner-glow" />
-        <div className="rate-skyline-windows" />
+      <div className="absolute inset-y-0 end-[-48%] w-[150%] opacity-60 sm:end-[-10%] sm:w-[88%] sm:opacity-100 lg:end-[-4%] lg:w-[72%]">
+        <video
+          key={src}
+          autoPlay
+          muted
+          playsInline
+          preload="metadata"
+          onEnded={advance}
+          className="h-full w-full object-cover object-center opacity-75 saturate-[0.82]"
+        >
+          <source src={src} type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 via-[34%] to-black/15 lg:via-black/72 lg:via-[24%] lg:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/35" />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-black from-[0%] via-black/75 via-[24%] to-transparent to-[68%] rtl:bg-gradient-to-l lg:via-black/70 lg:via-[30%] lg:to-[72%]" />
-      <div className="absolute inset-y-[8%] start-0 w-[min(42rem,72%)] bg-[radial-gradient(ellipse_at_center,rgb(0_0_0/0.88)_0%,rgb(0_0_0/0.45)_50%,transparent_76%)] rtl:start-auto rtl:end-0" />
-      <div className="absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black from-[12%] via-black/70 via-[42%] to-transparent" />
+      <div className="absolute inset-y-[12%] start-0 w-[min(42rem,76%)] bg-[radial-gradient(ellipse_at_center,rgb(0_0_0/0.88)_0%,rgb(0_0_0/0.5)_48%,transparent_76%)] rtl:start-auto rtl:end-0" />
+      <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black via-black/75 to-transparent" />
     </div>
   );
 }
