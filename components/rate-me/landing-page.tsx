@@ -218,12 +218,13 @@ function LanguageToggle() {
 
 const navLinks = [
   ["#how", "How it Works"],
+  ["#communities", "Communities"],
   ["#profile", "For Professionals"],
   ["#business", "For Businesses"],
   ["#pricing", "Pricing"],
 ] as const;
 
-/** Five-up sprite from the Vercel Solutions mega-menu (IMG_0272). */
+/** Five-up sprite from the Vercel Solutions mega-menu, extended by a code-native community illustration. */
 const SOLUTIONS_SPRITE = "/landing/solutions/solutions-sprite.png";
 
 const solutionItems = [
@@ -256,6 +257,12 @@ const solutionItems = [
     title: "Never lose a contact",
     copy: "Save who you meet. Search your list later and reach out when it matters.",
     bgPosition: "100% top",
+  },
+  {
+    href: "#communities",
+    title: "One community, always expanding",
+    copy: "Grouped by profession and location, searchable the moment you need someone.",
+    community: true,
   },
 ] as const;
 
@@ -541,6 +548,16 @@ function ThemedBusinessCard() {
   );
 }
 
+function CommunityArtwork({ "aria-label": ariaLabel }: { "aria-label": string }) {
+  return <div role="img" aria-label={ariaLabel} className="relative aspect-[5/4] overflow-hidden rounded-xl bg-[radial-gradient(circle_at_center,#153c4d_0%,#0a1219_46%,#08090b_100%)]">
+    <div className="absolute left-1/2 top-1/2 size-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d5a84f] shadow-[0_0_24px_6px_rgba(213,168,79,.4)]" />
+    {["left-1/2 top-[18%]", "left-[24%] top-[42%]", "right-[24%] top-[42%]", "left-[30%] bottom-[20%]", "right-[30%] bottom-[20%]", "left-1/2 bottom-[12%]"].map((position) => <span key={position} className={cn("absolute size-4 rounded-full bg-cyan-200 shadow-[0_0_14px_3px_rgba(103,232,249,.55)]", position)} />)}
+    <span className="absolute left-1/2 top-[30%] h-[1px] w-[34%] -translate-x-1/2 rotate-90 bg-cyan-200/60" />
+    <span className="absolute left-[29%] top-[48%] h-[1px] w-[42%] rotate-[32deg] bg-cyan-200/60" />
+    <span className="absolute left-[29%] top-[48%] h-[1px] w-[42%] -rotate-[32deg] bg-cyan-200/60" />
+  </div>;
+}
+
 function SolutionsMenu() {
   const [open, setOpen] = useState(false);
   return (
@@ -564,7 +581,7 @@ function SolutionsMenu() {
       {open ? (
         <div className="fixed inset-x-4 top-[3.6rem] z-50 mx-auto max-w-7xl pt-2 lg:inset-x-8">
           <div className="rounded-2xl border border-white/10 bg-black/95 p-5 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)] backdrop-blur-xl">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 xl:grid-cols-6">
               {solutionItems.map((item) => (
                 <a
                   key={item.title}
@@ -572,16 +589,16 @@ function SolutionsMenu() {
                   className="group min-w-0 rounded-xl transition-colors duration-300 hover:bg-white/[0.04]"
                   onClick={() => setOpen(false)}
                 >
-                  <div
-                    role="img"
-                    aria-label={item.title}
-                    className="relative aspect-[5/4] overflow-hidden rounded-xl bg-white/5 bg-cover bg-no-repeat transition-transform duration-500 group-hover:scale-[1.02]"
-                    style={{
-                      backgroundImage: `url(${SOLUTIONS_SPRITE})`,
-                      backgroundPosition: item.bgPosition,
-                      backgroundSize: "500% 147%",
-                    }}
-                  />
+                  {"community" in item ? (
+                    <CommunityArtwork aria-label={item.title} />
+                  ) : (
+                    <div
+                      role="img"
+                      aria-label={item.title}
+                      className="relative aspect-[5/4] overflow-hidden rounded-xl bg-white/5 bg-cover bg-no-repeat transition-transform duration-500 group-hover:scale-[1.02]"
+                      style={{ backgroundImage: `url(${SOLUTIONS_SPRITE})`, backgroundPosition: item.bgPosition, backgroundSize: "500% 147%" }}
+                    />
+                  )}
                   <p className="mt-3 text-[14px] font-semibold leading-5 text-white">
                     {item.title}
                   </p>
@@ -1442,6 +1459,12 @@ const pillars = [
     eyebrow: "ONE REPUTATION, EVERYWHERE YOU GO",
     title: "New job. New country.",
     copy: "Reputation reset to zero — except on RaytME. One score, everywhere.",
+  },
+  {
+    num: "11",
+    eyebrow: "BUILD YOUR CIRCLE, NOT JUST A CONTACT LIST",
+    title: "Meet people like you. Find people you need.",
+    copy: "Pick a location and profession to find verified professionals near you, filterable by rating, experience, or Super Voter status — the fastest way to find who's actually good, anywhere in the world.",
   },
 ] as const;
 

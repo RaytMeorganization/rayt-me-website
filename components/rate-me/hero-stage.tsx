@@ -501,6 +501,21 @@ function AppListPane({
   );
 }
 
+function AppCommunitiesPane({ mini = false }: { mini?: boolean }) {
+  const groups = [
+    ["Qatar", "Marketing & Brand", "42 professionals"],
+    ["United Kingdom", "Product & Design", "38 professionals"],
+    ["USA", "Technology & Growth", "61 professionals"],
+  ] as const;
+  return <div className={cn("min-h-0 flex-1 overflow-y-auto", mini ? "px-2 pt-1.5" : "px-3.5 pt-3")}>
+    <p className={cn("font-semibold text-white", mini ? "text-[8px]" : "text-[12px]")}>Communities</p>
+    <p className={cn("text-white/40", mini ? "mt-0.5 text-[7px]" : "mt-0.5 text-[9px]")}>Find people by country and profession</p>
+    <div className={cn("flex flex-col", mini ? "mt-1.5 gap-1" : "mt-2.5 gap-1.5")}>
+      {groups.map(([country, profession, count]) => <div key={country} className="rounded-xl bg-white/[0.04] px-2 py-1.5 ring-1 ring-white/10"><div className="flex items-center justify-between gap-2"><p className={cn("font-semibold text-white", mini ? "text-[7px]" : "text-[10px]")}>{country}</p><MapPinIcon className={cn("text-[#ad8547]", mini ? "size-2" : "size-3")} /></div><p className={cn("mt-0.5 text-white/65", mini ? "text-[6px]" : "text-[8px]")}>{profession}</p><p className={cn("text-white/35", mini ? "text-[5px]" : "text-[7px]")}>{count}</p></div>)}
+    </div>
+  </div>;
+}
+
 function AppSettingsPane({ mini = false }: { mini?: boolean }) {
   return (
     <div className={cn("min-h-0 flex-1 overflow-y-auto", mini ? "px-2 pt-1.5" : "px-3 pt-2")}>
@@ -526,19 +541,20 @@ function PhoneTabBar({
   onSelect,
   wide = false,
 }: {
-  active: "browse" | "list" | "settings";
-  onSelect: (tab: "browse" | "list" | "settings") => void;
+  active: "browse" | "communities" | "list" | "settings";
+  onSelect: (tab: "browse" | "communities" | "list" | "settings") => void;
   wide?: boolean;
 }) {
   const tabs = [
     { id: "browse" as const, label: "Browse", Icon: QrCodeIcon },
+    { id: "communities" as const, label: "Communities", Icon: UsersIcon },
     { id: "list" as const, label: "My list", Icon: UsersIcon },
     { id: "settings" as const, label: "Settings", Icon: Settings2Icon },
   ];
   return (
     <div
       className={cn(
-        "mt-auto grid shrink-0 grid-cols-3 border-t border-white/10 bg-black",
+        "mt-auto grid shrink-0 grid-cols-4 border-t border-white/10 bg-black",
         wide ? "gap-1 px-2 pb-1.5 pt-1" : "gap-1 px-2 pb-3 pt-1.5",
       )}
     >
@@ -701,20 +717,21 @@ function PhoneAppInterior({
   const [screen, setScreen] = useState<"card" | "snapshot" | "rate">("card");
   const [saved, setSaved] = useState(false);
   const [rated, setRated] = useState(false);
-  const [tab, setTab] = useState<"browse" | "list" | "settings">("browse");
+  const [tab, setTab] = useState<"browse" | "communities" | "list" | "settings">("browse");
 
-  const onTab = (next: "browse" | "list" | "settings") => {
+  const onTab = (next: "browse" | "communities" | "list" | "settings") => {
     setTab(next);
     if (next === "browse") setScreen("card");
   };
 
-  const view = tab === "list" || tab === "settings" ? tab : screen;
+  const view = tab === "communities" || tab === "list" || tab === "settings" ? tab : screen;
   const rootRef = useDemoActions({
     rate: () => setScreen("rate"),
     snapshot: () => setScreen("snapshot"),
     card: () => setScreen("card"),
     "list-toggle": () => setSaved((value) => !value),
     "tab-browse": () => onTab("browse"),
+    "tab-communities": () => onTab("communities"),
     "tab-list": () => onTab("list"),
     "tab-settings": () => onTab("settings"),
     "rate-submit": () => {
@@ -730,7 +747,9 @@ function PhoneAppInterior({
       data-screen={view}
       className="flex min-h-0 flex-1 flex-col"
     >
-      {tab === "list" ? (
+      {tab === "communities" ? (
+        <AppCommunitiesPane mini={mini} />
+      ) : tab === "list" ? (
         <AppListPane mini={mini} />
       ) : tab === "settings" ? (
         <AppSettingsPane mini={mini} />
@@ -1037,7 +1056,17 @@ export function IpadAppStage() {
                 </p>
               </div>
             </div>
-            <span className="pointer-events-none mx-auto mb-2 h-1 w-20 rounded-full bg-white/25" />
+            <div className="grid shrink-0 grid-cols-4 border-t border-white/10 bg-black px-2 py-1 text-[6px] text-white/45">
+              {[
+                { Icon: QrCodeIcon, label: "Browse" },
+                { Icon: UsersIcon, label: "Communities" },
+                { Icon: UsersIcon, label: "My list" },
+                { Icon: Settings2Icon, label: "Settings" },
+              ].map(({ Icon, label }) => (
+                <span key={label} className="flex flex-col items-center gap-0.5"><Icon className="size-2.5" />{label}</span>
+              ))}
+            </div>
+            <span className="pointer-events-none mx-auto mb-2 mt-1 h-1 w-20 rounded-full bg-white/25" />
           </div>
         </div>
         </div>
@@ -1078,7 +1107,7 @@ const DIRECTORY = [
   },
 ];
 
-const DIRECTORY_NAV = ["Directory", "Team", "Cards", "Admin"] as const;
+const DIRECTORY_NAV = ["Directory", "Communities", "Team", "Cards", "Admin"] as const;
 
 const IPAD_RATINGS = [
   { label: "Reliability", value: 4.8 },
@@ -1214,14 +1243,14 @@ function PersonWorkspace({
   const [screen, setScreen] = useState<"card" | "snapshot" | "rate">("card");
   const [saved, setSaved] = useState(false);
   const [rated, setRated] = useState(false);
-  const [tab, setTab] = useState<"browse" | "list" | "settings">("browse");
+  const [tab, setTab] = useState<"browse" | "communities" | "list" | "settings">("browse");
 
-  const onTab = (next: "browse" | "list" | "settings") => {
+  const onTab = (next: "browse" | "communities" | "list" | "settings") => {
     setTab(next);
     if (next === "browse") setScreen("card");
   };
 
-  const view = tab === "list" || tab === "settings" ? tab : screen;
+  const view = tab === "communities" || tab === "list" || tab === "settings" ? tab : screen;
   const rootRef = useDemoActions({
     rate: () => setScreen("rate"),
     snapshot: () => setScreen("snapshot"),
@@ -1229,6 +1258,7 @@ function PersonWorkspace({
     directory: () => onBack?.(),
     "list-toggle": () => setSaved((value) => !value),
     "tab-browse": () => onTab("browse"),
+    "tab-communities": () => onTab("communities"),
     "tab-list": () => onTab("list"),
     "tab-settings": () => onTab("settings"),
     "rate-submit": () => {
