@@ -9,6 +9,9 @@ export const arabicCopy: Record<string, string> = {
   // Nav + chrome
   "How it Works": "كيف تعمل",
   "How it works": "كيف تعمل",
+  Communities: "المجتمعات",
+  "One community, always expanding": "مجتمع واحد يتوسع باستمرار",
+  "Grouped by profession and location, searchable the moment you need someone.": "مجمّع حسب المهنة والموقع، وقابل للبحث عندما تحتاج إلى شخص.",
   Solutions: "الحلول",
   "A card that stays current": "بطاقة تبقى محدّثة",
   "Update once. Your RaytME profile stays right when a title, number, or company changes.":
@@ -217,6 +220,9 @@ export const arabicCopy: Record<string, string> = {
   "Real, visible ratings do — every time, everywhere.":
     "التقييمات الحقيقية المرئية تفعل — في كل مرة، وفي كل مكان.",
   "ONE REPUTATION, EVERYWHERE YOU GO": "سمعة واحدة أينما ذهبت",
+  "BUILD YOUR CIRCLE, NOT JUST A CONTACT LIST": "ابنِ دائرتك، لا مجرد قائمة جهات اتصال",
+  "Meet people like you. Find people you need.": "قابل أشخاصاً يشبهونك. وابحث عمّن تحتاجهم.",
+  "Pick a location and profession to find verified professionals near you, filterable by rating, experience, or Super Voter status — the fastest way to find who's actually good, anywhere in the world.": "اختر موقعاً ومهنة للعثور على مهنيين موثّقين بالقرب منك، مع التصفية حسب التقييم أو الخبرة أو حالة Super Voter — أسرع طريقة للعثور على الأفضل فعلاً في أي مكان بالعالم.",
   "New job. New country.": "وظيفة جديدة. بلد جديد.",
   "Reputation reset to zero — except on RaytME. One score, everywhere.":
     "السمعة تُصفَّر — إلا على RaytME. درجة واحدة، في كل مكان.",
