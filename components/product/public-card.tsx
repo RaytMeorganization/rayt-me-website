@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Check, Lock, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -38,7 +39,7 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
           <CardContent className="p-6 sm:p-9">
             <div className="flex items-start gap-4">
               {profile.avatarUrl ? (
-                <img src={profile.avatarUrl} alt="" className="size-16 shrink-0 rounded-[18px] object-cover" />
+                <Image src={profile.avatarUrl} alt="" width={64} height={64} unoptimized className="size-16 shrink-0 rounded-[18px] object-cover" />
               ) : (
                 <div className="grid size-16 shrink-0 place-items-center rounded-[18px] bg-accent font-serif text-xl font-semibold text-foreground">
                   {initials}
@@ -71,7 +72,7 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
               </div>
               <ScoreRing score={Number(profile.reputation.score)} verified={profile.isVerified} />
               {surface.logoUrl ? (
-                <img src={surface.logoUrl} alt="" className="size-12 shrink-0 rounded-xl object-contain" />
+                <Image src={surface.logoUrl} alt="" width={48} height={48} unoptimized className="size-12 shrink-0 rounded-xl object-contain" />
               ) : null}
             </div>
             {profile.bio ? <p className="mt-6 text-sm leading-6 text-foreground/90">{profile.bio}</p> : null}

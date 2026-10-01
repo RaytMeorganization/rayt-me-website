@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Check } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -92,7 +93,7 @@ export function WorkspaceMemberCard({
             aria-hidden
           >
             {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="size-full object-cover" />
+              <Image src={avatarUrl} alt="" width={56} height={56} unoptimized className="size-full object-cover" />
             ) : (
               initials(name)
             )}
