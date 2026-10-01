@@ -289,14 +289,7 @@ export function AdminDashboard() {
   }, [appliedRatingsSearch, collectionMeta, records.length, section, t])
 
   useEffect(() => {
-    if (section === 'engine') {
-      setBusy(false)
-      setError('')
-      setRecords([])
-      setMetrics(null)
-      setFetchedFor('engine')
-      return
-    }
+    if (section === 'engine') return
     const timer = window.setTimeout(() => { void load() }, 0)
     return () => window.clearTimeout(timer)
   }, [load, section])
