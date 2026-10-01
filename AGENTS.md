@@ -1,6 +1,6 @@
 # Rayt Me Website Agent Guide
 
-This repository is the Next.js marketing site and privacy-safe public preview.
+This repository is the Next.js marketing site, account dashboards, and privacy-safe public preview. Read `docs/PROJECT-INDEX.md` and `.cursor/rules` before changing product behavior.
 
 ## Hard boundary
 

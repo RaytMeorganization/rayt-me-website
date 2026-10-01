@@ -1,0 +1,18 @@
+---
+description: Legal pages, subprocessors, and landing boundaries
+globs: "**/app/{legal,privacy,terms,acceptable-use,support,subprocessors}/**"
+alwaysApply: false
+---
+
+# Legal surfaces
+
+English is the controlling version. Do not invent processors. `/subprocessors` redirects to `/legal`. Do not list Vercel. DNS is GoDaddy.
+
+Legal pages use the landing-style background. No hero video and no still image. Keep the existing profile phone beside the legal copy. Do not put the copy inside a new phone frame. Do not move the landing hero video onto legal pages.
+
+```tsx
+// ❌ BAD — legal page plays or freezes the landing reel
+<HeroVideo />
+
+// ✅ GOOD — landing background only, copy outside the phone
+```

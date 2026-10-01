@@ -1,0 +1,23 @@
+---
+description: Production deploy for the website and API
+globs: "**/.github/workflows/deploy.yml"
+alwaysApply: false
+---
+
+# Deploy
+
+Workflows run on `ubuntu-24.04` and deploy from `main`.
+
+Website: rsync to `/opt/rayt-me/rayt-me-website/`, then `./remote-deploy.sh web` with `WEB_IMAGE` and `API_IMAGE` unset.
+
+API: `docker save` streams `rayt-me-api:cd` to the VPS. Restart with `API_IMAGE=rayt-me-api:cd ./remote-deploy.sh api`. Compose must not pull `rayt-me-api` from Docker Hub and must not rebuild over the loaded image. `/opt/rayt-me/deploy` has no default compose file; only `remote-deploy.sh` knows the file.
+
+Do not run `prisma/seed.ts` when `NODE_ENV=production`.
+
+```yaml
+# ❌ BAD — compose pull of a tag that is not on Docker Hub
+docker compose up -d api
+
+# ✅ GOOD — loaded image, pull and build skipped
+# wrapper skips compose pull/build, then up --pull never --no-build
+```

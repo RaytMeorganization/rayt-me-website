@@ -1,0 +1,21 @@
+---
+description: Read-only admin reputation lab and demo profiles
+globs: "**/*reputation-lab*"
+alwaysApply: false
+---
+
+# Reputation lab
+
+`POST /admin/reputation-lab/simulate` and `GET /admin/reputation-lab/check/:userId` are read-only (`writesProfile: false`). Compare stored `User.score` to a replay within 0.005.
+
+UI: `components/product/admin-reputation-lab.tsx`, dashboard section `engine`. A missing route returns Fastify `{ error: "Not Found" }`. A missing user returns `User not found`.
+
+Demo ids `lab-profile-one-five`, `lab-profile-super-colleague`, `lab-profile-event`, `lab-profile-built` come from `prisma/seed.ts`. That seed throws in production. Do not insert them into the production database to make the buttons succeed.
+
+```ts
+// ❌ BAD — lab writes the profile score
+await db.user.update({ data: { score: result.newScore } })
+
+// ✅ GOOD — return the simulation only
+return { ...result, readOnly: true, writesProfile: false }
+```

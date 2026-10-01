@@ -1,29 +1,20 @@
 ---
-description: Rate Me platform split from overview v3.1 — website preview vs in-app product
+description: Three separate repos, Fastify API, Next.js site, Expo app
 alwaysApply: true
 ---
 
-# Architecture (overview v3.1)
+# Architecture
 
-The website **sells and previews**. Full functionality (rating, snapshot) **always requires the app**.
+Three git repos under `apps/`. Do not import source across them. Score math stays in `rayt-me-backend`.
 
-## This repo — landing + web preview
-
-- Marketing landing (existing Next.js base): conversion, SEO, EN/AR, brand. Demos are illustrative.
-- Scan/link with **no app**: business card **only**. No rate. No snapshot. Download-app CTA.
-- Do not turn public web preview into a second full product.
-
-## Applications
-
-- **Mobile (React Native, iOS + Android):** scan/NFC, full card, rating flow, snapshot, My List, Settings, push as needed.
-- **Web app (MERN):** auth, verification, profile, privacy, themes, subscription; still not a substitute for the “no app” preview rule on public QR pages.
-- **Backend:** REST, verification, rating engine, reputation, disputes, billing hooks. Cloud/OTP/email/push/stores are client-paid; interface first.
-
-Share one domain model across clients. Score math lives on the server.
+- **Website:** Next.js 16. Browser calls `/backend/*`, rewritten to the API.
+- **Backend:** Fastify + Prisma + PostgreSQL. Admin prefix `/admin` (`PLATFORM_ADMIN`). Mobile routes in `src/routes/mobile.ts`.
+- **App:** Expo SDK 57, Expo Router. Rating body is `{ relationship, categoryScores }`.
 
 ```ts
-// ❌ BAD — public web preview lets visitors rate or open snapshot
-<PublicPreview onRate={submit} showSnapshot />
+// ❌ BAD — client writes the new score
+await api.post('/ratings', { score: 4.8 })
 
-// ✅ GOOD — no app: card + download; app: rate + snapshot
+// ✅ GOOD — server applies calculateReputation
+await api.post('/mobile/ratings', { relationship, categoryScores })
 ```

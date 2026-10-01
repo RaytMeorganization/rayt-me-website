@@ -1,44 +1,19 @@
 ---
-description: Rate Me overview v3.1 — product purpose, sign-up, verification, and non-negotiables
+description: Rayt Me product identity, surfaces, and non-negotiables
 alwaysApply: true
 ---
 
-# Rate Me (Rayt Me) — overview v3.1
+# Rayt Me
 
-Portable **verified professional reputation**, wherever you go. Domain **rate.me**. Not a self-written CV. Not an app where people casually rate you. **Does not count stars. Measures credible evidence.**
+Portable verified professional reputation. Company **RAYTME LLC**. Live site **raytme.me**, API **api.raytme.me**. App ids `me.rate.rayt`. English controls legal text.
 
-Access: in-person QR, NFC tap, shared link, email signature.
+The website sells, hosts accounts, and shows a public card. Only the Expo app submits ratings and opens a professional snapshot. `/p/:id` is card-only.
 
-## Sign-up
+Full map: `docs/PROJECT-INDEX.md`.
 
-- Name; photo optional but encouraged
-- Account type: **professional** or **university student**
-- Profession / job title, or university + field of study
-- Company + industry (professionals)
-- Location: city, country
-- Email and phone, each **independently** public or private
+```tsx
+// ❌ BAD — public web profile can rate or open snapshot
+<PublicCard onRate={submit} showSnapshot />
 
-## Verification (checkmark is earned)
-
-- Professionals: work-email code + personal email + phone
-- Students: personal email + university email
-- Tick only after identity, contact, and employment **or** university checks complete
-
-## Discovery (hard split)
-
-| Has the app | No app |
-|---|---|
-| Opens in-app full card | Opens **rate.me** website |
-| Can **rate** | **Cannot rate** |
-| Can open **professional snapshot** | **Cannot** open snapshot |
-| | CTA: Download the app (iOS / Play) |
-
-The website is a **preview that sells the app**, not a parallel product. Marketing landing may illustrate snapshot/rating; a scanned public profile on the web must not.
-
-## Card, snapshot, nav
-
-Card: name + tick, title, company · industry, location, score (circular badge), verified reputation, privacy-aware contacts, **Rate** + **Add to my List**, snapshot link (in-app). Phone: hidden or **Request phone**.
-
-Snapshot: short fields (employment, education, skills, languages, licenses, **certifications**, memberships). **CV is supplementary**, never the profile. App tabs: **Browse** · **My List** · **Settings**.
-
-Voice: calm, institutional. Qatar/GCC data protection. EN/AR.
+// ✅ GOOD — no app: card + download. App: rate + snapshot.
+```
