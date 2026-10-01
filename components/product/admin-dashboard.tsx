@@ -10,6 +10,7 @@ import {
   CreditCard,
   LayoutDashboard,
   RefreshCw,
+  FlaskConical,
   Scale,
   ShieldCheck,
   Star,
@@ -41,6 +42,7 @@ import { AdminOrganizationCard } from '@/components/product/admin-organization-c
 import { AdminPlanCard } from '@/components/product/admin-plan-card'
 import { AdminAuditRecord, AdminCommunityReportRecord, AdminRatingRecord } from '@/components/product/admin-ops-record'
 import { AdminUserCard, normalizeDbRole } from '@/components/product/admin-user-card'
+import { AdminReputationLab } from '@/components/product/admin-reputation-lab'
 import { InteractiveLink } from '@/components/product/interactive-value'
 import { EmptyState, StatCard } from '@/components/product/brand-art'
 import { useI18n } from '@/components/product/providers'
@@ -52,6 +54,7 @@ const sections = [
   ['users', 'users', 'users', 'roster', Users],
   ['verifications', 'queue', 'verifications', 'queue', ShieldCheck],
   ['ratings', 'ratings', 'ratings', 'reputation', Star],
+  ['engine', 'engine', 'engine', 'reputation', FlaskConical],
   ['disputes', 'disputes', 'disputes', 'disputes', Scale],
   ['communities', 'communities', 'community-reports', 'disputes', UsersRound],
   ['organizations', 'organizations', 'organizations', 'roster', Building2],
@@ -286,9 +289,17 @@ export function AdminDashboard() {
   }, [appliedRatingsSearch, collectionMeta, records.length, section, t])
 
   useEffect(() => {
+    if (section === 'engine') {
+      setBusy(false)
+      setError('')
+      setRecords([])
+      setMetrics(null)
+      setFetchedFor('engine')
+      return
+    }
     const timer = window.setTimeout(() => { void load() }, 0)
     return () => window.clearTimeout(timer)
-  }, [load])
+  }, [load, section])
 
   async function review(
     item: Record<string, unknown>,
@@ -606,7 +617,9 @@ export function AdminDashboard() {
             </Accordion>
           )}
 
-          {showLoading ? (
+          {section === 'engine' ? (
+            <AdminReputationLab />
+          ) : showLoading ? (
             <LoadingBlock rows={4} />
           ) : error ? (
             <ErrorBanner message={error} onRetry={() => void load()} retryLabel={t('retry')} />
