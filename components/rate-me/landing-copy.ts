@@ -428,17 +428,15 @@ export const arabicCopy: Record<string, string> = {
 
   // Bot
   "RaytME Bot": "RaytME Bot",
-  "Frontend preview": "معاينة الواجهة",
-  "Not connected": "غير متصل",
+  "On this site": "على هذا الموقع",
+  "Answers from this site": "يجيب من هذا الموقع",
   "Type a message": "اكتب رسالة",
   "Message RaytME Bot": "رسالة إلى RaytME Bot",
   "Send message": "إرسال الرسالة",
   "Open RaytME Bot": "فتح RaytME Bot",
   "Close RaytME Bot": "إغلاق RaytME Bot",
-  "Hi — I'm RaytME Bot. This is a frontend preview only.":
-    "مرحباً — أنا RaytME Bot. هذه معاينة للواجهة فقط.",
-  "Configure your OpenAI API setup to use this chatbot.":
-    "اضبط إعدادات OpenAI API لاستخدام هذا المحادث.",
+  "Hi — I'm RaytME Bot. Ask about scores, plans, or the pages on this site.":
+    "مرحباً — أنا RaytME Bot. اسأل عن الدرجات أو الخطط أو صفحات هذا الموقع.",
 };
 
 function shouldSkipText(node: Text) {
@@ -499,10 +497,12 @@ export function applyLandingCopy(arabic: boolean) {
 }
 
 export const botCopy = {
-  welcomeEn: "Hi — I'm RaytME Bot. This is a frontend preview only.",
-  welcomeAr: "مرحباً — أنا RaytME Bot. هذه معاينة للواجهة فقط.",
-  setupEn: "Configure your OpenAI API setup to use this chatbot.",
-  setupAr: "اضبط إعدادات OpenAI API لاستخدام هذا المحادث.",
+  welcomeEn: "Hi — I'm RaytME Bot. Ask about scores, plans, or the pages on this site.",
+  welcomeAr: "مرحباً — أنا RaytME Bot. اسأل عن الدرجات أو الخطط أو صفحات هذا الموقع.",
+  statusEn: "On this site",
+  statusAr: "على هذا الموقع",
+  descriptionEn: "Answers from this site",
+  descriptionAr: "يجيب من هذا الموقع",
   placeholderEn: "Type a message",
   placeholderAr: "اكتب رسالة",
 };

@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test:bot": "node --experimental-strip-types --import ./lib/alias-register.mjs --test lib/raytme-bot-corpus.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tests/e2e/tsconfig.json",
     "test:e2e": "playwright test",
     "postinstall": "bash scripts/sync-shared.sh",

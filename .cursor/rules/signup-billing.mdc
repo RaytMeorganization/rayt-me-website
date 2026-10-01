@@ -1,0 +1,10 @@
+---
+description: Website signup hands off to the app. Live checkout waits for the payment endpoint.
+alwaysApply: false
+---
+
+# Signup and billing
+
+Get Started uses `/sign-up` from `lib/signup-handoff.ts` when sign-up is enabled. Ratings and snapshots stay in the app. iOS does not start checkout.
+
+`POST /billing/checkout` runs only when `BILLING_PROVIDER=endpoint`. Production must reject `sandbox`. Admin user records and payments show account email, rating stats, and invoices. Do not render database URLs, password hashes, or mail API keys.

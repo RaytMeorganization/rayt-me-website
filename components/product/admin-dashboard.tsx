@@ -46,6 +46,7 @@ import { AdminReputationLab } from '@/components/product/admin-reputation-lab'
 import { InteractiveLink } from '@/components/product/interactive-value'
 import { EmptyState, StatCard } from '@/components/product/brand-art'
 import { useI18n } from '@/components/product/providers'
+import { WAITING_LIST_CAMPAIGN } from '@/lib/waiting-list'
 import { formatPriceCentsUsd, MARKETING_PLANS, marketingPlanByCode } from '@/lib/plan-pricing'
 import { api, errorMessage } from '@/lib/api'
 
@@ -59,6 +60,8 @@ const sections = [
   ['communities', 'communities', 'community-reports', 'disputes', UsersRound],
   ['organizations', 'organizations', 'organizations', 'roster', Building2],
   ['plans', 'plans', 'plans', 'plans', CreditCard],
+  ['payments', 'payments', 'payments', 'plans', CreditCard],
+  ['waiting', 'waitingList', 'waiting-list', 'roster', Users],
   ['audit', 'audit', 'audit-log', 'audit', ClipboardList],
   ['health', 'health', 'health', 'reputation', Activity],
   ['analytics', 'analytics', 'analytics', 'plans', BarChart3],
@@ -71,13 +74,16 @@ type VerificationChannel = {
   status: 'personalEmailStatus' | 'workEmailStatus' | 'universityEmailStatus' | 'phoneStatus'
 }
 
-const COLLECTION_SECTIONS = new Set<SectionKey>(['ratings', 'disputes', 'audit', 'verifications', 'communities'])
+const COLLECTION_SECTIONS = new Set<SectionKey>(['ratings', 'disputes', 'audit', 'verifications', 'communities', 'payments', 'waiting'])
 const STAT_SECTIONS = new Set<SectionKey>(['overview', 'analytics', 'health'])
 const COLLECTION_PAGE_SIZE = 50
 const SECTION_KEYS = new Set<string>(sections.map(([key]) => key))
 
 function parseSection(value: string | null): SectionKey {
-  if (value && SECTION_KEYS.has(value)) return value as SectionKey
+  if (value && SECTION_KEYS.has(value)) {
+    if (value === 'waiting' && !WAITING_LIST_CAMPAIGN) return 'overview'
+    return value as SectionKey
+  }
   return 'overview'
 }
 
@@ -157,6 +163,7 @@ export function AdminDashboard() {
   const [ratingsSearchInput, setRatingsSearchInput] = useState('')
   const [appliedRatingsSearch, setAppliedRatingsSearch] = useState('')
   const [metrics, setMetrics] = useState<Record<string, number> | null>(null)
+  const [dossier, setDossier] = useState<Record<string, unknown> | null>(null)
   const [fetchedFor, setFetchedFor] = useState<SectionKey | null>(null)
   const loadGeneration = useRef(0)
 
@@ -164,7 +171,10 @@ export function AdminDashboard() {
   const sectionPending = fetchedFor !== section
 
   const tabItems = useMemo(
-    () => sections.map(([key, label, , , icon]) => ({ id: key, label: t(label), icon })),
+    () =>
+      sections
+        .filter(([key]) => key !== 'waiting' || WAITING_LIST_CAMPAIGN)
+        .map(([key, label, , , icon]) => ({ id: key, label: t(label), icon })),
     [t],
   )
 
@@ -715,6 +725,11 @@ export function AdminDashboard() {
                       busy={busy}
                       onRoleChange={role => void updateUser(item, { role })}
                       onToggleActive={() => void updateUser(item, { isActive: !Boolean(item.isActive) })}
+                      onOpenRecord={() => {
+                        void api<Record<string, unknown>>(`/admin/users/${encodeURIComponent(String(item.id))}`)
+                          .then(setDossier)
+                          .catch(cause => setError(errorMessage(cause, t('loadFailed'))))
+                      }}
                     />
                   )
                 })}
@@ -753,7 +768,58 @@ export function AdminDashboard() {
                   ) : null}
                 </div>
               ) : null}
+              {dossier ? (
+                <DashboardSurface title={t('userRecord')} description={String(dossier.email ?? '')}>
+                  <p className="text-sm text-muted-foreground">
+                    {t('score')}: {String(dossier.score ?? '—')} · {t('ratingsGiven')}: {String((dossier.stats as { ratingsGiven?: number } | undefined)?.ratingsGiven ?? 0)} · {t('ratingsReceived')}: {String((dossier.stats as { ratingsReceived?: number } | undefined)?.ratingsReceived ?? 0)}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {[dossier.personalEmail, dossier.workEmail, dossier.universityEmail, dossier.phone].filter(Boolean).join(' · ') || t('noData')}
+                  </p>
+                </DashboardSurface>
+              ) : null}
             </>
+          ) : section === 'payments' ? (
+            <CollectionList
+              busy={busy}
+              collectionMeta={collectionMeta}
+              recordCount={records.length}
+              onLoadMore={() => void loadMore()}
+              loadMoreLabel={t('loadMore')}
+            >
+              {records.map((record) => {
+                const item = record as Record<string, unknown>
+                const payer = item.user as { name?: string; email?: string } | undefined
+                if (!item.id) return null
+                return (
+                  <DashboardSurface key={String(item.id)} title={String(item.planCode ?? t('payments'))} description={payer?.email ?? ''}>
+                    <p className="text-sm text-muted-foreground">
+                      {payer?.name ?? ''} · {String(item.status ?? '')} · {(Number(item.amountCents ?? 0) / 100).toFixed(2)} {String(item.currency ?? 'USD')}
+                    </p>
+                  </DashboardSurface>
+                )
+              })}
+            </CollectionList>
+          ) : section === 'waiting' ? (
+            <CollectionList
+              busy={busy}
+              collectionMeta={collectionMeta}
+              recordCount={records.length}
+              onLoadMore={() => void loadMore()}
+              loadMoreLabel={t('loadMore')}
+            >
+              {records.map((record) => {
+                const item = record as Record<string, unknown>
+                if (!item.publicCode) return null
+                return (
+                  <DashboardSurface key={String(item.publicCode)} title={String(item.name ?? '')} description={String(item.email ?? '')}>
+                    <a className="font-mono text-sm text-amber-200" href={`/wait/${encodeURIComponent(String(item.publicCode))}`}>
+                      {String(item.publicCode)}
+                    </a>
+                  </DashboardSurface>
+                )
+              })}
+            </CollectionList>
           ) : section === 'ratings' ? (
             <CollectionList
               busy={busy}

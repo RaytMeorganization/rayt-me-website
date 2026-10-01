@@ -326,6 +326,23 @@ export function SettingsWorkspace() {
                   {!entitlements?.billingCheckoutAvailable && (
                     <p className="text-muted-foreground">{t('billingUnavailable')}</p>
                   )}
+                  {entitlements?.billingCheckoutAvailable && entitlements.tier !== 'basic' ? (
+                    <Button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => {
+                        const planCode = entitlements.tier === 'business' ? 'business' : 'pro'
+                        void api<{ checkoutUrl: string }>('/billing/checkout', {
+                          method: 'POST',
+                          body: JSON.stringify({ planCode }),
+                        }).then(result => {
+                          window.location.assign(result.checkoutUrl)
+                        }).catch(cause => setMessage(errorMessage(cause, t('error'))))
+                      }}
+                    >
+                      {t('payments')}
+                    </Button>
+                  ) : null}
                 </div>
               </Panel>
               <Panel title={t('theme')}>

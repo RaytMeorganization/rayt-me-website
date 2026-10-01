@@ -93,9 +93,9 @@ Public and account:
 
 - Profile, snapshot, phone request, network, disputes, communities, themes, push token
 - `POST /mobile/ratings` — the only score write
-- Billing plans, checkout, invoices
+- Billing plans and invoices. Mobile `POST /mobile/billing/checkout` stays 403. Website checkout is `POST /billing/checkout`, closed until `BILLING_PROVIDER=endpoint`. See `docs/SIGNUP-AND-BILLING.md`.
 
-`/admin`: overview, users, verifications, ratings, disputes, communities, organizations, plans, entitlements, audit log, health, analytics, `POST /reputation-lab/simulate`, `GET /reputation-lab/check/:userId`.
+`/admin`: overview, users (`GET /users/:id` for email, rating stats, and invoices), verifications, ratings, disputes, communities, organizations, plans, payments, entitlements, audit log, health, analytics, `POST /reputation-lab/simulate`, `GET /reputation-lab/check/:userId`.
 
 Schema: `prisma/schema.prisma`. `User.score` is `Decimal(4,2)`.
 

@@ -88,6 +88,8 @@ import {
   WEB_SIGN_IN_DISABLED,
   WEB_SIGN_UP_DISABLED,
 } from "@/lib/web-sign-in";
+import { SIGN_UP_PATH } from "@/lib/signup-handoff";
+import { WAITING_LIST_CAMPAIGN, WAITING_LIST_PATH } from "@/lib/waiting-list";
 import {
   formatMarketingUsd as formatUsd,
   USD_PER_EMPLOYEE_YEAR,
@@ -155,6 +157,13 @@ function SignUpCta({
   children,
   ...rest
 }: ComponentPropsWithoutRef<"a">) {
+  if (WAITING_LIST_CAMPAIGN) {
+    return (
+      <a href={WAITING_LIST_PATH} className={className} {...rest}>
+        {children}
+      </a>
+    );
+  }
   if (WEB_SIGN_UP_DISABLED) {
     return (
       <button
@@ -167,7 +176,7 @@ function SignUpCta({
     );
   }
   return (
-    <a href="/sign-up" className={className} {...rest}>
+    <a href={SIGN_UP_PATH} className={className} {...rest}>
       {children}
     </a>
   );

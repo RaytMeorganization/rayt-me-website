@@ -17,35 +17,31 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { botCopy } from "@/components/rate-me/landing-copy";
+import { answerRaytmeBot } from "@/lib/raytme-bot-corpus";
 import { cn } from "@/lib/utils";
 
 type ChatLine = {
   id: string;
   from: "bot" | "user";
   text: string;
+  href?: string;
 };
 
 const WELCOME_MESSAGE = botCopy.welcomeEn;
 
 export function RaytmeBot({ arabic = false }: { arabic?: boolean }) {
   const welcome = arabic ? botCopy.welcomeAr : botCopy.welcomeEn;
-  const setup = arabic ? botCopy.setupAr : botCopy.setupEn;
+  const status = arabic ? botCopy.statusAr : botCopy.statusEn;
+  const description = arabic ? botCopy.descriptionAr : botCopy.descriptionEn;
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<ChatLine[]>([
     { id: "welcome", from: "bot", text: WELCOME_MESSAGE },
   ]);
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const displayedMessages = messages.map((line) => {
-    if (line.id === "welcome") return { ...line, text: welcome };
-    if (
-      line.from === "bot" &&
-      (line.text === botCopy.setupEn || line.text === botCopy.setupAr)
-    ) {
-      return { ...line, text: setup };
-    }
-    return line;
-  });
+  const displayedMessages = messages.map((line) =>
+    line.id === "welcome" ? { ...line, text: welcome } : line,
+  );
 
   useEffect(() => {
     const node = scrollerRef.current;
@@ -57,13 +53,15 @@ export function RaytmeBot({ arabic = false }: { arabic?: boolean }) {
     const text = draft.trim();
     if (!text) return;
     setDraft("");
+    const answer = answerRaytmeBot(text, arabic ? "ar" : "en");
     setMessages((current) => [
       ...current,
       { id: `user-${current.length}`, from: "user", text },
       {
         id: `bot-${current.length}`,
         from: "bot",
-        text: setup,
+        text: answer.text,
+        href: answer.href,
       },
     ]);
   }
@@ -86,11 +84,11 @@ export function RaytmeBot({ arabic = false }: { arabic?: boolean }) {
                 <CardTitle id="raytme-bot-title" className="font-brand">
                   RaytME Bot
                 </CardTitle>
-                <CardDescription>Frontend preview</CardDescription>
+                <CardDescription>{description}</CardDescription>
               </div>
             </div>
             <CardAction>
-              <Badge variant="outline">Not connected</Badge>
+              <Badge variant="outline">{status}</Badge>
             </CardAction>
           </CardHeader>
           <CardContent className="p-0">
@@ -115,6 +113,11 @@ export function RaytmeBot({ arabic = false }: { arabic?: boolean }) {
                     )}
                   >
                     {line.text}
+                    {line.href ? (
+                      <a href={line.href} className="mt-1 block text-xs underline">
+                        {line.href}
+                      </a>
+                    ) : null}
                   </p>
                 </div>
               ))}

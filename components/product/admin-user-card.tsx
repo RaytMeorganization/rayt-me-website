@@ -67,6 +67,7 @@ export function AdminUserCard({
   busy,
   onRoleChange,
   onToggleActive,
+  onOpenRecord,
 }: {
   name: string
   email: string
@@ -84,6 +85,7 @@ export function AdminUserCard({
   busy?: boolean
   onRoleChange: (role: DbRole) => void
   onToggleActive: () => void
+  onOpenRecord?: () => void
 }) {
   const { t } = useI18n()
   const joined = createdAt ? new Date(createdAt).toLocaleDateString() : null
@@ -175,6 +177,11 @@ export function AdminUserCard({
         >
           {isActive ? t('deactivate') : t('activate')}
         </Button>
+        {onOpenRecord ? (
+          <Button size="sm" variant="outline" className="w-full shrink-0 sm:w-auto" disabled={busy} onClick={onOpenRecord}>
+            {t('userRecord')}
+          </Button>
+        ) : null}
         {profileId ? (
           <Button
             nativeButton={false}
