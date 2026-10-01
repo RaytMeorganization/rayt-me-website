@@ -1,12 +1,9 @@
 import type { Metadata } from 'next'
-import { LegalPage } from '@/components/product/legal-page'
+import { LegalDocumentPage } from '@/components/legal/legal-document'
+import { legalMetadata, privacyNotice } from '@/lib/legal-docs'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy — RaytME',
-  description: 'How RaytME collects, uses, and protects professional identity data.',
-  alternates: { canonical: '/privacy' },
-}
+export const metadata: Metadata = legalMetadata(privacyNotice)
 
 export default function PrivacyPage() {
-  return <LegalPage kind="privacy" />
+  return <LegalDocumentPage doc={privacyNotice} />
 }

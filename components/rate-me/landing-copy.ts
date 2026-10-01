@@ -37,7 +37,14 @@ export const arabicCopy: Record<string, string> = {
   "Help Center": "مركز المساعدة",
   Guides: "الأدلة",
   Privacy: "الخصوصية",
+  "Privacy Notice": "إشعار الخصوصية",
   Terms: "الشروط",
+  "Terms of Service": "شروط الخدمة",
+  "Acceptable Use": "سياسة الاستخدام",
+  "Acceptable Use Policy": "سياسة الاستخدام المقبول",
+  Subprocessors: "المعالجون الفرعيون",
+  Support: "الدعم",
+  Legal: "القانونية",
   "Sign in": "تسجيل الدخول",
   "Get Started": "ابدأ الآن",
   "Get started": "ابدأ الآن",
@@ -62,6 +69,8 @@ export const arabicCopy: Record<string, string> = {
   "© 2026 RaytME. All rights reserved.": "حقوق النشر © 2026 RaytME LLC. جميع الحقوق محفوظة.",
   "Copyright © 2026 RaytME LLC. All rights reserved.":
     "حقوق النشر © 2026 RaytME LLC. جميع الحقوق محفوظة.",
+  "RAYTME LLC · 30 N Gould St, Ste R, Sheridan, WY 82801":
+    "RAYTME LLC · 30 N Gould St, Ste R, Sheridan, WY 82801",
 
   // Hero
   "The Professional": "منصة الهوية",

@@ -26,8 +26,9 @@ const nextConfig = {
   },
   async redirects() {
     const signInOff = process.env.NEXT_PUBLIC_WEB_SIGN_IN_DISABLED === 'true'
-    const signUpOff = process.env.NEXT_PUBLIC_WEB_SIGN_UP_DISABLED === 'true'
+    const signUpOff = process.env.NEXT_PUBLIC_WEB_SIGN_UP_DISABLED !== 'false'
     return [
+      { source: '/subprocessors', destination: '/legal', permanent: false },
       ...(signInOff
         ? [{ source: '/sign-in', destination: '/', permanent: false }]
         : []),

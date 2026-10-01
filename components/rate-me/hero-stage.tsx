@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
 import Image from "next/image";
 import {
   Building2Icon,
   CheckIcon,
   ChevronLeftIcon,
+  LockIcon,
+  MailIcon,
   MapPinIcon,
   MonitorIcon,
   NfcIcon,
@@ -19,8 +22,16 @@ import {
   UserPlusIcon,
   UsersIcon,
 } from "lucide-react";
+import { Avatar, AvatarBadge, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 
@@ -800,63 +811,63 @@ function PhoneAppInterior({
               </span>
             </div>
             <div className={cn("relative z-10 flex items-stretch", mini ? "mt-1.5 gap-1" : "mt-3 gap-2")}>
-              <button
-                type="button"
-                data-action="rate"
-                onClick={() => setScreen("rate")}
-                className={cn(
-                  "relative flex flex-1 flex-col items-center justify-center rounded-2xl bg-white/[0.04] ring-1 ring-white/10",
-                  mini ? "py-1.5" : "py-3",
-                )}
-              >
-                <StarIcon
+                  <button
+                    type="button"
+                    data-action="rate"
+                    onClick={() => setScreen("rate")}
+                    className={cn(
+                      "relative flex flex-1 flex-col items-center justify-center rounded-2xl bg-white/[0.04] ring-1 ring-white/10",
+                      mini ? "py-1.5" : "py-3",
+                    )}
+                  >
+                    <StarIcon
+                      className={cn(
+                        "fill-[#ad8547] text-[#ad8547]",
+                        mini ? "size-6" : "size-10",
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "absolute font-bold text-[#1a1208]",
+                        mini ? "top-[0.7rem] text-[5px]" : "top-[1.35rem] text-[8px]",
+                      )}
+                    >
+                      Rate
+                    </span>
+                    {rated ? (
+                      <span className={cn("font-medium text-[#ad8547]", mini ? "mt-0.5 text-[6px]" : "mt-1 text-[8px]")}>
+                        Saved
+                      </span>
+                    ) : null}
+                  </button>
+                  <button
+                    type="button"
+                    data-action="list-toggle"
+                    className="flex flex-1 items-center justify-center rounded-2xl px-1"
+                  >
+                    <span
+                      className={cn(
+                        "inline-flex items-center rounded-full font-semibold text-white",
+                        mini ? "gap-0.5 px-1.5 py-1 text-[6px]" : "gap-1 px-3 py-2 text-[10px]",
+                        saved ? "bg-[#255840]" : "bg-[#2E6B4C]",
+                      )}
+                    >
+                      <UserPlusIcon className={mini ? "size-2" : "size-3"} />
+                      {saved ? "On my list" : "Add to my List"}
+                    </span>
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  data-action="snapshot"
+                  onClick={() => setScreen("snapshot")}
                   className={cn(
-                    "fill-[#ad8547] text-[#ad8547]",
-                    mini ? "size-6" : "size-10",
-                  )}
-                />
-                <span
-                  className={cn(
-                    "absolute font-bold text-[#1a1208]",
-                    mini ? "top-[0.7rem] text-[5px]" : "top-[1.35rem] text-[8px]",
+                    "relative z-10 w-full rounded-2xl bg-white/[0.04] text-center font-semibold text-[#e4d3b0] ring-1 ring-white/10",
+                    mini ? "mt-1.5 px-1.5 py-1.5 text-[7px]" : "mt-3 px-3 py-3 text-[11px]",
                   )}
                 >
-                  Rate
-                </span>
-                {rated ? (
-                  <span className={cn("font-medium text-[#ad8547]", mini ? "mt-0.5 text-[6px]" : "mt-1 text-[8px]")}>
-                    Saved
-                  </span>
-                ) : null}
-              </button>
-              <button
-                type="button"
-                data-action="list-toggle"
-                className="flex flex-1 items-center justify-center rounded-2xl px-1"
-              >
-                <span
-                  className={cn(
-                    "inline-flex items-center rounded-full font-semibold text-white",
-                    mini ? "gap-0.5 px-1.5 py-1 text-[6px]" : "gap-1 px-3 py-2 text-[10px]",
-                    saved ? "bg-[#255840]" : "bg-[#2E6B4C]",
-                  )}
-                >
-                  <UserPlusIcon className={mini ? "size-2" : "size-3"} />
-                  {saved ? "On my list" : "Add to my List"}
-                </span>
-              </button>
-            </div>
-            <button
-              type="button"
-              data-action="snapshot"
-              onClick={() => setScreen("snapshot")}
-              className={cn(
-                "relative z-10 w-full rounded-2xl bg-white/[0.04] text-center font-semibold text-[#e4d3b0] ring-1 ring-white/10",
-                mini ? "mt-1.5 px-1.5 py-1.5 text-[7px]" : "mt-3 px-3 py-3 text-[11px]",
-              )}
-            >
-              View professional snapshot
-            </button>
+                  View professional snapshot
+                </button>
           </div>
         </>
       ) : screen === "rate" ? (
@@ -939,7 +950,7 @@ function PhoneAppInterior({
 
 function PhoneProfile() {
   return (
-    <div className="relative w-[17.75rem] shrink-0">
+    <div className="relative w-[17.75rem] shrink-0" dir="ltr">
       <span className="absolute -left-[3px] top-[5.35rem] h-7 w-[3px] rounded-l-[1px] bg-[#3a3a3c]" />
       <span className="absolute -left-[3px] top-[7.35rem] h-10 w-[3px] rounded-l-[1px] bg-[#3a3a3c]" />
       <span className="absolute -left-[3px] top-[10.1rem] h-10 w-[3px] rounded-l-[1px] bg-[#3a3a3c]" />
@@ -962,7 +973,7 @@ function PhoneProfile() {
 
 function WatchQr() {
   return (
-    <div className="relative w-[8.6rem] shrink-0">
+    <div className="relative w-[8.6rem] shrink-0" dir="ltr">
       <div className="absolute -right-1 top-[3.4rem] h-8 w-[5px] rounded-r-md bg-[#2a2a2a]" />
       <div className="absolute -left-1 top-[4.4rem] h-5 w-[4px] rounded-l-md bg-[#2a2a2a]" />
       <div className="overflow-hidden rounded-[1.85rem] bg-[#111] p-[6px] shadow-[0_24px_50px_-18px_rgba(0,0,0,0.85)] ring-1 ring-white/12">
@@ -982,13 +993,178 @@ function WatchQr() {
   );
 }
 
+function LegalPhoneProfile() {
+  return (
+    <div className="relative w-[21.5rem] shrink-0" dir="ltr">
+      <span className="absolute -left-[3px] top-[6.4rem] h-8 w-[3px] rounded-l-[1px] bg-[#3a3a3c]" />
+      <span className="absolute -left-[3px] top-[8.8rem] h-12 w-[3px] rounded-l-[1px] bg-[#3a3a3c]" />
+      <span className="absolute -left-[3px] top-[12.2rem] h-12 w-[3px] rounded-l-[1px] bg-[#3a3a3c]" />
+      <span className="absolute -right-[3px] top-[10.1rem] h-[4.75rem] w-[3px] rounded-r-[1px] bg-[#3a3a3c]" />
+      <div className="relative aspect-[9/19.4] overflow-hidden rounded-[2.85rem] bg-[#1a1a1c] p-[9px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.85)] ring-1 ring-white/12">
+        <div className="relative flex h-full flex-col overflow-hidden rounded-[2.25rem] bg-black">
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center pt-[12px]">
+            <span className="h-[1.42rem] w-[6.1rem] rounded-full bg-black ring-1 ring-white/10" />
+          </div>
+          <div className="flex items-center justify-between px-6 pt-[15px] text-[11px] font-semibold text-white">
+            <span>9:41</span>
+            <StatusGlyphs />
+          </div>
+          <PhoneAppInterior />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ImadProfileCard() {
+  const cardRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    const glare = card.querySelector<HTMLElement>("[data-gsap-card-glare]");
+    const onMove = (event: PointerEvent) => {
+      const rect = card.getBoundingClientRect();
+      const px = (event.clientX - rect.left) / rect.width - 0.5;
+      const py = (event.clientY - rect.top) / rect.height - 0.5;
+      gsap.to(card, {
+        rotateY: px * 14,
+        rotateX: py * -12,
+        scale: 1.03,
+        duration: 0.28,
+        transformPerspective: 900,
+      });
+      if (glare) {
+        gsap.to(glare, {
+          xPercent: px * -45,
+          yPercent: py * -45,
+          opacity: 0.6,
+          duration: 0.28,
+        });
+      }
+    };
+    const onLeave = () => {
+      gsap.to(card, {
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1,
+        duration: 0.5,
+        ease: "power3.out",
+      });
+      if (glare) gsap.to(glare, { opacity: 0, duration: 0.3 });
+    };
+    card.addEventListener("pointermove", onMove);
+    card.addEventListener("pointerleave", onLeave);
+    return () => {
+      card.removeEventListener("pointermove", onMove);
+      card.removeEventListener("pointerleave", onLeave);
+    };
+  }, []);
+
+  return (
+    <article
+      ref={cardRef}
+      data-gsap-profile-card
+      className="relative w-[17.25rem] shrink-0"
+      dir="ltr"
+    >
+      <Card className="rate-theme-brand relative gap-0 overflow-hidden py-0 shadow-[0_24px_50px_-18px_rgba(0,0,0,0.85)] [--card-spacing:--spacing(3.5)]">
+        <div aria-hidden="true" className="h-1 w-full bg-[#7C3AED]" />
+        <div
+          data-gsap-card-glare
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-[-30%] opacity-0 [background:radial-gradient(circle_at_center,color-mix(in_oklab,var(--foreground)_40%,transparent),transparent_45%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(124,58,237,0.22),transparent_55%)]"
+        />
+        <CardHeader className="relative pt-3.5">
+          <Badge variant="outline" className="tracking-wide border-white/[0.08] bg-white/[0.03]">
+            Theme · RaytME
+          </Badge>
+          <CardAction>
+            <span className="flex size-8 items-center justify-center overflow-hidden rounded-lg bg-black/40 ring-1 ring-white/10">
+              <span className="size-6">
+                <QrFace />
+              </span>
+            </span>
+          </CardAction>
+          <div className="mt-2.5 flex items-start gap-2.5">
+            <Avatar className="size-10 rounded-lg after:rounded-lg">
+              <AvatarFallback className="rounded-lg bg-violet-500/20 font-brand text-sm text-violet-100">
+                IM
+              </AvatarFallback>
+              <AvatarBadge>
+                <CheckIcon />
+              </AvatarBadge>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="truncate font-serif text-base font-semibold tracking-wide">
+                Imad
+              </p>
+              <p className="text-sm text-muted-foreground">Lawyer</p>
+              <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                <MapPinIcon className="size-3" />
+                Doha, Qatar
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="relative flex flex-col gap-2.5 pb-3.5">
+          <Separator />
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="font-brand text-3xl font-medium tracking-wide text-violet-200 tabular-nums">
+                5.0
+              </p>
+              <p className="text-[11px] text-muted-foreground">/ 5 · 86 ratings</p>
+            </div>
+            <p className="max-w-[8rem] text-end text-[11px] leading-4 text-muted-foreground">
+              Custom brand
+            </p>
+          </div>
+          <div className="flex items-center justify-between gap-3 text-[11px]">
+            <span className="inline-flex items-center gap-1.5 truncate text-muted-foreground">
+              <MailIcon />
+              imad@horizonlaw.qa
+            </span>
+            <span className="inline-flex items-center gap-1 text-muted-foreground">
+              <LockIcon /> Private
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+    </article>
+  );
+}
+
 export function HeroDeviceStage() {
   return (
-    <div className="relative mx-auto flex w-full min-w-0 max-w-[34rem] items-center justify-center lg:justify-end lg:pe-10">
+    <div
+      data-no-translate
+      className="relative mx-auto flex w-full min-w-0 max-w-[22.5rem] items-center justify-center overflow-hidden sm:max-w-[26rem]"
+    >
       <div className="relative">
         <PhoneProfile />
-        <div className="pointer-events-none absolute -end-[5.8rem] bottom-[0.6rem] z-20 hidden sm:block">
+        <div className="pointer-events-none absolute bottom-[0.6rem] z-20 hidden start-0 -translate-x-[28%] sm:block rtl:translate-x-[28%]">
           <WatchQr />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function LegalDeviceStage() {
+  return (
+    <div
+      data-no-translate
+      className="relative mx-auto flex w-full min-w-0 max-w-[32rem] items-center justify-center overflow-visible sm:max-w-[36rem]"
+    >
+      <div className="relative sm:ps-[10.25rem] rtl:sm:ps-0 rtl:sm:pe-[10.25rem]">
+        <LegalPhoneProfile />
+        <div className="absolute bottom-[1.1rem] z-20 hidden start-0 sm:block">
+          <ImadProfileCard />
         </div>
       </div>
     </div>
@@ -1695,27 +1871,32 @@ export function HeroSkyline() {
 
   return (
     <div
-      data-gsap-hero-bg
       className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-black"
       aria-hidden="true"
     >
-      <div className="absolute inset-y-0 end-[-48%] w-[150%] opacity-60 sm:end-[-10%] sm:w-[88%] sm:opacity-100 lg:end-[-4%] lg:w-[72%]">
-        <video
-          key={src}
-          autoPlay
-          muted
-          playsInline
-          preload="metadata"
-          onEnded={advance}
-          className="h-full w-full object-cover object-center opacity-75 saturate-[0.82]"
-        >
-          <source src={src} type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 via-[34%] to-black/15 lg:via-black/72 lg:via-[24%] lg:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/35" />
+      <div
+        data-gsap-hero-bg
+        className="absolute inset-0 origin-[80%_0%] rtl:origin-[20%_0%]"
+      >
+        <div className="absolute inset-y-0 end-[-48%] w-[150%] opacity-60 sm:end-[-10%] sm:w-[88%] sm:opacity-100 lg:end-[-4%] lg:w-[72%]">
+          <video
+            key={src}
+            autoPlay
+            muted
+            playsInline
+            preload="metadata"
+            onEnded={advance}
+            className="h-full w-full object-cover object-[68%_center] opacity-75 saturate-[0.82] rtl:object-[32%_center]"
+          >
+            <source src={src} type="video/mp4" />
+          </video>
+          <div className="rate-hero-video-fade absolute inset-0" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/35" />
+        </div>
+        <div className="absolute inset-y-[12%] start-0 w-[min(42rem,76%)] bg-[radial-gradient(ellipse_at_center,rgb(0_0_0/0.88)_0%,rgb(0_0_0/0.5)_48%,transparent_76%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black via-black/75 to-transparent" />
       </div>
-      <div className="absolute inset-y-[12%] start-0 w-[min(42rem,76%)] bg-[radial-gradient(ellipse_at_center,rgb(0_0_0/0.88)_0%,rgb(0_0_0/0.5)_48%,transparent_76%)] rtl:start-auto rtl:end-0" />
-      <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black via-black/75 to-transparent" />
     </div>
   );
 }
+

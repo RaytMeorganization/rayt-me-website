@@ -81,6 +81,7 @@ import {
 } from "@/components/rate-me/landing-animations";
 import { LogoLockup } from "@/components/brand/logo-lockup";
 import { applyLandingCopy } from "@/components/rate-me/landing-copy";
+import { LEGAL_NAV } from "@/lib/company";
 import { RaytmeBot } from "@/components/rate-me/raytme-bot";
 import { cardThemeBarColor } from "@/lib/card-theme";
 import {
@@ -146,11 +147,8 @@ const ctaDark = cn(
 const ctaPrimary = ctaWhite;
 const ctaGhost = ctaDark;
 
-function resourceHref(item: string) {
-  if (item === "Privacy") return "/privacy";
-  if (item === "Terms") return "/terms";
-  return "#footer";
-}
+const sheetNavClass =
+  "flex min-h-11 w-full items-center justify-start rounded-xl bg-transparent px-3 py-2.5 text-start text-[15px] font-medium leading-snug whitespace-normal text-white hover:bg-white/10";
 
 function SignUpCta({
   className,
@@ -366,7 +364,7 @@ function ShowcaseThemeCard({
   return (
     <article
       data-gsap-profile-card
-      className={cn("relative w-full", className)}
+      className={cn("relative w-full overflow-hidden", className)}
     >
       <Card
         className={cn(
@@ -549,13 +547,17 @@ function ThemedBusinessCard() {
 }
 
 function CommunityArtwork({ "aria-label": ariaLabel }: { "aria-label": string }) {
-  return <div role="img" aria-label={ariaLabel} className="relative aspect-[5/4] overflow-hidden rounded-xl bg-[radial-gradient(circle_at_center,#153c4d_0%,#0a1219_46%,#08090b_100%)]">
-    <div className="absolute left-1/2 top-1/2 size-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d5a84f] shadow-[0_0_24px_6px_rgba(213,168,79,.4)]" />
-    {["left-1/2 top-[18%]", "left-[24%] top-[42%]", "right-[24%] top-[42%]", "left-[30%] bottom-[20%]", "right-[30%] bottom-[20%]", "left-1/2 bottom-[12%]"].map((position) => <span key={position} className={cn("absolute size-4 rounded-full bg-cyan-200 shadow-[0_0_14px_3px_rgba(103,232,249,.55)]", position)} />)}
-    <span className="absolute left-1/2 top-[30%] h-[1px] w-[34%] -translate-x-1/2 rotate-90 bg-cyan-200/60" />
-    <span className="absolute left-[29%] top-[48%] h-[1px] w-[42%] rotate-[32deg] bg-cyan-200/60" />
-    <span className="absolute left-[29%] top-[48%] h-[1px] w-[42%] -rotate-[32deg] bg-cyan-200/60" />
-  </div>;
+  return (
+    <div className="relative aspect-[5/4] overflow-hidden rounded-xl bg-[#0b1218]">
+      <Image
+        src="/landing/solutions/community-network.jpg"
+        alt={ariaLabel}
+        fill
+        sizes="240px"
+        className="object-cover"
+      />
+    </div>
+  );
 }
 
 function SolutionsMenu() {
@@ -569,7 +571,7 @@ function SolutionsMenu() {
       <button
         type="button"
         data-gsap-nav-link
-        className="inline-flex items-center gap-1 text-[13px] font-medium text-white/75 transition-colors duration-300 hover:text-white"
+        className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[13px] font-medium text-white/75 transition-colors duration-300 hover:text-white"
         aria-expanded={open}
         aria-haspopup="true"
       >
@@ -625,7 +627,7 @@ function ResourcesMenu() {
     >
       <button
         type="button"
-        className="inline-flex items-center gap-1 text-[13px] font-medium text-white/75 transition-colors duration-300 hover:text-white"
+        className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[13px] font-medium text-white/75 transition-colors duration-300 hover:text-white"
         aria-expanded={open}
       >
         Resources
@@ -633,13 +635,18 @@ function ResourcesMenu() {
       </button>
       {open ? (
         <div className="absolute start-0 top-full z-50 min-w-40 rounded-2xl border border-white/10 bg-[#0c0912]/95 p-2 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl">
-          {["Help Center", "Guides", "Privacy", "Terms"].map((item) => (
+          {[
+            { label: "Privacy", href: "/privacy" },
+            { label: "Terms", href: "/terms" },
+            { label: "Acceptable Use", href: "/acceptable-use" },
+            { label: "Support", href: "/support" },
+          ].map((item) => (
             <a
-              key={item}
-              href={resourceHref(item)}
+              key={item.label}
+              href={item.href}
               className="block rounded-xl px-3 py-2 text-[13px] text-white/70 transition-colors hover:bg-white/5 hover:text-white"
             >
-              {item}
+              {item.label}
             </a>
           ))}
         </div>
@@ -668,7 +675,7 @@ function Navbar() {
         "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)]",
       )}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 lg:px-8">
+      <div className="mx-auto flex w-full min-w-0 max-w-7xl items-center justify-between gap-3 px-4 py-4 lg:gap-4 lg:px-8">
         <a
           href="#top"
           aria-label="RaytME home"
@@ -676,13 +683,13 @@ function Navbar() {
         >
           <LogoLockup tone="light" />
         </a>
-        <nav className="hidden items-center gap-6 lg:flex">
+        <nav className="hidden min-w-0 items-center gap-4 lg:flex xl:gap-6">
           {navLinks.slice(0, 1).map(([href, label]) => (
             <a
               data-gsap-nav-link
               key={href}
               href={href}
-              className="relative text-[13px] font-medium text-white/75 transition-colors duration-300 ease-out hover:text-white"
+              className="relative shrink-0 whitespace-nowrap text-[13px] font-medium text-white/75 transition-colors duration-300 ease-out hover:text-white"
             >
               {label}
               <span
@@ -698,7 +705,7 @@ function Navbar() {
               data-gsap-nav-link
               key={href}
               href={href}
-              className="relative text-[13px] font-medium text-white/75 transition-colors duration-300 ease-out hover:text-white"
+              className="relative shrink-0 whitespace-nowrap text-[13px] font-medium text-white/75 transition-colors duration-300 ease-out hover:text-white"
             >
               {label}
               <span
@@ -710,7 +717,7 @@ function Navbar() {
           ))}
           <ResourcesMenu />
         </nav>
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden shrink-0 items-center gap-3 lg:flex">
           <LanguageToggle />
           <SignInCta
             data-rate-me-copy
@@ -733,45 +740,35 @@ function Navbar() {
             </SheetTrigger>
             <SheetContent
               side={arabic ? "left" : "right"}
-              className="border-white/[0.06] bg-[#020617]/90 backdrop-blur-xl duration-300 ease-out"
+              className="dark gap-0 overflow-y-auto border-white/[0.06] bg-[#020617]/95 text-white backdrop-blur-xl duration-300 ease-out"
             >
               <SheetHeader>
                 <SheetTitle className="sr-only">RaytME</SheetTitle>
                 <LogoLockup tone="light" size="sm" />
-                <SheetDescription>Navigate the product.</SheetDescription>
+                <SheetDescription className="text-white/55">
+                  Navigate the product.
+                </SheetDescription>
               </SheetHeader>
-              <nav className="flex flex-col gap-1 px-4">
+              <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-4 pb-4">
                 {navLinks.slice(0, 1).map(([href, label]) => (
                   <SheetClose
                     key={href}
                     render={
-                      <a
-                        href={href}
-                        className={buttonVariants({
-                          variant: "ghost",
-                          className: "justify-start",
-                        })}
-                      />
+                      <a href={href} className={sheetNavClass} />
                     }
                     nativeButton={false}
                   >
                     {label}
                   </SheetClose>
                 ))}
-                <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
                   Solutions
                 </p>
                 {solutionItems.map((item) => (
                   <SheetClose
                     key={item.title}
                     render={
-                      <a
-                        href={item.href}
-                        className={buttonVariants({
-                          variant: "ghost",
-                          className: "h-auto justify-start py-2 text-start whitespace-normal",
-                        })}
-                      />
+                      <a href={item.href} className={sheetNavClass} />
                     }
                     nativeButton={false}
                   >
@@ -782,34 +779,35 @@ function Navbar() {
                   <SheetClose
                     key={href}
                     render={
-                      <a
-                        href={href}
-                        className={buttonVariants({
-                          variant: "ghost",
-                          className: "justify-start",
-                        })}
-                      />
+                      <a href={href} className={sheetNavClass} />
                     }
                     nativeButton={false}
                   >
                     {label}
                   </SheetClose>
                 ))}
+                <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
+                  Legal
+                </p>
+                {LEGAL_NAV.map((item) => (
+                  <SheetClose
+                    key={item.href}
+                    render={
+                      <a href={item.href} className={sheetNavClass} />
+                    }
+                    nativeButton={false}
+                  >
+                    {arabic ? item.labelAr : item.label}
+                  </SheetClose>
+                ))}
                 <SheetClose
-                  render={
-                    <SignInCta
-                      className={buttonVariants({
-                        variant: "ghost",
-                        className: "justify-start",
-                      })}
-                    />
-                  }
+                  render={<SignInCta className={sheetNavClass} />}
                   nativeButton={false}
                 >
                   <span data-rate-me-copy>Sign in</span>
                 </SheetClose>
               </nav>
-              <SignUpCta className={buttonVariants({ className: cn("mx-4", ctaPrimary) })}>
+              <SignUpCta className={buttonVariants({ className: cn("mx-4 mb-4", ctaPrimary) })}>
                 Get started
               </SignUpCta>
             </SheetContent>
@@ -860,16 +858,16 @@ function TrustStrip() {
     },
   ];
   return (
-    <div className="mx-auto max-w-7xl px-5 pb-3 lg:px-8">
-      <div className="rate-feature-bar grid w-full grid-cols-1 divide-y divide-white/10 overflow-hidden rounded-[1.75rem] border border-white/[0.12] bg-white/[0.035] backdrop-blur-md md:grid-cols-5 md:divide-x md:divide-y-0">
+    <div className="relative z-10 mx-auto w-full min-w-0 max-w-7xl px-5 pb-3 lg:px-8">
+      <div className="rate-feature-bar grid w-full min-w-0 grid-cols-1 divide-y divide-white/10 overflow-hidden rounded-[1.75rem] border border-white/[0.12] bg-white/[0.035] backdrop-blur-md sm:grid-cols-2 sm:divide-x sm:divide-y-0 sm:rtl:divide-x-reverse">
         {items.map(({ Icon, key, title, copy }) => (
-          <div key={key} className="flex gap-3 px-5 py-5">
+          <div key={key} className="flex min-w-0 items-start gap-3 px-4 py-5 sm:px-5">
             <Icon className="mt-0.5 size-5 shrink-0 text-white/85" />
-            <div>
-              <p className="text-[13px] font-semibold leading-5 text-white">
+            <div className="min-w-0">
+              <p className="text-balance break-words text-[13px] font-semibold leading-5 text-white">
                 {title}
               </p>
-              <p className="mt-1.5 text-[12px] leading-5 text-white/48">{copy}</p>
+              <p className="mt-1.5 text-pretty break-words text-[12px] leading-5 text-white/48">{copy}</p>
             </div>
           </div>
         ))}
@@ -882,7 +880,7 @@ function HowShareStage() {
   return (
     <div
       aria-hidden="true"
-      className="relative isolate h-[38rem] w-full overflow-visible"
+      className="relative isolate h-[38rem] w-full overflow-hidden"
     >
       <div
         data-gsap-float
@@ -1087,7 +1085,7 @@ function SuperVoterStage() {
   return (
     <div
       aria-hidden="true"
-      className="relative isolate h-[32rem] w-full overflow-visible"
+      className="relative isolate h-[32rem] w-full overflow-hidden"
     >
       <div
         data-gsap-float
@@ -1346,7 +1344,7 @@ function PreFooterCta() {
             })}
           >
             Create Your RaytME Card
-            <ArrowRightIcon data-icon="inline-end" />
+            <ArrowRightIcon data-icon="inline-end" className="rtl:rotate-180" />
           </SignUpCta>
         </div>
       </div>
@@ -1885,14 +1883,17 @@ export default function RateMeLanding() {
   };
 
   useEffect(() => {
-    document.documentElement.lang = arabic ? "ar" : "en";
-    document.documentElement.dir = arabic ? "rtl" : "ltr";
-    document.body.classList.toggle("arabic-mode", arabic);
-    window.localStorage.setItem("rate-me-locale", arabic ? "ar" : "en");
-    applyLandingCopy(arabic);
-    const retry = window.setTimeout(() => applyLandingCopy(arabic), 80);
+    const next = localeOverride ?? window.localStorage.getItem("rate-me-locale") === "ar";
+    document.documentElement.lang = next ? "ar" : "en";
+    document.documentElement.dir = next ? "rtl" : "ltr";
+    document.body.classList.toggle("arabic-mode", next);
+    if (localeOverride !== null) {
+      window.localStorage.setItem("rate-me-locale", next ? "ar" : "en");
+    }
+    applyLandingCopy(next);
+    const retry = window.setTimeout(() => applyLandingCopy(next), 80);
     return () => window.clearTimeout(retry);
-  }, [arabic]);
+  }, [arabic, localeOverride]);
 
   useEffect(() => {
     const scrollToFooter = () => {
@@ -1932,10 +1933,10 @@ export default function RateMeLanding() {
     >
       <Navbar />
       <main>
-        <section className="rate-premium-hero relative isolate overflow-hidden bg-black">
+        <section className="rate-premium-hero relative isolate overflow-x-clip bg-black">
           <HeroSkyline />
-          <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-7xl grid-cols-1 items-center gap-6 overflow-x-hidden px-5 pb-8 pt-[5.5rem] sm:overflow-x-visible lg:grid-cols-[minmax(0,34rem)_1fr] lg:gap-2 lg:px-8 lg:pb-10 lg:pt-[5.75rem]">
-            <div data-gsap-hero-card className="relative min-w-0 w-full max-w-[21rem] sm:max-w-xl">
+          <div className="relative z-10 mx-auto grid w-full min-w-0 max-w-7xl grid-cols-1 items-center gap-8 px-5 pb-8 pt-[5.5rem] lg:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] lg:gap-8 lg:px-8 lg:pb-10 lg:pt-[5.75rem]">
+            <div data-gsap-hero-card className="relative z-20 min-w-0 w-full max-w-[21rem] sm:max-w-xl lg:max-w-none">
               <div
                 aria-hidden="true"
                 className="rate-hero-copy-scrim pointer-events-none absolute -inset-x-5 -inset-y-6 -z-10 sm:-inset-x-10 sm:-inset-y-10 lg:-inset-x-12"
@@ -1971,7 +1972,7 @@ export default function RateMeLanding() {
                   })}
                 >
                   Create Your Card
-                  <ArrowRightIcon data-icon="inline-end" data-gsap-cta-arrow />
+                  <ArrowRightIcon data-icon="inline-end" data-gsap-cta-arrow className="rtl:rotate-180" />
                 </SignUpCta>
                 <a
                   data-gsap-hero-cta
@@ -2011,7 +2012,7 @@ export default function RateMeLanding() {
                 </p>
               </div>
             </div>
-            <div className="min-w-0 max-w-full overflow-hidden lg:overflow-visible">
+            <div className="relative z-10 flex min-w-0 w-full max-w-full justify-center overflow-hidden">
               <HeroDeviceStage />
             </div>
           </div>
@@ -2262,29 +2263,45 @@ export default function RateMeLanding() {
               reputation.
             </p>
           </div>
-          {[
-            ["Product", "How it Works", "Features", "Pricing", "For Teams"],
-            ["Company", "About Us", "Blog", "Careers", "Contact"],
-            ["Resources", "Help Center", "Guides", "Privacy", "Terms"],
-          ].map(([head, ...links]) => (
-            <div key={head}>
-              <p className="text-[13px] font-semibold text-white">{head}</p>
+          {(
+            [
+              {
+                head: "Product",
+                links: [
+                  { label: "How it Works", href: "#top" },
+                  { label: "Features", href: "#top" },
+                  { label: "Pricing", href: "#top" },
+                  { label: "For Teams", href: "#top" },
+                ],
+              },
+              {
+                head: "Company",
+                links: [
+                  { label: "About Us", href: "#about" },
+                  { label: "Contact", href: "/support" },
+                  { label: "Legal", href: "/legal" },
+                ],
+              },
+              {
+                head: "Resources",
+                links: [
+                  { label: "Privacy", href: "/privacy" },
+                  { label: "Terms", href: "/terms" },
+                  { label: "Acceptable Use", href: "/acceptable-use" },
+                ],
+              },
+            ] as const
+          ).map((column) => (
+            <div key={column.head}>
+              <p className="text-[13px] font-semibold text-white">{column.head}</p>
               <div className="mt-4 flex flex-col gap-2.5 text-[13px] text-white/50">
-                {links.map((item) => (
+                {column.links.map((item) => (
                   <a
-                    key={item}
-                    href={
-                      item === "About Us"
-                        ? "#about"
-                        : item === "Privacy"
-                          ? "/privacy"
-                          : item === "Terms"
-                            ? "/terms"
-                            : "#top"
-                    }
+                    key={item.label}
+                    href={item.href}
                     className="transition-colors duration-300 ease-out hover:text-white"
                   >
-                    {item}
+                    {item.label}
                   </a>
                 ))}
               </div>
@@ -2298,6 +2315,9 @@ export default function RateMeLanding() {
         </div>
         <div className="mx-auto mt-12 max-w-7xl border-t border-white/10 pt-5 text-[12px] text-white/40">
           <p dir="ltr">Copyright © 2026 RaytME LLC. All rights reserved.</p>
+          <p className="mt-1" dir="ltr">
+            RAYTME LLC · 30 N Gould St, Ste R, Sheridan, WY 82801
+          </p>
         </div>
       </footer>
       <RaytmeBot arabic={arabic} />

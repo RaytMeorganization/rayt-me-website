@@ -145,7 +145,7 @@ export function useLandingAnimations() {
           ease: "sine.inOut",
           yoyo: true,
           repeat: -1,
-          transformOrigin: "80% 0%",
+          transformOrigin: rtl ? "20% 0%" : "80% 0%",
         },
       );
 

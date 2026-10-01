@@ -34,6 +34,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next)
     window.localStorage.setItem('rate-me-locale', next)
+    window.dispatchEvent(new Event('rate-me-locale-change'))
   }, [])
 
   useEffect(() => {

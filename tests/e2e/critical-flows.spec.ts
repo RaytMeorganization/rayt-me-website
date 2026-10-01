@@ -61,3 +61,30 @@ test('member entitlements and server-controlled themes load in settings', async 
   await page.getByLabel('Card theme').selectOption('slate')
   expect((await themeResponse).status()).toBe(200)
 })
+
+test('privacy notice lists RAYTME LLC and store contact details', async ({ page }) => {
+  await page.goto('/privacy')
+  await expect(page.getByRole('heading', { name: 'Privacy Notice' })).toBeVisible()
+  await expect(page.getByText('RAYTME LLC')).toBeVisible()
+  await expect(page.getByText(/30 N Gould St, Ste R, Sheridan, WY 82801/)).toBeVisible()
+  await expect(page.getByText('privacy@raytme.me').first()).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Support' }).first()).toHaveAttribute('href', '/support')
+  await expect(page.getByRole('link', { name: 'Next' })).toHaveAttribute('href', '/terms')
+  await expect(page.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/legal')
+})
+
+test('legal slideshow advances to home and supports Arabic', async ({ page }) => {
+  await page.goto('/support')
+  await expect(page.getByRole('heading', { name: 'Support' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/')
+  await page.getByRole('button', { name: /language|العربية/i }).click()
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+  await expect(page.getByRole('heading', { name: 'الدعم' })).toBeVisible()
+})
+
+test('support page is usable for App Store and Play Console', async ({ page }) => {
+  await page.goto('/support')
+  await expect(page.getByRole('heading', { name: 'Support' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'support@raytme.me' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'privacy@raytme.me' })).toBeVisible()
+})

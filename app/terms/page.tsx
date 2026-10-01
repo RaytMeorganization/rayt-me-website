@@ -1,12 +1,9 @@
 import type { Metadata } from 'next'
-import { LegalPage } from '@/components/product/legal-page'
+import { LegalDocumentPage } from '@/components/legal/legal-document'
+import { legalMetadata, termsOfService } from '@/lib/legal-docs'
 
-export const metadata: Metadata = {
-  title: 'Terms of Service — RaytME',
-  description: 'Terms governing use of the RaytME website and professional reputation platform.',
-  alternates: { canonical: '/terms' },
-}
+export const metadata: Metadata = legalMetadata(termsOfService)
 
 export default function TermsPage() {
-  return <LegalPage kind="terms" />
+  return <LegalDocumentPage doc={termsOfService} />
 }
