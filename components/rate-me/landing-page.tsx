@@ -101,6 +101,7 @@ import {
 import { usePublicPlanCatalog } from "@/hooks/use-public-plan-catalog";
 import { YearlyBillingOfferDialog } from "@/components/product/yearly-billing-offer-dialog";
 import { cn } from "@/lib/utils";
+import { FooterSocialLinks } from "@/components/rate-me/footer-social-links";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/store-links";
 
 type LandingLocaleValue = {
@@ -2424,7 +2425,7 @@ export default function RateMeLanding() {
           ))}
           <div>
             <p className="text-[13px] font-semibold text-white">Download the app</p>
-            <p className="mt-4 text-[12px] text-white/40">Coming soon</p>
+            <FooterSocialLinks />
             <StoreBadges />
           </div>
         </div>
