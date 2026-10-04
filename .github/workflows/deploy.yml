@@ -1,7 +1,11 @@
 name: Deploy website
 
+# Single path to production: push to main -> CI (lint, typecheck, build) -> Deploy.
+# Deploy runs only after CI succeeds on main, so a red CI can never go live.
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -10,11 +14,14 @@ permissions:
 
 jobs:
   deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     environment: Production
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Install SSH key
         run: |
