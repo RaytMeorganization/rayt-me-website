@@ -26,7 +26,7 @@ export function AdminOrganizationCard({
     description: string | null
     brandColor: string | null
   }) => void
-  onAssignPlan: (planCode: string) => void
+  onAssignPlan: (planCode: string, status?: string) => void
 }) {
   const { t } = useI18n()
   const [name, setName] = useState(String(org.name || ''))
@@ -36,6 +36,9 @@ export function AdminOrganizationCard({
 
   const subscription = org.subscription as { status?: string; plan?: { code?: string; name?: string } } | undefined
   const [planCode, setPlanCode] = useState(String(subscription?.plan?.code || 'business'))
+  const [subscriptionStatus, setSubscriptionStatus] = useState(
+    String(subscription?.status || 'ACTIVE'),
+  )
 
   const memberCount = (org._count as { memberships?: number } | undefined)?.memberships
   const planLabel = subscription?.plan?.name || subscription?.plan?.code
@@ -107,6 +110,20 @@ export function AdminOrganizationCard({
               ))}
             </select>
           </Field>
+          <Field>
+            <FieldLabel className="text-xs">{t('status')}</FieldLabel>
+            <select
+              className={inputClass}
+              value={subscriptionStatus}
+              disabled={busy}
+              onChange={e => setSubscriptionStatus(e.target.value)}
+            >
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="TRIALING">TRIALING</option>
+              <option value="PAST_DUE">PAST_DUE</option>
+              <option value="CANCELED">CANCELED</option>
+            </select>
+          </Field>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -125,9 +142,20 @@ export function AdminOrganizationCard({
             size="sm"
             variant="secondary"
             disabled={busy || !planCode}
-            onClick={() => onAssignPlan(planCode)}
+            onClick={() => onAssignPlan(planCode, subscriptionStatus)}
           >
             {t('assignPlan')}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={busy || subscriptionStatus === 'CANCELED'}
+            onClick={() => {
+              setSubscriptionStatus('CANCELED')
+              onAssignPlan(planCode, 'CANCELED')
+            }}
+          >
+            {t('adminCancelSubscription')}
           </Button>
         </div>
       </CardFooter>

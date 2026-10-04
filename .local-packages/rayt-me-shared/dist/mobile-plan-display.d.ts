@@ -32,14 +32,14 @@ export declare const MOBILE_PLAN_DISPLAY: readonly [{
     readonly code: "pro";
     readonly name: "Pro";
     readonly priceLabel: string;
-    readonly period: "per year";
+    readonly period: `${string} / month or ${string} / year`;
     readonly highlight: true;
     readonly features: readonly ["Unlimited ratings received", "60 ratings given per month", "10 card themes", "One custom theme", "One company-branded theme", "Full category breakdown", "NFC tap sharing", "Professional Snapshot card", "Custom profile URL", "AI profile & theme assistant", "Priority dispute review"];
 }, {
     readonly code: "business";
     readonly name: "Business";
     readonly priceLabel: string;
-    readonly period: "per employee / year";
+    readonly period: `${string} / employee / month or ${string} / employee / year`;
     readonly highlight: false;
     readonly features: readonly ["Unlimited ratings received", "50 ratings given per employee / month", "Expanded card themes", "Custom theme", "Company-branded theme", "Organization roster & invites", "Business workspace on the web", "Team reputation overview"];
 }];
@@ -47,26 +47,27 @@ export type MobilePlanCode = (typeof MOBILE_PLAN_DISPLAY)[number]['code'];
 export declare function plansForDisplay(apiPlans?: readonly {
     code: string;
     priceCents: number;
+    monthlyPriceCents?: number;
     name?: string;
 }[]): ({
+    priceLabel: string;
+    period: string;
     code: "basic";
     name: "Basic";
-    priceLabel: string;
-    period: "Forever · No card needed";
     highlight: false;
     features: readonly ["Public verified profile", "Unlimited ratings received", "25 ratings given per month", "QR code profile sharing", "Basic reputation score", "5 card themes"];
 } | {
+    priceLabel: string;
+    period: string;
     code: "pro";
     name: "Pro";
-    priceLabel: string;
-    period: "per year";
     highlight: true;
     features: readonly ["Unlimited ratings received", "60 ratings given per month", "10 card themes", "One custom theme", "One company-branded theme", "Full category breakdown", "NFC tap sharing", "Professional Snapshot card", "Custom profile URL", "AI profile & theme assistant", "Priority dispute review"];
 } | {
+    priceLabel: string;
+    period: string;
     code: "business";
     name: "Business";
-    priceLabel: string;
-    period: "per employee / year";
     highlight: false;
     features: readonly ["Unlimited ratings received", "50 ratings given per employee / month", "Expanded card themes", "Custom theme", "Company-branded theme", "Organization roster & invites", "Business workspace on the web", "Team reputation overview"];
 })[];

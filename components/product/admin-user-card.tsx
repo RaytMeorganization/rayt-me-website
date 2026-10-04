@@ -66,6 +66,7 @@ export function AdminUserCard({
   profileId,
   busy,
   onRoleChange,
+  onTierChange,
   onToggleActive,
   onOpenRecord,
 }: {
@@ -84,6 +85,7 @@ export function AdminUserCard({
   profileId?: string
   busy?: boolean
   onRoleChange: (role: DbRole) => void
+  onTierChange?: (tier: 'basic' | 'pro' | 'business') => void
   onToggleActive: () => void
   onOpenRecord?: () => void
 }) {
@@ -168,6 +170,21 @@ export function AdminUserCard({
             <option value="PLATFORM_ADMIN">{t('adminRole')}</option>
           </select>
         </Field>
+        {onTierChange ? (
+          <Field className="w-full min-w-0 flex-1 sm:max-w-[14rem]">
+            <FieldLabel className="text-xs">{t('plan')}</FieldLabel>
+            <select
+              className={inputClass}
+              value={tier || 'basic'}
+              disabled={busy}
+              onChange={event => onTierChange(event.target.value as 'basic' | 'pro' | 'business')}
+            >
+              <option value="basic">{t('tierBasic')}</option>
+              <option value="pro">{t('tierPro')}</option>
+              <option value="business">{t('tierBusiness')}</option>
+            </select>
+          </Field>
+        ) : null}
         <Button
           size="sm"
           variant="outline"

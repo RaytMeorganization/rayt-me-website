@@ -19,6 +19,8 @@ export type WorkspaceMemberCardProps = {
   country?: string | null
   score?: number | null
   ratingsCount?: number | null
+  ratingsGivenCount?: number | null
+  monthlyRatingsGiven?: number | null
   isVerified?: boolean
   avatarUrl?: string | null
   employmentStatus?: 'working' | 'not_working' | 'open_to_work' | null
@@ -50,6 +52,8 @@ export function WorkspaceMemberCard({
   country,
   score,
   ratingsCount,
+  ratingsGivenCount,
+  monthlyRatingsGiven,
   isVerified = false,
   avatarUrl,
   employmentStatus,
@@ -150,6 +154,16 @@ export function WorkspaceMemberCard({
             {ratingsCount != null ? (
               <p className="mt-2 text-xs text-muted-foreground">
                 {ratingsCount} {t('basedOn')}
+              </p>
+            ) : null}
+            {ratingsGivenCount != null || monthlyRatingsGiven != null ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {[
+                  ratingsGivenCount != null ? `${ratingsGivenCount} ${t('ratingsGiven')}` : null,
+                  monthlyRatingsGiven != null ? `${monthlyRatingsGiven} ${t('monthlyRatingsGiven')}` : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
               </p>
             ) : null}
             {profileHref ? (

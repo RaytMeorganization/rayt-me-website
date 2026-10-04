@@ -1,4 +1,10 @@
-import { formatMarketingUsd, USD_PER_EMPLOYEE_YEAR, USD_PRO_YEAR } from './plan-pricing.js';
+import {
+  formatMarketingUsd,
+  USD_PER_EMPLOYEE_MONTH,
+  USD_PER_EMPLOYEE_YEAR,
+  USD_PRO_MONTH,
+  USD_PRO_YEAR,
+} from './plan-pricing.js';
 
 export const RATING_COMMENT_MAX_CHARS = 150;
 
@@ -34,7 +40,7 @@ export const MOBILE_PLAN_DISPLAY = [
     code: 'pro' as const,
     name: 'Pro',
     priceLabel: formatMarketingUsd(USD_PRO_YEAR),
-    period: 'per year',
+    period: `${formatMarketingUsd(USD_PRO_MONTH)} / month or ${formatMarketingUsd(USD_PRO_YEAR)} / year`,
     highlight: true,
     features: [
       'Unlimited ratings received',
@@ -54,7 +60,7 @@ export const MOBILE_PLAN_DISPLAY = [
     code: 'business' as const,
     name: 'Business',
     priceLabel: formatMarketingUsd(USD_PER_EMPLOYEE_YEAR),
-    period: 'per employee / year',
+    period: `${formatMarketingUsd(USD_PER_EMPLOYEE_MONTH)} / employee / month or ${formatMarketingUsd(USD_PER_EMPLOYEE_YEAR)} / employee / year`,
     highlight: false,
     features: [
       'Unlimited ratings received',
@@ -72,16 +78,30 @@ export const MOBILE_PLAN_DISPLAY = [
 export type MobilePlanCode = (typeof MOBILE_PLAN_DISPLAY)[number]['code'];
 
 export function plansForDisplay(
-  apiPlans?: readonly { code: string; priceCents: number; name?: string }[],
+  apiPlans?: readonly {
+    code: string;
+    priceCents: number;
+    monthlyPriceCents?: number;
+    name?: string;
+  }[],
 ) {
   return MOBILE_PLAN_DISPLAY.map((plan) => {
     const remote = apiPlans?.find((entry) => entry.code === plan.code);
     if (!remote || !Number.isFinite(remote.priceCents)) {
       return { ...plan };
     }
+    const yearly = formatMarketingUsd(remote.priceCents / 100);
+    const monthly =
+      remote.monthlyPriceCents && remote.monthlyPriceCents > 0
+        ? formatMarketingUsd(remote.monthlyPriceCents / 100)
+        : null;
     return {
       ...plan,
-      priceLabel: formatMarketingUsd(remote.priceCents / 100),
+      priceLabel: yearly,
+      period:
+        monthly && plan.code !== 'basic'
+          ? `${monthly} / month or ${yearly} / year`
+          : plan.period,
     };
   });
 }

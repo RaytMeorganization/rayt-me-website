@@ -7,9 +7,11 @@ import {
   Outfit,
   Syne,
 } from 'next/font/google'
-import type { Metadata, Viewport } from 'next'
+import type { Viewport } from 'next'
+import { Analytics } from '@vercel/analytics/react'
 import { Providers } from '@/components/product/providers'
-import { SITE_ORIGIN } from '@/lib/site'
+import { RootJsonLd } from '@/components/seo/root-json-ld'
+import { buildRootMetadata } from '@/lib/seo'
 import './globals.css'
 
 const outfit = Outfit({
@@ -46,22 +48,8 @@ const naskh = Noto_Naskh_Arabic({
 })
 const notoArabic = Noto_Sans_Arabic({ subsets: ['arabic'], variable: '--font-arabic-ui' })
 
-export const metadata: Metadata = {
-  title: 'RaytME — Virtual Business Card & Professional Reputation',
-  description: 'Your RaytME profile is your virtual business card. Share it, connect instantly, and carry a portable professional reputation that stays current.',
-  metadataBase: new URL(SITE_ORIGIN),
-  alternates: { canonical: '/' },
-  openGraph: {
-    title: 'RaytME — Virtual Business Card & Professional Reputation',
-    description: 'Your RaytME profile is your virtual business card — with a reputation that travels.',
-    url: SITE_ORIGIN,
-    siteName: 'RaytME',
-    type: 'website',
-  },
-  twitter: { card: 'summary_large_image', title: 'RaytME — Virtual Business Card & Professional Reputation', description: 'Your RaytME profile is your virtual business card — with a reputation that travels.' },
-  robots: { index: true, follow: true },
-  keywords: ['virtual business card', 'professional reputation', 'professional ratings', 'RaytME', 'بطاقة عمل رقمية', 'سمعة مهنية'],
-  generator: 'RaytME',
+export const metadata = {
+  ...buildRootMetadata(),
   icons: {
     icon: [
       {
@@ -100,7 +88,8 @@ export default function RootLayout({
     >
       <body className="antialiased">
         <Providers>{children}</Providers>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ '@context': 'https://schema.org', '@graph': [{ '@type': 'Organization', name: 'RaytME', legalName: 'RAYTME LLC', url: SITE_ORIGIN, email: 'info@raytme.me', address: { '@type': 'PostalAddress', streetAddress: '30 N Gould St, Ste R', addressLocality: 'Sheridan', addressRegion: 'WY', postalCode: '82801', addressCountry: 'US' }, description: 'Your virtual business card, with a portable professional reputation.' }, { '@type': 'SoftwareApplication', name: 'RaytME', applicationCategory: 'BusinessApplication', operatingSystem: 'iOS, Android, Web', description: 'A virtual business card and portable professional reputation profile you can share by link, QR, or email signature.' }, { '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What is RaytME?', acceptedAnswer: { '@type': 'Answer', text: 'RaytME is a verified professional reputation platform and virtual business card. It converts real professional interactions into a credibility-weighted reputation score, shareable via QR code, NFC, link, or email signature.' } }, { '@type': 'Question', name: 'Does RaytME sell my data?', acceptedAnswer: { '@type': 'Answer', text: 'No. RaytME does not sell user data or rating information.' } }, { '@type': 'Question', name: 'Can I dispute a rating?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Rated users can flag a rating for review and respond publicly.' } }] }] }) }} />
+        <RootJsonLd />
+        {process.env.NODE_ENV === 'production' ? <Analytics /> : null}
       </body>
     </html>
   )

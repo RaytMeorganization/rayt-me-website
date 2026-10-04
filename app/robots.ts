@@ -3,7 +3,19 @@ import { SITE_ORIGIN, siteUrl } from '@/lib/site'
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: '*', allow: '/', disallow: ['/settings', '/admin', '/business'] },
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: [
+        '/settings',
+        '/admin',
+        '/admin-dashboard',
+        '/business',
+        '/business-dashboard',
+        '/accept-invite',
+        '/verify',
+      ],
+    },
     sitemap: siteUrl('/sitemap.xml'),
     host: SITE_ORIGIN,
   }

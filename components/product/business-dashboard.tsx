@@ -60,6 +60,10 @@ export function BusinessDashboard() {
   const [reputation, setReputation] = useState<BusinessReputation | null>(null)
   const [theme, setTheme] = useState<{ logoUrl: string | null; brandColor: string | null }>({ logoUrl: null, brandColor: null })
   const [usage, setUsage] = useState<BusinessUsage | null>(null)
+  const [teamActivity, setTeamActivity] = useState<{
+    totals: { ratingsGiven: number; ratingsReceived: number }
+    recentRatings: Record<string, unknown>[]
+  } | null>(null)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteRole, setInviteRole] = useState<'MEMBER' | 'ADMIN'>('MEMBER')
   const [message, setMessage] = useState('')
@@ -101,6 +105,10 @@ export function BusinessDashboard() {
       api<Record<string, unknown>[]>('/business/invites'),
       api<{ logoUrl: string | null; brandColor: string | null }>('/business/theme'),
       api<BusinessUsage>('/business/usage'),
+      api<{
+        totals: { ratingsGiven: number; ratingsReceived: number }
+        recentRatings: Record<string, unknown>[]
+      }>('/business/activity'),
     ])
     if (results[0].status === 'fulfilled') {
       const overview = results[0].value
@@ -111,6 +119,7 @@ export function BusinessDashboard() {
     if (results[2].status === 'fulfilled') setInvites(results[2].value)
     if (results[3].status === 'fulfilled') setTheme(results[3].value)
     if (results[4].status === 'fulfilled') setUsage(results[4].value)
+    if (results[5].status === 'fulfilled') setTeamActivity(results[5].value)
     const failures = results.filter(result => result.status === 'rejected')
     if (failures.length) {
       setMessage(
@@ -328,7 +337,38 @@ export function BusinessDashboard() {
                     hint={t('status')}
                   />
                   <StatCard label={t('plan')} value={usage?.plan || '—'} hint={usage?.status || t('status')} />
+                  <StatCard
+                    label={t('ratingsGiven')}
+                    value={String(teamActivity?.totals.ratingsGiven ?? 0)}
+                    hint={t('teamActivity')}
+                  />
+                  <StatCard
+                    label={t('ratingsReceived')}
+                    value={String(teamActivity?.totals.ratingsReceived ?? 0)}
+                    hint={t('teamActivityHelp')}
+                  />
                 </div>
+
+                {teamActivity?.recentRatings.length ? (
+                  <DashboardSurface title={t('recentTeamRatings')} description={t('teamActivityHelp')}>
+                    <div className="grid gap-2">
+                      {teamActivity.recentRatings.slice(0, 12).map((row) => {
+                        const rater = row.rater as { name?: string } | undefined
+                        const target = row.target as { name?: string } | undefined
+                        return (
+                          <RecordShell
+                            key={String(row.id)}
+                            title={`${rater?.name ?? '—'} → ${target?.name ?? '—'}`}
+                            subtitle={formatAdminDate(row.createdAt)}
+                            badges={
+                              <StatusBadge tone="muted">{Number(row.r ?? 0).toFixed(1)}</StatusBadge>
+                            }
+                          />
+                        )
+                      })}
+                    </div>
+                  </DashboardSurface>
+                ) : null}
 
                 <Card className="overflow-hidden border-white/10 bg-gradient-to-br from-card/95 via-card/80 to-primary/10 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)]">
                   <CardContent className="flex flex-wrap items-center justify-between gap-6 py-8">
@@ -429,7 +469,9 @@ export function BusinessDashboard() {
                 {members.length ? (
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {members.map((member, index) => {
-                      const memberUser = member.user as Record<string, unknown> | undefined
+                      const memberUser = member.user as Record<string, unknown> & {
+                        _count?: { ratingsGiven?: number; ratingsReceived?: number }
+                      } | undefined
                       const memberUserId = memberUser?.id ? String(memberUser.id) : ''
                       const name = String(memberUser?.name || t('members'))
                       const email = String(memberUser?.email || '')
@@ -447,6 +489,16 @@ export function BusinessDashboard() {
                           ratingsCount={
                             memberUser?.credibleRatingCount != null
                               ? Number(memberUser.credibleRatingCount)
+                              : null
+                          }
+                          ratingsGivenCount={
+                            memberUser?._count?.ratingsGiven != null
+                              ? Number(memberUser._count.ratingsGiven)
+                              : null
+                          }
+                          monthlyRatingsGiven={
+                            memberUser?.monthlyGivenCount != null
+                              ? Number(memberUser.monthlyGivenCount)
                               : null
                           }
                           isVerified={Boolean(memberUser?.isVerified)}

@@ -9,6 +9,7 @@ import {
   ClipboardList,
   CreditCard,
   LayoutDashboard,
+  Receipt,
   RefreshCw,
   FlaskConical,
   Scale,
@@ -39,6 +40,10 @@ import {
 import { AdminMetricsCharts } from '@/components/product/admin-metrics-charts'
 import { AdminFieldValue, shouldSkipAdminField } from '@/components/product/admin-field-value'
 import { AdminOrganizationCard } from '@/components/product/admin-organization-card'
+import {
+  AdminSubscriptionsPanel,
+  type AdminSubscriptionsPayload,
+} from '@/components/product/admin-subscriptions-panel'
 import { AdminPlanCard } from '@/components/product/admin-plan-card'
 import { AdminAuditRecord, AdminCommunityReportRecord, AdminRatingRecord } from '@/components/product/admin-ops-record'
 import { AdminUserCard, normalizeDbRole } from '@/components/product/admin-user-card'
@@ -59,6 +64,7 @@ const sections = [
   ['disputes', 'disputes', 'disputes', 'disputes', Scale],
   ['communities', 'communities', 'community-reports', 'disputes', UsersRound],
   ['organizations', 'organizations', 'organizations', 'roster', Building2],
+  ['subscriptions', 'adminSubscriptions', 'subscriptions', 'plans', Receipt],
   ['plans', 'plans', 'plans', 'plans', CreditCard],
   ['payments', 'payments', 'payments', 'plans', CreditCard],
   ['waiting', 'waitingList', 'waiting-list', 'roster', Users],
@@ -164,6 +170,8 @@ export function AdminDashboard() {
   const [appliedRatingsSearch, setAppliedRatingsSearch] = useState('')
   const [metrics, setMetrics] = useState<Record<string, number> | null>(null)
   const [dossier, setDossier] = useState<Record<string, unknown> | null>(null)
+  const [subscriptionsPayload, setSubscriptionsPayload] = useState<AdminSubscriptionsPayload | null>(null)
+  const [invoicePage, setInvoicePage] = useState(1)
   const [fetchedFor, setFetchedFor] = useState<SectionKey | null>(null)
   const loadGeneration = useRef(0)
 
@@ -190,6 +198,8 @@ export function AdminDashboard() {
     setListMeta(null)
     setCollectionMeta(null)
     setUserPage(1)
+    setInvoicePage(1)
+    setSubscriptionsPayload(null)
     const params = new URLSearchParams(searchParams.toString())
     if (next === 'overview') params.delete('section')
     else params.set('section', next)
@@ -219,8 +229,26 @@ export function AdminDashboard() {
       query = `?${params.toString()}`
     }
     try {
+      if (section === 'subscriptions') {
+        const [subsRaw, invRaw] = await Promise.all([
+          api<AdminSubscriptionsPayload>('/admin/subscriptions'),
+          api<{ items: unknown[]; total: number; page: number; limit: number }>(
+            `/admin/billing/invoices?page=${invoicePage}&limit=25`,
+          ),
+        ])
+        if (generation !== loadGeneration.current) return
+        setSubscriptionsPayload(subsRaw)
+        setMetrics(null)
+        setListMeta({ total: invRaw.total, page: invRaw.page, limit: invRaw.limit })
+        setCollectionMeta(null)
+        setRecords(invRaw.items)
+        setCommunityGroups([])
+        setFetchedFor(section)
+        return
+      }
       const raw = await api<unknown>(`/admin/${endpoint}${query}`)
       if (generation !== loadGeneration.current) return
+      setSubscriptionsPayload(null)
       if (section === 'overview' || section === 'analytics') {
         const numeric: Record<string, number> = {}
         for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
@@ -268,7 +296,7 @@ export function AdminDashboard() {
     } finally {
       if (generation === loadGeneration.current) setBusy(false)
     }
-  }, [appliedRatingsSearch, appliedSearch, section, t, userPage])
+  }, [appliedRatingsSearch, appliedSearch, invoicePage, section, t, userPage])
 
   const loadMore = useCallback(async () => {
     if (!COLLECTION_SECTIONS.has(section) || !collectionMeta) return
@@ -357,7 +385,7 @@ export function AdminDashboard() {
     }
   }
 
-  async function updateUser(item: Record<string, unknown>, data: { role?: string; isActive?: boolean }) {
+  async function updateUser(item: Record<string, unknown>, data: { role?: string; isActive?: boolean; tier?: string }) {
     setBusy(true)
     setError('')
     try {
@@ -388,7 +416,10 @@ export function AdminDashboard() {
     }
   }
 
-  async function savePlanDetails(item: Record<string, unknown>, data: { name: string; priceCents: number }) {
+  async function savePlanDetails(
+    item: Record<string, unknown>,
+    data: { name: string; priceCents: number; monthlyPriceCents: number },
+  ) {
     setBusy(true)
     setError('')
     try {
@@ -475,13 +506,39 @@ export function AdminDashboard() {
     }
   }
 
-  async function assignOrganizationPlan(item: Record<string, unknown>, planCode: string) {
+  async function assignOrganizationPlan(
+    item: Record<string, unknown>,
+    planCode: string,
+    status?: string,
+  ) {
     setBusy(true)
     setError('')
     try {
       await api(`/admin/organizations/${encodeURIComponent(String(item.id))}/subscription`, {
         method: 'PUT',
-        body: JSON.stringify({ planCode }),
+        body: JSON.stringify({
+          planCode,
+          ...(status ? { status } : {}),
+        }),
+      })
+      setSuccess(t('saved'))
+      await load()
+    } catch (cause) {
+      setError(errorMessage(cause, t('error')))
+      setBusy(false)
+    }
+  }
+
+  async function updateOrganizationSubscription(
+    organizationId: string,
+    data: { planCode?: string; status?: string },
+  ) {
+    setBusy(true)
+    setError('')
+    try {
+      await api(`/admin/organizations/${encodeURIComponent(organizationId)}/subscription`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
       })
       setSuccess(t('saved'))
       await load()
@@ -626,6 +683,15 @@ export function AdminDashboard() {
             <LoadingBlock rows={4} />
           ) : error ? (
             <ErrorBanner message={error} onRetry={() => void load()} retryLabel={t('retry')} />
+          ) : section === 'subscriptions' ? (
+            <AdminSubscriptionsPanel
+              payload={subscriptionsPayload}
+              invoices={records as Record<string, unknown>[]}
+              invoiceMeta={listMeta}
+              busy={busy}
+              onSubscriptionChange={(organizationId, data) => void updateOrganizationSubscription(organizationId, data)}
+              onInvoicePage={page => setInvoicePage(page)}
+            />
           ) : records.length === 0 && !(section === 'communities' && communityGroups.length > 0) ? (
             <EmptyState
               kind={active[3]}
@@ -695,7 +761,7 @@ export function AdminDashboard() {
                     org={item}
                     busy={busy}
                     onSave={data => void updateOrganization(item, data)}
-                    onAssignPlan={planCode => void assignOrganizationPlan(item, planCode)}
+                    onAssignPlan={(planCode, status) => void assignOrganizationPlan(item, planCode, status)}
                   />
                 )
               })}
@@ -724,6 +790,7 @@ export function AdminDashboard() {
                       profileId={String(item.id)}
                       busy={busy}
                       onRoleChange={role => void updateUser(item, { role })}
+                      onTierChange={tier => void updateUser(item, { tier })}
                       onToggleActive={() => void updateUser(item, { isActive: !Boolean(item.isActive) })}
                       onOpenRecord={() => {
                         void api<Record<string, unknown>>(`/admin/users/${encodeURIComponent(String(item.id))}`)

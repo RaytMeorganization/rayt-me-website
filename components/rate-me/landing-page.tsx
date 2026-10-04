@@ -75,6 +75,7 @@ import {
   IpadAppStage,
   QrFace,
 } from "@/components/rate-me/hero-stage";
+import { LANDING_FAQ_ITEMS } from '@/lib/landing-faq';
 import {
   AnimatedSection,
   useLandingAnimations,
@@ -91,11 +92,15 @@ import {
 import { SIGN_UP_PATH } from "@/lib/signup-handoff";
 import { WAITING_LIST_CAMPAIGN, WAITING_LIST_PATH } from "@/lib/waiting-list";
 import {
+  centsToUsd,
   formatMarketingUsd as formatUsd,
-  USD_PER_EMPLOYEE_YEAR,
-  USD_PRO_YEAR,
+  resolvePlanPrices,
 } from "@/lib/plan-pricing";
+import { usePublicPlanCatalog } from "@/hooks/use-public-plan-catalog";
+import { YearlyBillingOfferDialog } from "@/components/product/yearly-billing-offer-dialog";
 import { cn } from "@/lib/utils";
+import { LandingGetStarted } from "@/components/rate-me/landing-get-started";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/store-links";
 
 type LandingLocaleValue = {
   arabic: boolean;
@@ -166,13 +171,9 @@ function SignUpCta({
   }
   if (WEB_SIGN_UP_DISABLED) {
     return (
-      <button
-        type="button"
-        disabled
-        className={cn(className, "pointer-events-none cursor-not-allowed opacity-40")}
-      >
+      <a href="#get-started" className={className} {...rest}>
         {children}
-      </button>
+      </a>
     );
   }
   return (
@@ -277,17 +278,22 @@ function SectionHead({
   eyebrow,
   title,
   copy,
+  titleId,
 }: {
   eyebrow: string;
   title: React.ReactNode;
   copy?: string;
+  titleId?: string;
 }) {
   return (
     <div data-gsap-section-head className="max-w-3xl">
       <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-violet-300/70">
         {eyebrow}
       </p>
-      <h2 className="text-balance font-serif text-4xl font-semibold tracking-normal text-foreground sm:text-6xl sm:tracking-wide">
+      <h2
+        id={titleId}
+        className="text-balance font-serif text-4xl font-semibold tracking-normal text-foreground sm:text-6xl sm:tracking-wide"
+      >
         {title}
       </h2>
       {copy ? (
@@ -1365,8 +1371,10 @@ function StoreBadges() {
   return (
     <div className="mt-4 flex flex-row flex-nowrap items-center gap-2">
       <a
-        href="#top"
+        href={APP_STORE_URL}
         className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-black px-2 ring-1 ring-white/20"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         <svg viewBox="0 0 16 19" className="h-[18px] w-4 text-white" aria-hidden="true">
           <path
@@ -1384,8 +1392,10 @@ function StoreBadges() {
         </span>
       </a>
       <a
-        href="#top"
+        href={PLAY_STORE_URL}
         className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-black px-2 ring-1 ring-white/20"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         <svg viewBox="0 0 18 20" className="h-[18px] w-[16px]" aria-hidden="true">
           <path d="M1 1.2 10.4 10 1 18.8V1.2Z" fill="#34A853" />
@@ -1599,81 +1609,60 @@ function RatingDemo() {
   );
 }
 
-const faqItems = [
-  {
-    q: "What is RaytME?",
-    a: "RaytME is a verified professional reputation platform and virtual business card. It converts real professional interactions into a credibility-weighted reputation score, shareable via QR code, NFC, link, or email signature.",
-  },
-  {
-    q: "How is the reputation score calculated?",
-    a: "Every rating updates your score using a weighted formula that accounts for relationship type, rating category, and how established your score already is — so a single rating on a brand-new profile moves the score more than one additional rating on a well-established profile. This keeps the score responsive early on and stable over time.",
-  },
-  {
-    q: "Why does RaytME not use a normal average?",
-    a: "A simple average treats every rating the same. RaytME weights honest, contextual feedback so a thoughtful rating counts more than noise.",
-  },
-  {
-    q: "Who can rate me?",
-    a: "Anyone you've had a real professional interaction with — managers, clients, collaborators, vendors, or peers. Ratings are weighted differently depending on the nature of that relationship.",
-  },
-  {
-    q: "Can ratings be anonymous?",
-    a: "Yes. Raters can choose to submit feedback anonymously, and profile owners control what's shown publicly versus kept private, without losing the rating's contribution to the score.",
-  },
-  {
-    q: "How does RaytME prevent fake or manipulated ratings?",
-    a: "A built-in anti-manipulation engine detects patterns like rating rings, brigading, or low-context raters; relationship-type weighting naturally discounts unverified or low-trust inputs; and every account has a monthly cap on ratings given, so no one can flood the system with fake positive reviews.",
-  },
-  {
-    q: "Is RaytME only for certain industries or regions?",
-    a: "No. RaytME is built as a global platform for any professional, in any industry, anywhere in the world.",
-  },
-  {
-    q: "How do I share my RaytME profile?",
-    a: "Share it however fits the moment — QR code, NFC tap, a direct link, or an embedded email signature. No app download is required for the person viewing it.",
-  },
-  {
-    q: "Does RaytME sell my data?",
-    a: "No. RaytME does not sell user data or rating information.",
-  },
-  {
-    q: "What are the five rating categories?",
-    a: "Professionalism, Communication, Reliability, Knowledge, and Collaboration — giving a fuller picture than a single star rating.",
-  },
-  {
-    q: "How does my list work?",
-    a: "You choose who to add — it's not automatic. Add anyone you meet with one tap, whether or not you rate them. Once added, they're organized by profession along with any rating you've given and where you met, so you can search your list anytime you need to find someone specific.",
-  },
-  {
-    q: "Can I hide my phone number?",
-    a: "Yes. Phone numbers stay private unless you choose to share them. Your virtual card can still be shared without exposing your number.",
-  },
-  {
-    q: "Can I dispute a rating?",
-    a: "Yes. Rated users can flag a rating for review and respond publicly.",
-  },
-  {
-    q: "What is Super Voter?",
-    a: "Super Voter is an earned standing for sustained credible rating behavior. It is never purchased.",
-  },
-  {
-    q: "Can I use RaytME without the app?",
-    a: "You can share and view a public card on the web. Rating, snapshots, and My List are available in the RaytME app.",
-  },
-  {
-    q: "Can businesses use RaytME?",
-    a: "Yes. Business plans give every employee a current virtual card and a reputation layer that travels with them.",
-  },
-];
-
 function Pricing() {
   const { arabic } = useLandingLocale();
+  const { plans: catalogPlans } = usePublicPlanCatalog();
   const [employees, setEmployees] = useState(10);
+  const [billingInterval, setBillingInterval] = useState<"month" | "year">("year");
+  const [yearlyOffer, setYearlyOffer] = useState<null | { plan: "pro" | "business" }>(null);
   const seats = Math.max(1, Math.min(10000, employees));
-  const total = USD_PER_EMPLOYEE_YEAR * seats;
+  const businessPrices = resolvePlanPrices(
+    "business",
+    catalogPlans.find((row) => row.code === "business"),
+  );
+  const proPrices = resolvePlanPrices(
+    "pro",
+    catalogPlans.find((row) => row.code === "pro"),
+  );
+  const proUnit =
+    billingInterval === "year"
+      ? centsToUsd(proPrices.yearlyCents)
+      : centsToUsd(proPrices.monthlyCents);
+  const businessUnit =
+    billingInterval === "year"
+      ? centsToUsd(businessPrices.yearlyCents)
+      : centsToUsd(businessPrices.monthlyCents);
+  const total = businessUnit * seats;
+  const proPeriod =
+    billingInterval === "year"
+      ? `/ year · ${formatUsd(centsToUsd(proPrices.yearlyCents / 12))} / mo`
+      : "/ month";
+  const businessPeriod =
+    billingInterval === "year"
+      ? `/ employee / year · ${formatUsd(centsToUsd(businessPrices.yearlyCents / 12))} / mo`
+      : "/ employee / month";
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex justify-center">
+        <div className="inline-flex rounded-full border border-white/10 bg-white/[0.04] p-1">
+          {(["month", "year"] as const).map((interval) => (
+            <button
+              key={interval}
+              type="button"
+              className={cn(
+                "rounded-full px-4 py-2 text-sm font-medium transition",
+                billingInterval === interval
+                  ? "bg-violet-600 text-white"
+                  : "text-white/70 hover:text-white",
+              )}
+              onClick={() => setBillingInterval(interval)}
+            >
+              {interval === "month" ? "Monthly" : "Yearly"}
+            </button>
+          ))}
+        </div>
+      </div>
       <Card className={glass}>
         <CardHeader>
           <CardDescription className="tracking-[0.22em]">
@@ -1727,8 +1716,8 @@ function Pricing() {
           {
             id: "pro",
             name: "PRO",
-            price: formatUsd(USD_PRO_YEAR),
-            period: "/ year",
+            price: formatUsd(proUnit),
+            period: proPeriod,
             recommended: true,
             highlight: true,
             blurb: "For professionals who share often.",
@@ -1739,16 +1728,17 @@ function Pricing() {
               "Custom theme",
             ],
             href: "/sign-up",
-            cta: "Go Pro",
+            cta: billingInterval === "month" ? "Subscribe" : "Go Pro",
             ctaClassName: buttonVariants({
               className: cn(ctaPrimary, "h-11 w-full"),
             }),
+            subscribeMonthly: billingInterval === "month",
           },
           {
             id: "business",
             name: "BUSINESS",
-            price: formatUsd(USD_PER_EMPLOYEE_YEAR),
-            period: "/ employee / year",
+            price: formatUsd(businessUnit),
+            period: businessPeriod,
             recommended: false,
             highlight: false,
             blurb: null,
@@ -1759,11 +1749,12 @@ function Pricing() {
               "Team admin controls",
             ],
             href: "#footer",
-            cta: "Talk to us",
+            cta: billingInterval === "month" ? "Subscribe" : "Talk to us",
             ctaClassName: buttonVariants({
               variant: "outline",
               className: cn(ctaGhost, "h-11 w-full"),
             }),
+            subscribeMonthly: billingInterval === "month",
           },
         ] as const
       ).map((plan) => (
@@ -1841,8 +1832,8 @@ function Pricing() {
                     </div>
                     <FieldDescription>
                       {arabic
-                        ? `الإجمالي ${formatUsd(total)} / سنوياً · الفوترة بالدولار`
-                        : `Total ${formatUsd(total)} / year · billed in USD`}
+                        ? `الإجمالي ${formatUsd(total)} · الفوترة بالدولار`
+                        : `Total ${formatUsd(total)}${billingInterval === "year" ? " / year" : " / month"} · billed in USD`}
                     </FieldDescription>
                   </Field>
                 </FieldGroup>
@@ -1862,7 +1853,19 @@ function Pricing() {
             </ul>
           </CardContent>
           <CardFooter className="mt-auto">
-            {plan.href === "/sign-up" ? (
+            {"subscribeMonthly" in plan && plan.subscribeMonthly ? (
+              <button
+                type="button"
+                className={plan.ctaClassName}
+                onClick={() =>
+                  setYearlyOffer({
+                    plan: plan.id === "business" ? "business" : "pro",
+                  })
+                }
+              >
+                {plan.cta}
+              </button>
+            ) : plan.href === "/sign-up" ? (
               <SignUpCta className={plan.ctaClassName}>{plan.cta}</SignUpCta>
             ) : (
               <a href={plan.href} className={plan.ctaClassName}>
@@ -1872,6 +1875,15 @@ function Pricing() {
           </CardFooter>
         </Card>
       ))}
+      <YearlyBillingOfferDialog
+        open={yearlyOffer !== null}
+        planCode={yearlyOffer?.plan ?? "pro"}
+        employees={seats}
+        onOpenChange={(open) => {
+          if (!open) setYearlyOffer(null);
+        }}
+        onChoose={() => setYearlyOffer(null)}
+      />
     </div>
     </div>
   );
@@ -2044,6 +2056,7 @@ export default function RateMeLanding() {
             </p>
           </div>
         </section>
+        <LandingGetStarted />
         <AnimatedSection id="how" className="px-5 py-28 lg:px-8 lg:py-36">
           <div className="mx-auto max-w-7xl">
             <SectionHead
@@ -2220,19 +2233,24 @@ export default function RateMeLanding() {
             ratings your profile can RECEIVE.
           </p>
         </section>
-        <section className="px-5 py-28 lg:px-8 lg:py-36">
+        <section
+          id="faq"
+          className="px-5 py-28 lg:px-8 lg:py-36"
+          aria-labelledby="landing-faq-heading"
+        >
           <Separator />
           <div className="mx-auto max-w-7xl py-28 lg:py-36">
             <SectionHead
               eyebrow="Questions"
               title="Everything worth knowing."
+              titleId="landing-faq-heading"
             />
             <div className="mt-14 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_28rem] lg:gap-14">
               <Accordion
                 defaultValue={["item-0"]}
                 className="rounded-3xl border border-white/[0.05] bg-slate-900/40 px-6 backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(139,92,246,0.12)]"
               >
-                {faqItems.map((item, index) => (
+                {LANDING_FAQ_ITEMS.map((item, index) => (
                   <AccordionItem
                     key={item.q}
                     value={`item-${index}`}

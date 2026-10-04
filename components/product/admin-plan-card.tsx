@@ -30,13 +30,16 @@ export function AdminPlanCard({
   busy?: boolean
   onToggleActive: () => void
   onUpsertEntitlement: (key: string, value: number) => void
-  onSaveDetails: (data: { name: string; priceCents: number }) => void
+  onSaveDetails: (data: { name: string; priceCents: number; monthlyPriceCents: number }) => void
 }) {
   const { t } = useI18n()
   const [draftKey, setDraftKey] = useState('')
   const [draftValue, setDraftValue] = useState('')
   const [name, setName] = useState(String(plan.name || ''))
   const [priceUsd, setPriceUsd] = useState(String(centsToUsd(Number(plan.priceCents ?? 0))))
+  const [monthlyPriceUsd, setMonthlyPriceUsd] = useState(
+    String(centsToUsd(Number(plan.monthlyPriceCents ?? 0))),
+  )
 
   const entitlements = Array.isArray(plan.entitlements)
     ? (plan.entitlements as Entitlement[])
@@ -45,7 +48,8 @@ export function AdminPlanCard({
   const code = String(plan.code || '')
   const catalog = marketingPlanByCode(code)
   const priceCents = Number(plan.priceCents ?? 0)
-  const priceAligned = matchesMarketingPrice(code, priceCents)
+  const monthlyPriceCents = Number(plan.monthlyPriceCents ?? 0)
+  const priceAligned = matchesMarketingPrice(code, priceCents, monthlyPriceCents)
 
   function pickEntitlement(ent: Entitlement) {
     setDraftKey(ent.key)
@@ -64,8 +68,14 @@ export function AdminPlanCard({
 
   function saveDetails() {
     const dollars = Number(priceUsd)
+    const monthlyDollars = Number(monthlyPriceUsd)
     if (!name.trim() || !Number.isFinite(dollars) || dollars < 0) return
-    onSaveDetails({ name: name.trim(), priceCents: usdToCents(dollars) })
+    if (!Number.isFinite(monthlyDollars) || monthlyDollars < 0) return
+    onSaveDetails({
+      name: name.trim(),
+      priceCents: usdToCents(dollars),
+      monthlyPriceCents: usdToCents(monthlyDollars),
+    })
   }
 
   const active = Boolean(plan.active)
@@ -97,7 +107,11 @@ export function AdminPlanCard({
           <div className="rounded-xl border border-white/10 bg-muted/20 p-3">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('priceUsd')}</p>
             <p className="mt-1 font-mono text-2xl tabular-nums text-foreground">{formatPriceCents(plan.priceCents)}</p>
-            {catalog ? (
+            {catalog && code !== 'basic' ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t('billingYearly')} · {formatPriceCents(plan.monthlyPriceCents)} {t('billingMonthly')}
+              </p>
+            ) : catalog ? (
               <p className="mt-1 text-xs text-muted-foreground">
                 {planPeriodLabel(catalog.period, t)}
               </p>
@@ -115,7 +129,7 @@ export function AdminPlanCard({
             <Input value={name} onChange={e => setName(e.target.value)} className="bg-input/30" />
           </Field>
           <Field>
-            <FieldLabel className="text-xs">{t('priceUsd')}</FieldLabel>
+            <FieldLabel className="text-xs">{t('priceYearlyUsd')}</FieldLabel>
             <Input
               type="number"
               min={0}
@@ -125,6 +139,19 @@ export function AdminPlanCard({
               className="bg-input/30 font-mono"
             />
           </Field>
+          {code !== 'basic' ? (
+            <Field className="sm:col-span-2">
+              <FieldLabel className="text-xs">{t('priceMonthlyUsd')}</FieldLabel>
+              <Input
+                type="number"
+                min={0}
+                step={1}
+                value={monthlyPriceUsd}
+                onChange={e => setMonthlyPriceUsd(e.target.value)}
+                className="bg-input/30 font-mono"
+              />
+            </Field>
+          ) : null}
         </div>
         <Button type="button" size="sm" variant="secondary" disabled={busy} onClick={saveDetails}>
           {t('save')}

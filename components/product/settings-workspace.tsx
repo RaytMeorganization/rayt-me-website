@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { PageHeader, Panel, ProductShell, inputClass, LocaleButton } from '@/components/product/shell'
 import { VerificationPanel } from '@/components/product/verification-panel'
 import { ThemeStudioPanel } from '@/components/product/theme-studio-panel'
+import { PlanSubscribePanel } from '@/components/product/plan-subscribe-panel'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { User } from '@/lib/types'
@@ -319,6 +320,13 @@ export function SettingsWorkspace() {
           {tab === 'plan' && (
             <div className="grid gap-6">
               <Panel title={t('plan')}>
+                {searchParams.get('upgrade') === 'pro' ? (
+                  <p className="mb-4 text-sm leading-6 text-muted-foreground">
+                    You opened this page from the Rayt Me app. When web checkout is enabled for your
+                    account, complete Pro purchase here — the mobile app will pick up your plan
+                    automatically.
+                  </p>
+                ) : null}
                 <p className="text-3xl font-semibold capitalize">{entitlements?.tier ?? user?.tier}</p>
                 <div className="mt-4 grid gap-2 text-sm">
                   <p>{t('ratingsGiven')}: <strong>{entitlements?.ratingsGivenPerMonth ?? '—'}</strong></p>
@@ -344,6 +352,9 @@ export function SettingsWorkspace() {
                     </Button>
                   ) : null}
                 </div>
+              </Panel>
+              <Panel title={t('subscribe')}>
+                <PlanSubscribePanel defaultPlan="pro" />
               </Panel>
               <Panel title={t('theme')}>
                 {entitlements ? (

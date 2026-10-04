@@ -16,6 +16,7 @@ import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { MarketingShell } from '@/components/product/marketing-shell'
+import { PasswordInput } from '@/components/product/password-input'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import { WEB_SIGN_IN_DISABLED, WEB_SIGN_UP_DISABLED } from '@/lib/web-sign-in'
@@ -39,6 +40,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   const [accountType, setAccountType] = useState<AccountType>('professional')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [password, setPassword] = useState('')
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -62,6 +64,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
   }
 
   const signUp = mode === 'sign-up'
+  const passwordResetSuccess = !signUp && search.get('reset') === '1'
 
   return (
     <MarketingShell hideAuthLinks>
@@ -76,6 +79,11 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {passwordResetSuccess ? (
+              <p className="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+                {t('passwordResetSuccess')}
+              </p>
+            ) : null}
             <form id="auth-form" onSubmit={submit}>
               <FieldGroup>
                 {signUp ? (
@@ -189,15 +197,25 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
                   </Field>
                 ) : null}
                 <Field>
-                  <FieldLabel htmlFor="password">{t('password')}</FieldLabel>
-                  <Input
+                  <div className="flex items-center justify-between gap-3">
+                    <FieldLabel htmlFor="password">{t('password')}</FieldLabel>
+                    {!signUp ? (
+                      <Link
+                        className="text-xs font-semibold text-primary underline underline-offset-4"
+                        href="/forgot-password"
+                      >
+                        {t('forgotPassword')}
+                      </Link>
+                    ) : null}
+                  </div>
+                  <PasswordInput
                     id="password"
+                    name="password"
                     required
                     minLength={8}
-                    type="password"
-                    name="password"
                     autoComplete={signUp ? 'new-password' : 'current-password'}
-                    className="min-h-11"
+                    value={password}
+                    onChange={setPassword}
                   />
                 </Field>
                 {error ? (
