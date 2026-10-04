@@ -33,6 +33,7 @@ jobs:
           set -euo pipefail
           rsync -az --delete \
             --exclude node_modules --exclude .next --exclude .git \
+            --exclude .env.production \
             -e 'ssh -i ~/.ssh/vps -o IdentitiesOnly=yes' \
             ./ "${VPS_USER}@${VPS_HOST}:/opt/rayt-me/rayt-me-website/"
           ssh -i ~/.ssh/vps -o IdentitiesOnly=yes "${VPS_USER}@${VPS_HOST}" \

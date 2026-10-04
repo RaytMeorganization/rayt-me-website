@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/product/password-input'
-import { formatUsd, USD_PER_EMPLOYEE_YEAR, USD_PRO_YEAR } from '@/lib/plan-pricing'
+import { formatMarketingUsd as formatUsd, USD_PER_EMPLOYEE_YEAR, USD_PRO_YEAR } from '@/lib/plan-pricing'
 import { api, errorMessage } from '@/lib/api'
 import { storeUrlForUserAgent } from '@/lib/store-links'
 import { cn } from '@/lib/utils'

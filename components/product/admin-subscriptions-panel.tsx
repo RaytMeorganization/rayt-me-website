@@ -185,9 +185,11 @@ export function AdminSubscriptionsPanel({
                     <p className="mt-1 text-xs text-muted-foreground">{String(row.description)}</p>
                   ) : null}
                   {userId ? (
-                    <InteractiveLink href={`/p/${encodeURIComponent(userId)}`} className="mt-2 text-xs">
-                      {t('viewPublicCard')}
-                    </InteractiveLink>
+                    <p className="mt-2 text-xs">
+                      <InteractiveLink href={`/p/${encodeURIComponent(userId)}`}>
+                        {t('viewPublicCard')}
+                      </InteractiveLink>
+                    </p>
                   ) : null}
                 </RecordShell>
               )
