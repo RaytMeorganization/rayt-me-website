@@ -6,23 +6,15 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { PageHeader, Panel, ProductShell, inputClass, LocaleButton } from '@/components/product/shell'
 import { VerificationPanel } from '@/components/product/verification-panel'
-import { ThemeStudioPanel } from '@/components/product/theme-studio-panel'
+import { MobileAppStoreCta } from '@/components/product/mobile-app-store-cta'
 import { PlanSubscribePanel } from '@/components/product/plan-subscribe-panel'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { User } from '@/lib/types'
-import type { CustomThemeColors, ThemeCatalogItem } from '@/lib/card-theme'
-
 type Entitlements = {
   tier: User['tier']
   ratingsGivenPerMonth: number
   ratingsReceived: 'unlimited'
-  activeTheme: string | null
-  themes: string[]
-  catalog?: ThemeCatalogItem[]
-  rotatingUntil?: string | null
-  customTheme: boolean
-  companyBrand: { logoUrl: string | null; brandColor: string | null; name?: string | null } | null
   billingCheckoutAvailable: boolean
 }
 
@@ -96,68 +88,6 @@ export function SettingsWorkspace() {
       setMessage(errorMessage(error, t('error')))
     } finally {
       setBusy(false)
-    }
-  }
-
-  async function saveTheme(theme: string) {
-    setBusy(true)
-    setMessage('')
-    try {
-      await api('/me/theme', { method: 'PATCH', body: JSON.stringify({ theme }) })
-      setEntitlements(current => (current ? { ...current, activeTheme: theme } : current))
-      setMessage(t('complete'))
-    } catch (error) {
-      setMessage(errorMessage(error, t('error')))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function saveCustomTheme(custom: CustomThemeColors) {
-    setBusy(true)
-    setMessage('')
-    try {
-      const payload = {
-        background: custom.background,
-        accent: custom.accent,
-        ...(custom.logoUrl ? { logoUrl: custom.logoUrl } : {}),
-        ...(custom.name ? { name: custom.name } : {}),
-      }
-      const result = await api<{ theme: string }>('/me/theme', { method: 'PATCH', body: JSON.stringify({ custom: payload }) })
-      setEntitlements(current => (current ? { ...current, activeTheme: result.theme } : current))
-      setMessage(t('complete'))
-    } catch (error) {
-      setMessage(errorMessage(error, t('error')))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function applyCompanyTheme() {
-    setBusy(true)
-    setMessage('')
-    try {
-      const result = await api<{ theme: string }>('/me/theme', { method: 'PATCH', body: JSON.stringify({ company: true }) })
-      setEntitlements(current => (current ? { ...current, activeTheme: result.theme } : current))
-      setMessage(t('complete'))
-    } catch (error) {
-      setMessage(errorMessage(error, t('error')))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function suggestTheme(mood: string) {
-    try {
-      return await api<{
-        background: string
-        accent: string
-        label: string
-        suggestions?: CustomThemeColors[]
-      }>('/me/ai/theme-draft', { method: 'POST', body: JSON.stringify({ mood }) })
-    } catch (error) {
-      setMessage(errorMessage(error, t('error')))
-      return null
     }
   }
 
@@ -365,20 +295,6 @@ export function SettingsWorkspace() {
                   autoStart={searchParams.get('checkout') === '1'}
                 />
               </Panel>
-              <Panel title={t('theme')}>
-                {entitlements ? (
-                  <ThemeStudioPanel
-                    entitlements={entitlements}
-                    busy={busy}
-                    onSavePack={theme => void saveTheme(theme)}
-                    onSaveCustom={theme => void saveCustomTheme(theme)}
-                    onApplyCompany={() => void applyCompanyTheme()}
-                    onSuggest={suggestTheme}
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground">{t('loading')}</p>
-                )}
-              </Panel>
             </div>
           )}
 
@@ -399,6 +315,8 @@ export function SettingsWorkspace() {
             </Panel>
           )}
         </div>
+
+        <MobileAppStoreCta className="mt-8" />
 
         {message ? <p role="status" className="mt-4 text-sm text-muted-foreground">{message}</p> : null}
       </main>

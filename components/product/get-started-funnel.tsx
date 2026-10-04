@@ -169,9 +169,7 @@ export function GetStartedFunnel({
           <GetStartedAccountForm
             onCreated={() => {
               if (readRememberedPlan().tied && goToTiedCheckout()) return
-              setEditing(true)
-              writeUrl({ plan, interval, employees, editing: true, tied })
-              scrollToPlanPicker()
+              window.location.assign('/settings')
             }}
             tied={tied}
             selectedSummary={selectedSummary}

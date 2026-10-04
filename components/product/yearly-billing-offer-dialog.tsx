@@ -39,8 +39,8 @@ export function YearlyBillingOfferDialog({
       <SheetContent
         side="bottom"
         data-offer-card=""
-        overlayClassName="dark bg-black/70 backdrop-blur-md"
-        className="dark rate-landing text-foreground"
+        overlayClassName="offer-billing-overlay dark bg-black/70 backdrop-blur-md"
+        className="dark rate-landing z-[101] gap-4 text-foreground"
       >
         <SheetHeader className="p-0">
           <SheetTitle className="font-serif text-xl tracking-wide text-white">

@@ -706,30 +706,66 @@ html[dir="rtl"] .rate-about-mix {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
+/* Billing offer: bottom sheet on phones, centered card on md+ (portaled outside .rate-landing). */
+[data-slot="sheet-overlay"].offer-billing-overlay {
+  z-index: 100;
+  background: rgb(0 0 0 / 0.72);
+  backdrop-filter: blur(12px);
+}
+
 [data-slot="sheet-content"][data-offer-card] {
-  inset: auto;
-  top: 50%;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  width: min(40rem, calc(100vw - 1.5rem));
-  height: auto;
-  max-height: min(32rem, calc(100vh - 2rem));
+  z-index: 101;
   overflow: auto;
-  padding: 1.35rem 1.35rem 1.5rem;
   border: 1px solid rgb(255 255 255 / 0.1);
-  border-radius: 1.5rem;
-  background: rgb(12 9 18 / 0.96);
+  background: rgb(12 9 18 / 0.98);
   box-shadow:
     0 28px 80px -28px rgb(0 0 0 / 0.88),
     0 0 50px -16px rgb(139 92 246 / 0.28);
-  transform: translate(-50%, -50%);
 }
 
-[data-slot="sheet-content"][data-offer-card][data-starting-style],
-[data-slot="sheet-content"][data-offer-card][data-ending-style] {
-  opacity: 0;
-  transform: translate(-50%, -46%);
+@media (max-width: 767px) {
+  [data-slot="sheet-content"][data-offer-card] {
+    inset: 0 0 auto 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100%;
+    height: auto;
+    max-height: min(92dvh, 100%);
+    padding: 1.25rem 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+    border-radius: 1.35rem 1.35rem 0 0;
+    transform: translateY(0) !important;
+  }
+
+  [data-slot="sheet-content"][data-offer-card][data-starting-style],
+  [data-slot="sheet-content"][data-offer-card][data-ending-style] {
+    opacity: 1;
+    transform: translateY(100%) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  [data-slot="sheet-content"][data-offer-card] {
+    inset: auto;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    width: min(40rem, calc(100vw - 1.5rem));
+    height: auto;
+    max-height: min(32rem, calc(100vh - 2rem));
+    padding: 1.35rem 1.35rem 1.5rem;
+    border-radius: 1.5rem;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  [data-slot="sheet-content"][data-offer-card][data-starting-style],
+  [data-slot="sheet-content"][data-offer-card][data-ending-style] {
+    opacity: 0;
+    transform: translate(-50%, -46%) !important;
+  }
 }
 
 .rate-landing footer a {

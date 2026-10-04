@@ -73,6 +73,11 @@ export const dictionaries = {
     signedInAs: 'Signed in as',
     bio: 'Bio', publicProfile: 'Public profile',
     settingsIntro: 'Keep your professional details, privacy choices, and verification current.',
+    settingsProceedToApp: 'Proceed to the mobile app',
+    settingsProceedToAppHelp:
+      'Your card, QR, NFC, ratings, and My List live in the RaytME app. Store links will open the published app when listing is live.',
+    appStoreBadge: 'Download on the App Store',
+    playStoreBadge: 'Get it on Google Play',
     editProfile: 'Edit profile',
     verificationCenter: 'Verification center',
     account: 'Your account',
@@ -298,6 +303,11 @@ export const dictionaries = {
     signedInAs: 'مسجّل الدخول بصفة',
     bio: 'نبذة', publicProfile: 'ملف عام',
     settingsIntro: 'حدّث بياناتك المهنية وخيارات الخصوصية وحالة التحقق.',
+    settingsProceedToApp: 'انتقل إلى تطبيق الجوال',
+    settingsProceedToAppHelp:
+      'بطاقتك ورمز QR وNFC والتقييمات وقائمتك في تطبيق RaytME. ستفتح روابط المتجر التطبيق المنشور عند توفره.',
+    appStoreBadge: 'تنزيل من App Store',
+    playStoreBadge: 'تنزيل من Google Play',
     editProfile: 'تعديل الملف',
     verificationCenter: 'مركز التحقق',
     account: 'حسابك',

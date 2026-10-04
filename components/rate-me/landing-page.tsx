@@ -68,6 +68,7 @@ import {
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { CommunitiesSectionVisual } from "@/components/rate-me/communities-section-visual";
 import {
   CrossDeviceStage,
   HeroDeviceStage,
@@ -1654,7 +1655,7 @@ function Pricing() {
   const { arabic } = useLandingLocale();
   const { plans: catalogPlans } = usePublicPlanCatalog();
   const [employees, setEmployees] = useState(10);
-  const [billingInterval, setBillingInterval] = useState<"month" | "year">("year");
+  const [billingInterval, setBillingInterval] = useState<"month" | "year">("month");
   const [yearlyOffer, setYearlyOffer] = useState<null | { plan: "pro" | "business" }>(null);
   const seats = Math.max(1, Math.min(10000, employees));
   const businessPrices = resolvePlanPrices(
@@ -1897,11 +1898,11 @@ function Pricing() {
               ))}
             </ul>
           </CardContent>
-          <CardFooter className="mt-auto">
+          <CardFooter className="mt-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
             {"subscribeMonthly" in plan && plan.subscribeMonthly ? (
               <button
                 type="button"
-                className={plan.ctaClassName}
+                className={cn(plan.ctaClassName, "touch-manipulation")}
                 onClick={() =>
                   setYearlyOffer({
                     plan: plan.id === "business" ? "business" : "pro",
@@ -1923,6 +1924,7 @@ function Pricing() {
           </CardFooter>
         </Card>
       ))}
+    </div>
       <YearlyBillingOfferDialog
         open={yearlyOffer !== null}
         planCode={yearlyOffer?.plan ?? "pro"}
@@ -1946,7 +1948,6 @@ function Pricing() {
           });
         }}
       />
-    </div>
     </div>
   );
 }
@@ -2182,9 +2183,7 @@ export default function RateMeLanding() {
                 <ArrowRightIcon data-icon="inline-end" className="rtl:rotate-180" />
               </SignUpCta>
             </div>
-            <div className="overflow-hidden rounded-3xl border border-white/[0.08] bg-slate-900/70">
-              <CommunityArtwork aria-label="Communities" sizes="(min-width: 1024px) 22rem, 100vw" />
-            </div>
+            <CommunitiesSectionVisual className="w-full min-w-0" />
           </div>
         </section>
         <section
