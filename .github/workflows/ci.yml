@@ -21,3 +21,8 @@ jobs:
       - run: pnpm install --frozen-lockfile || pnpm install
       - run: pnpm lint
       - run: pnpm typecheck
+      - run: pnpm build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://raytme.me
+          NEXT_PUBLIC_API_URL: https://api.raytme.me
+          NEXT_PUBLIC_WEB_SIGN_UP_DISABLED: "true"
