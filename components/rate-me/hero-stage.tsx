@@ -1878,7 +1878,7 @@ export function HeroSkyline() {
         data-gsap-hero-bg
         className="absolute inset-0 origin-[80%_0%] rtl:origin-[20%_0%]"
       >
-        <div className="absolute inset-y-0 end-[-48%] w-[150%] opacity-60 sm:end-[-10%] sm:w-[88%] sm:opacity-100 lg:end-[-4%] lg:w-[72%]">
+        <div className="rate-hero-video-shell absolute inset-y-0 end-[-52%] w-[155%] opacity-60 sm:end-[-14%] sm:w-[94%] sm:opacity-100 lg:end-[-8%] lg:w-[78%]">
           <video
             key={src}
             autoPlay
@@ -1886,14 +1886,15 @@ export function HeroSkyline() {
             playsInline
             preload="metadata"
             onEnded={advance}
-            className="h-full w-full object-cover object-[68%_center] opacity-75 saturate-[0.82] rtl:object-[32%_center]"
+            className="h-full w-full object-cover object-[68%_center] opacity-80 saturate-[0.78] contrast-[1.02] rtl:object-[32%_center]"
           >
             <source src={src} type="video/mp4" />
           </video>
           <div className="rate-hero-video-fade absolute inset-0" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-black/30" />
         </div>
-        <div className="absolute inset-y-[12%] start-0 w-[min(42rem,76%)] bg-[radial-gradient(ellipse_at_center,rgb(0_0_0/0.88)_0%,rgb(0_0_0/0.5)_48%,transparent_76%)]" />
+        <div className="rate-hero-seam-blend absolute inset-0" />
+        <div className="absolute inset-y-[8%] start-0 w-[min(48rem,88%)] bg-[radial-gradient(ellipse_at_center,rgb(0_0_0/0.82)_0%,rgb(0_0_0/0.42)_52%,transparent_84%)]" />
         <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black via-black/75 to-transparent" />
       </div>
     </div>

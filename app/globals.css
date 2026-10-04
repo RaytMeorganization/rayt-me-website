@@ -309,16 +309,18 @@ html:has(.rate-landing) body {
 .rate-hero-copy-scrim {
   background:
     radial-gradient(
-      120% 90% at 18% 42%,
-      rgb(0 0 0 / 0.92) 0%,
-      rgb(0 0 0 / 0.62) 42%,
-      rgb(0 0 0 / 0.18) 68%,
-      transparent 82%
+      125% 95% at 18% 42%,
+      rgb(0 0 0 / 0.9) 0%,
+      rgb(0 0 0 / 0.55) 46%,
+      rgb(0 0 0 / 0.12) 72%,
+      transparent 88%
     ),
     linear-gradient(
       to right,
-      rgb(0 0 0 / 0.88) 0%,
-      rgb(0 0 0 / 0.48) 58%,
+      rgb(0 0 0 / 0.82) 0%,
+      rgb(0 0 0 / 0.52) 38%,
+      rgb(0 0 0 / 0.22) 58%,
+      rgb(0 0 0 / 0.06) 72%,
       transparent 100%
     );
 }
@@ -326,27 +328,70 @@ html:has(.rate-landing) body {
 html[dir="rtl"] .rate-hero-copy-scrim {
   background:
     radial-gradient(
-      120% 90% at 82% 42%,
-      rgb(0 0 0 / 0.92) 0%,
-      rgb(0 0 0 / 0.62) 42%,
-      rgb(0 0 0 / 0.18) 68%,
-      transparent 82%
+      125% 95% at 82% 42%,
+      rgb(0 0 0 / 0.9) 0%,
+      rgb(0 0 0 / 0.55) 46%,
+      rgb(0 0 0 / 0.12) 72%,
+      transparent 88%
     ),
     linear-gradient(
       to left,
-      rgb(0 0 0 / 0.88) 0%,
-      rgb(0 0 0 / 0.48) 58%,
+      rgb(0 0 0 / 0.82) 0%,
+      rgb(0 0 0 / 0.52) 38%,
+      rgb(0 0 0 / 0.22) 58%,
+      rgb(0 0 0 / 0.06) 72%,
       transparent 100%
     );
+}
+
+/* Feather the video panel edge so the hero reel does not show a hard vertical seam. */
+.rate-hero-video-shell {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgb(0 0 0 / 0.35) 4%,
+    rgb(0 0 0 / 0.78) 10%,
+    #000 18%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgb(0 0 0 / 0.35) 4%,
+    rgb(0 0 0 / 0.78) 10%,
+    #000 18%,
+    #000 100%
+  );
+}
+
+html[dir="rtl"] .rate-hero-video-shell {
+  -webkit-mask-image: linear-gradient(
+    to left,
+    transparent 0%,
+    rgb(0 0 0 / 0.35) 4%,
+    rgb(0 0 0 / 0.78) 10%,
+    #000 18%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to left,
+    transparent 0%,
+    rgb(0 0 0 / 0.35) 4%,
+    rgb(0 0 0 / 0.78) 10%,
+    #000 18%,
+    #000 100%
+  );
 }
 
 .rate-hero-video-fade {
   background: linear-gradient(
     to right,
-    rgb(0 0 0 / 0.92) 0%,
-    rgb(0 0 0 / 0.8) 34%,
-    rgb(0 0 0 / 0.15) 72%,
-    transparent 100%
+    rgb(0 0 0 / 0.98) 0%,
+    rgb(0 0 0 / 0.88) 10%,
+    rgb(0 0 0 / 0.62) 26%,
+    rgb(0 0 0 / 0.32) 42%,
+    rgb(0 0 0 / 0.1) 56%,
+    transparent 72%
   );
 }
 
@@ -354,9 +399,11 @@ html[dir="rtl"] .rate-hero-copy-scrim {
   .rate-hero-video-fade {
     background: linear-gradient(
       to right,
-      rgb(0 0 0 / 0.88) 0%,
-      rgb(0 0 0 / 0.72) 24%,
-      transparent 100%
+      rgb(0 0 0 / 0.96) 0%,
+      rgb(0 0 0 / 0.78) 12%,
+      rgb(0 0 0 / 0.45) 28%,
+      rgb(0 0 0 / 0.16) 44%,
+      transparent 62%
     );
   }
 }
@@ -364,10 +411,12 @@ html[dir="rtl"] .rate-hero-copy-scrim {
 html[dir="rtl"] .rate-hero-video-fade {
   background: linear-gradient(
     to left,
-    rgb(0 0 0 / 0.92) 0%,
-    rgb(0 0 0 / 0.8) 34%,
-    rgb(0 0 0 / 0.15) 72%,
-    transparent 100%
+    rgb(0 0 0 / 0.98) 0%,
+    rgb(0 0 0 / 0.88) 10%,
+    rgb(0 0 0 / 0.62) 26%,
+    rgb(0 0 0 / 0.32) 42%,
+    rgb(0 0 0 / 0.1) 56%,
+    transparent 72%
   );
 }
 
@@ -375,11 +424,35 @@ html[dir="rtl"] .rate-hero-video-fade {
   html[dir="rtl"] .rate-hero-video-fade {
     background: linear-gradient(
       to left,
-      rgb(0 0 0 / 0.88) 0%,
-      rgb(0 0 0 / 0.72) 24%,
-      transparent 100%
+      rgb(0 0 0 / 0.96) 0%,
+      rgb(0 0 0 / 0.78) 12%,
+      rgb(0 0 0 / 0.45) 28%,
+      rgb(0 0 0 / 0.16) 44%,
+      transparent 62%
     );
   }
+}
+
+.rate-hero-seam-blend {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(0 0 0 / 0.18) 40%,
+    rgb(0 0 0 / 0.28) 50%,
+    rgb(0 0 0 / 0.18) 60%,
+    transparent 100%
+  );
+}
+
+html[dir="rtl"] .rate-hero-seam-blend {
+  background: linear-gradient(
+    270deg,
+    transparent 0%,
+    rgb(0 0 0 / 0.18) 40%,
+    rgb(0 0 0 / 0.28) 50%,
+    rgb(0 0 0 / 0.18) 60%,
+    transparent 100%
+  );
 }
 
 .rate-about-mix {
