@@ -444,6 +444,25 @@ html[dir="rtl"] .rate-hero-video-fade {
   );
 }
 
+.rate-how-share-stage {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 90%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom, #000 0%, #000 90%, transparent 100%);
+}
+
+.rate-landing [data-rate-me-copy] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rate-landing [data-rate-me-copy]::selection {
+  background: rgb(139 92 246 / 0.35);
+  color: inherit;
+}
+
 html[dir="rtl"] .rate-hero-seam-blend {
   background: linear-gradient(
     270deg,

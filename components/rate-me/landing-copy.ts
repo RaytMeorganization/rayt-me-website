@@ -442,7 +442,11 @@ export const arabicCopy: Record<string, string> = {
 function shouldSkipText(node: Text) {
   const el = node.parentElement;
   if (!el) return true;
-  if (el.closest("[data-no-translate], code, pre, script, style, kbd, textarea, input")) {
+  if (
+    el.closest(
+      "[data-no-translate], [data-rate-me-copy], code, pre, script, style, kbd, textarea, input",
+    )
+  ) {
     return true;
   }
   const text = normalizeCopy(node.textContent || "");

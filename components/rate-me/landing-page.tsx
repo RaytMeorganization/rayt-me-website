@@ -157,6 +157,25 @@ const ctaGhost = ctaDark;
 const sheetNavClass =
   "flex min-h-11 w-full items-center justify-start rounded-xl bg-transparent px-3 py-2.5 text-start text-[15px] font-medium leading-snug whitespace-normal text-white hover:bg-white/10";
 
+const soonBadgeClass =
+  "border-violet-400/35 bg-violet-500/12 text-[11px] text-violet-100";
+
+function LandingCopy({
+  as: Tag = "span",
+  className,
+  children,
+}: {
+  as?: "span" | "div" | "p";
+  className?: string;
+  children: string;
+}) {
+  return (
+    <Tag data-rate-me-copy spellCheck={false} className={className}>
+      {children}
+    </Tag>
+  );
+}
+
 function SignUpCta({
   className,
   children,
@@ -899,7 +918,7 @@ function HowShareStage() {
   return (
     <div
       aria-hidden="true"
-      className="relative isolate h-[38rem] w-full overflow-hidden"
+      className="rate-how-share-stage relative isolate h-[38rem] w-full overflow-visible pb-4"
     >
       <div
         data-gsap-float
@@ -938,24 +957,28 @@ function HowShareStage() {
             "w-[16.5rem] -rotate-3 overflow-visible rounded-[1.6rem]",
           )}
         >
-          <CardHeader>
-            <Badge variant="outline">
-              <SmartphoneIcon data-icon="inline-start" />
-              The app
-            </Badge>
-            <CardAction>
-              <Badge variant="secondary">Soon</Badge>
-            </CardAction>
-            <CardTitle>RaytME on your phone</CardTitle>
-            <CardDescription>
-              NFC, QR, and your live card — in one app.
+          <CardHeader className="gap-2 has-data-[slot=card-action]:grid-cols-1">
+            <div className="col-span-full flex items-center justify-between gap-2">
+              <Badge variant="outline" className="border-white/15 bg-white/[0.04]">
+                <SmartphoneIcon data-icon="inline-start" />
+                <LandingCopy>The app</LandingCopy>
+              </Badge>
+              <Badge variant="outline" className={soonBadgeClass}>
+                <LandingCopy>Soon</LandingCopy>
+              </Badge>
+            </div>
+            <CardTitle>
+              <LandingCopy>RaytME on your phone</LandingCopy>
+            </CardTitle>
+            <CardDescription className="text-pretty leading-relaxed">
+              <LandingCopy>NFC, QR, and your live card — in one app.</LandingCopy>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-3">
-            <div className="w-full rounded-[1.35rem] bg-background p-1.5 ring-1 ring-foreground/15">
-              <div className="mx-auto h-1 w-8 rounded-full bg-foreground/25" />
+            <div className="w-full rounded-[1.35rem] bg-background p-1.5 ring-1 ring-white/10">
+              <div className="mx-auto h-1 w-8 rounded-full bg-white/20" />
               <div className="mt-1.5 overflow-hidden rounded-[1.05rem] bg-card">
-                <div className="h-0.5 w-full bg-primary/40" />
+                <div className="h-0.5 w-full bg-violet-500/35" />
                 <div className="flex items-center gap-2 px-2.5 py-2.5">
                   <Avatar size="sm">
                     <AvatarImage src="/landing/james-carter.png" alt="" />
@@ -979,8 +1002,10 @@ function HowShareStage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="justify-center">
-            <p className="text-muted-foreground">iOS & Android · Coming soon</p>
+          <CardFooter className="justify-center border-white/[0.06] bg-white/[0.02]">
+            <p className="text-center text-xs text-muted-foreground">
+              <LandingCopy>iOS & Android · Coming soon</LandingCopy>
+            </p>
           </CardFooter>
         </Card>
       </div>
@@ -1069,16 +1094,22 @@ function HowShareStrip() {
         </CardContent>
       </Card>
       <Card size="sm" className={glassStatic}>
-        <CardHeader>
-          <Badge variant="outline">
-            <SmartphoneIcon data-icon="inline-start" />
-            The app
-          </Badge>
-          <CardAction>
-            <Badge variant="secondary">Soon</Badge>
-          </CardAction>
-          <CardTitle>RaytME on your phone</CardTitle>
-          <CardDescription>NFC, QR, and your live card — in one app.</CardDescription>
+        <CardHeader className="gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <Badge variant="outline" className="border-white/15 bg-white/[0.04]">
+              <SmartphoneIcon data-icon="inline-start" />
+              <LandingCopy>The app</LandingCopy>
+            </Badge>
+            <Badge variant="outline" className={soonBadgeClass}>
+              <LandingCopy>Soon</LandingCopy>
+            </Badge>
+          </div>
+          <CardTitle>
+            <LandingCopy>RaytME on your phone</LandingCopy>
+          </CardTitle>
+          <CardDescription className="text-pretty leading-relaxed">
+            <LandingCopy>NFC, QR, and your live card — in one app.</LandingCopy>
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-3 rounded-xl bg-background/40 px-3 py-2.5 ring-1 ring-foreground/10">
@@ -2111,7 +2142,7 @@ export default function RateMeLanding() {
                 ))}
                 <Separator />
               </div>
-              <aside className="relative hidden min-h-0 self-stretch lg:block">
+              <aside className="relative hidden min-h-0 self-stretch overflow-visible lg:block">
                 <div className="sticky top-28 pt-4">
                   <HowShareStage />
                 </div>
@@ -2176,7 +2207,7 @@ export default function RateMeLanding() {
                   ))}
                 </div>
               </div>
-              <aside className="relative hidden min-h-0 self-stretch lg:block">
+              <aside className="relative hidden min-h-0 self-stretch overflow-visible lg:block">
                 <div className="sticky top-28 pt-4">
                   <SuperVoterStage />
                 </div>
