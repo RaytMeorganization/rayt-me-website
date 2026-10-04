@@ -6,24 +6,33 @@ import { api, ApiError } from '@/lib/api'
 import { siteUrl } from '@/lib/site'
 import type { PublicProfile } from '@/lib/types'
 
-const getProfile = cache(async (id: string) => {
+/** Resolves to `null` on 404 so callers can raise `notFound()` before any streaming starts. */
+const getProfile = cache(async (id: string): Promise<PublicProfile | null> => {
   try {
     return await api<PublicProfile>(`/profiles/${encodeURIComponent(id)}/preview`, {}, { server: true })
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) notFound()
+    if (error instanceof ApiError && error.status === 404) return null
     throw error
   }
 })
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
+  let profile: PublicProfile | null
   try {
-    const profile = await getProfile(id)
+    profile = await getProfile(id)
+  } catch {
+    return { title: 'Professional profile — RaytME', robots: { index: false, follow: false } }
+  }
+  // Raised here, before the page body streams, so the response carries a real 404 status.
+  if (!profile) notFound()
+  try {
     const role = profile.jobTitle || profile.education?.fieldOfStudy || 'Professional'
     const description = profile.bio?.slice(0, 160) || `View ${profile.name}'s verified professional reputation card on RaytME.`
     const url = siteUrl(`/p/${encodeURIComponent(id)}`)
     return {
-      title: `${profile.name} — ${role} | RaytME`,
+      // absolute: the root layout already appends " · RaytME".
+      title: { absolute: `${profile.name} — ${role} | RaytME` },
       description,
       alternates: { canonical: url },
       openGraph: {
@@ -43,6 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function PublicProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const profile = await getProfile(id)
+  if (!profile) notFound()
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',

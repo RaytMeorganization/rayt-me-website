@@ -1,5 +1,5 @@
 const IOS =
-  process.env.NEXT_PUBLIC_APP_STORE_URL?.trim() || 'https://apps.apple.com/app/id0000000000'
+  process.env.NEXT_PUBLIC_APP_STORE_URL?.trim() || 'https://apps.apple.com/'
 const ANDROID =
   process.env.NEXT_PUBLIC_PLAY_STORE_URL?.trim() ||
   'https://play.google.com/store/apps/details?id=com.raytme.app'
