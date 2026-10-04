@@ -6,6 +6,7 @@ import { LocaleButton } from '@/components/product/shell'
 import { buttonVariants } from '@/components/ui/button'
 import { useI18n } from '@/components/product/providers'
 import { WEB_SIGN_IN_DISABLED, WEB_SIGN_UP_DISABLED } from '@/lib/web-sign-in'
+import { getStartedPath } from '@/lib/get-started-funnel'
 import { cn } from '@/lib/utils'
 
 type MarketingShellProps = {
@@ -46,6 +47,11 @@ export function MarketingShell({ children, className, hideAuthLinks }: Marketing
             {!hideAuthLinks && !WEB_SIGN_UP_DISABLED ? (
               <Link href="/sign-up" className={buttonVariants({ size: 'sm' })}>
                 {t('signUp')}
+              </Link>
+            ) : null}
+            {!hideAuthLinks && WEB_SIGN_UP_DISABLED ? (
+              <Link href={getStartedPath()} className={buttonVariants({ size: 'sm', className: 'bg-white text-black hover:bg-white/90' })}>
+                Get started
               </Link>
             ) : null}
           </div>

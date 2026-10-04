@@ -85,11 +85,12 @@ import { applyLandingCopy } from "@/components/rate-me/landing-copy";
 import { LEGAL_NAV } from "@/lib/company";
 import { RaytmeBot } from "@/components/rate-me/raytme-bot";
 import { cardThemeBarColor } from "@/lib/card-theme";
+import { WEB_SIGN_IN_DISABLED } from "@/lib/web-sign-in";
 import {
-  WEB_SIGN_IN_DISABLED,
-  WEB_SIGN_UP_DISABLED,
-} from "@/lib/web-sign-in";
-import { SIGN_UP_PATH } from "@/lib/signup-handoff";
+  getStartedPath,
+  rememberPlanSelection,
+  type FunnelPlanCode,
+} from "@/lib/get-started-funnel";
 import { WAITING_LIST_CAMPAIGN, WAITING_LIST_PATH } from "@/lib/waiting-list";
 import {
   centsToUsd,
@@ -99,7 +100,6 @@ import {
 import { usePublicPlanCatalog } from "@/hooks/use-public-plan-catalog";
 import { YearlyBillingOfferDialog } from "@/components/product/yearly-billing-offer-dialog";
 import { cn } from "@/lib/utils";
-import { LandingGetStarted } from "@/components/rate-me/landing-get-started";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/store-links";
 
 type LandingLocaleValue = {
@@ -160,8 +160,15 @@ const sheetNavClass =
 function SignUpCta({
   className,
   children,
+  plan,
+  interval,
+  employees,
   ...rest
-}: ComponentPropsWithoutRef<"a">) {
+}: ComponentPropsWithoutRef<"a"> & {
+  plan?: FunnelPlanCode;
+  interval?: "month" | "year";
+  employees?: number;
+}) {
   if (WAITING_LIST_CAMPAIGN) {
     return (
       <a href={WAITING_LIST_PATH} className={className} {...rest}>
@@ -169,15 +176,12 @@ function SignUpCta({
       </a>
     );
   }
-  if (WEB_SIGN_UP_DISABLED) {
-    return (
-      <a href="#get-started" className={className} {...rest}>
-        {children}
-      </a>
-    );
-  }
   return (
-    <a href={SIGN_UP_PATH} className={className} {...rest}>
+    <a
+      href={getStartedPath({ plan, interval, employees })}
+      className={className}
+      {...rest}
+    >
       {children}
     </a>
   );
@@ -1865,8 +1869,14 @@ function Pricing() {
               >
                 {plan.cta}
               </button>
-            ) : plan.href === "/sign-up" ? (
-              <SignUpCta className={plan.ctaClassName}>{plan.cta}</SignUpCta>
+            ) : plan.id === "basic" || plan.id === "pro" ? (
+              <SignUpCta
+                className={plan.ctaClassName}
+                plan={plan.id}
+                interval={billingInterval}
+              >
+                {plan.cta}
+              </SignUpCta>
             ) : (
               <a href={plan.href} className={plan.ctaClassName}>
                 {plan.cta}
@@ -1882,7 +1892,20 @@ function Pricing() {
         onOpenChange={(open) => {
           if (!open) setYearlyOffer(null);
         }}
-        onChoose={() => setYearlyOffer(null)}
+        onChoose={(interval) => {
+          const code = yearlyOffer?.plan ?? "pro";
+          rememberPlanSelection({
+            plan: code,
+            interval,
+            employees: seats,
+          });
+          setYearlyOffer(null);
+          window.location.href = getStartedPath({
+            plan: code,
+            interval,
+            employees: seats,
+          });
+        }}
       />
     </div>
     </div>
@@ -2056,7 +2079,6 @@ export default function RateMeLanding() {
             </p>
           </div>
         </section>
-        <LandingGetStarted />
         <AnimatedSection id="how" className="px-5 py-28 lg:px-8 lg:py-36">
           <div className="mx-auto max-w-7xl">
             <SectionHead
