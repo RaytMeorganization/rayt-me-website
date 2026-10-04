@@ -584,14 +584,20 @@ function ThemedBusinessCard() {
   );
 }
 
-function CommunityArtwork({ "aria-label": ariaLabel }: { "aria-label": string }) {
+function CommunityArtwork({
+  "aria-label": ariaLabel,
+  sizes = "240px",
+}: {
+  "aria-label": string;
+  sizes?: string;
+}) {
   return (
     <div className="relative aspect-[5/4] overflow-hidden rounded-xl bg-[#0b1218]">
       <Image
         src="/landing/solutions/community-network.jpg"
         alt={ariaLabel}
         fill
-        sizes="240px"
+        sizes={sizes}
         className="object-cover"
       />
     </div>
@@ -1741,7 +1747,7 @@ function Pricing() {
               "5 card themes",
               "Public virtual card",
             ],
-            href: "/sign-up",
+            href: getStartedPath({ plan: "basic", interval: billingInterval }),
             cta: "Get started",
             ctaClassName: buttonVariants({
               variant: "outline",
@@ -1762,7 +1768,7 @@ function Pricing() {
               "Many themes",
               "Custom theme",
             ],
-            href: "/sign-up",
+            href: getStartedPath({ plan: "pro", interval: billingInterval }),
             cta: billingInterval === "month" ? "Subscribe" : "Go Pro",
             ctaClassName: buttonVariants({
               className: cn(ctaPrimary, "h-11 w-full"),
@@ -1783,8 +1789,12 @@ function Pricing() {
               "Company-branded theme",
               "Team admin controls",
             ],
-            href: "#footer",
-            cta: billingInterval === "month" ? "Subscribe" : "Talk to us",
+            href: getStartedPath({
+              plan: "business",
+              interval: billingInterval,
+              employees: seats,
+            }),
+            cta: billingInterval === "month" ? "Subscribe" : "Get started",
             ctaClassName: buttonVariants({
               variant: "outline",
               className: cn(ctaGhost, "h-11 w-full"),
@@ -1900,18 +1910,15 @@ function Pricing() {
               >
                 {plan.cta}
               </button>
-            ) : plan.id === "basic" || plan.id === "pro" ? (
+            ) : (
               <SignUpCta
                 className={plan.ctaClassName}
                 plan={plan.id}
                 interval={billingInterval}
+                employees={plan.id === "business" ? seats : undefined}
               >
                 {plan.cta}
               </SignUpCta>
-            ) : (
-              <a href={plan.href} className={plan.ctaClassName}>
-                {plan.cta}
-              </a>
             )}
           </CardFooter>
         </Card>
@@ -1929,6 +1936,7 @@ function Pricing() {
             plan: code,
             interval,
             employees: seats,
+            tied: true,
           });
           setYearlyOffer(null);
           window.location.href = getStartedPath({
@@ -2152,6 +2160,34 @@ export default function RateMeLanding() {
           </div>
         </AnimatedSection>
         <section
+          id="communities"
+          className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-36"
+        >
+          <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-16">
+            <div>
+              <SectionHead
+                eyebrow="Communities"
+                title="Meet people like you. Find people you need."
+                copy="Grouped by profession and location, searchable the moment you need someone."
+              />
+              <p className="mt-6 max-w-3xl text-base leading-8 tracking-normal text-muted-foreground">
+                Pick a location and profession to find verified professionals near you, filterable by rating, experience, or Super Voter status — the fastest way to find who&apos;s actually good, anywhere in the world.
+              </p>
+              <SignUpCta
+                className={buttonVariants({
+                  className: cn(ctaPrimary, "mt-8 h-11"),
+                })}
+              >
+                Get started
+                <ArrowRightIcon data-icon="inline-end" className="rtl:rotate-180" />
+              </SignUpCta>
+            </div>
+            <div className="overflow-hidden rounded-3xl border border-white/[0.08] bg-slate-900/70">
+              <CommunityArtwork aria-label="Communities" sizes="(min-width: 1024px) 22rem, 100vw" />
+            </div>
+          </div>
+        </section>
+        <section
           id="profile"
           className="mx-auto max-w-7xl px-5 py-28 lg:px-8 lg:py-36"
         >
@@ -2348,10 +2384,10 @@ export default function RateMeLanding() {
               {
                 head: "Product",
                 links: [
-                  { label: "How it Works", href: "#top" },
-                  { label: "Features", href: "#top" },
-                  { label: "Pricing", href: "#top" },
-                  { label: "For Teams", href: "#top" },
+                  { label: "How it Works", href: "#how" },
+                  { label: "Communities", href: "#communities" },
+                  { label: "Pricing", href: "#pricing" },
+                  { label: "For Teams", href: "#business" },
                 ],
               },
               {

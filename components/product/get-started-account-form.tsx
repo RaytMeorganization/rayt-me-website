@@ -1,6 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ArrowRightIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -13,47 +12,58 @@ import {
 } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { PasswordInput } from '@/components/product/password-input'
+import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
-import { GET_STARTED_PLANS_PATH } from '@/lib/get-started-funnel'
+import type { AccountType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 const ctaPrimary =
   'bg-violet-600 text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.8)] hover:bg-violet-500'
 
-/** Step 1 — same core fields as the mobile register card (name, email, password). */
-export function GetStartedAccountForm() {
-  const router = useRouter()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+/** Step 1 — same registration fields as mobile + web sign-up. */
+export function GetStartedAccountForm({
+  onCreated,
+  tied,
+  selectedSummary,
+  onEditPlan,
+}: {
+  onCreated: () => void
+  tied?: boolean
+  selectedSummary?: string
+  onEditPlan?: () => void
+}) {
+  const { t } = useI18n()
+  const { refresh } = useAuth()
+  const [accountType, setAccountType] = useState<AccountType>('professional')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
-  async function createAccount(event: React.FormEvent) {
+  async function createAccount(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setBusy(true)
     setError('')
-    const normalized = email.trim().toLowerCase()
+    const form = new FormData(event.currentTarget)
+    const personalEmail = String(form.get('personalEmail') ?? '')
+      .trim()
+      .toLowerCase()
+    const payload = {
+      ...Object.fromEntries(form.entries()),
+      email: personalEmail,
+      personalEmail,
+      accountType,
+    }
     try {
       await api('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({
-          name: name.trim(),
-          email: normalized,
-          personalEmail: normalized,
-          password,
-          accountType: 'professional',
-          jobTitle: 'Professional',
-          company: 'Independent',
-          industry: 'General',
-          city: 'Doha',
-          country: 'Qatar',
-        }),
+        body: JSON.stringify(payload),
       })
-      router.push(GET_STARTED_PLANS_PATH)
+      await refresh()
+      onCreated()
     } catch (cause) {
-      setError(errorMessage(cause, 'Unable to create account'))
+      setError(errorMessage(cause, t('error')))
     } finally {
       setBusy(false)
     }
@@ -62,41 +72,160 @@ export function GetStartedAccountForm() {
   return (
     <Card className="border-white/10 bg-slate-900/50 backdrop-blur-xl">
       <CardHeader>
-        <CardTitle className="font-brand text-2xl text-white">Create your RaytME card</CardTitle>
-        <CardDescription>
-          Sign up with your email — then choose a plan and open the app.
-        </CardDescription>
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-violet-300/80">
+          {t('getStartedStep1')}
+        </p>
+        <CardTitle className="font-brand text-2xl text-white">{t('getStartedTitle')}</CardTitle>
+        <CardDescription>{tied ? t('getStartedIntroTied') : t('getStartedIntro')}</CardDescription>
       </CardHeader>
       <CardContent>
+        {tied && selectedSummary ? (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200/80">
+                {t('getStartedSelectedPlan')}
+              </p>
+              <p className="mt-1 text-sm font-medium text-white">{selectedSummary}</p>
+            </div>
+            {onEditPlan ? (
+              <Button type="button" variant="outline" className="min-h-10" onClick={onEditPlan}>
+                {t('getStartedEditPlan')}
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
         <form onSubmit={createAccount}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="gs-name">Full name</FieldLabel>
+              <FieldLabel htmlFor="gs-name">{t('name')}</FieldLabel>
               <Input
                 id="gs-name"
                 required
+                name="name"
                 className="min-h-11 bg-input/30"
-                value={name}
-                onChange={e => setName(e.target.value)}
                 autoComplete="name"
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="gs-email">Email</FieldLabel>
-              <Input
-                id="gs-email"
-                required
-                type="email"
-                autoComplete="email"
-                className="min-h-11 bg-input/30"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-              />
+              <FieldLabel>{t('profile')}</FieldLabel>
+              <ToggleGroup
+                variant="outline"
+                spacing={2}
+                value={[accountType]}
+                onValueChange={next => {
+                  const selected = Array.isArray(next) ? next[0] : next
+                  if (selected === 'professional' || selected === 'student') {
+                    setAccountType(selected)
+                  }
+                }}
+                className="grid w-full grid-cols-2"
+              >
+                <ToggleGroupItem value="professional" className="min-h-11 justify-center rounded-xl">
+                  {t('professional')}
+                </ToggleGroupItem>
+                <ToggleGroupItem value="student" className="min-h-11 justify-center rounded-xl">
+                  {t('student')}
+                </ToggleGroupItem>
+              </ToggleGroup>
             </Field>
             <Field>
-              <FieldLabel htmlFor="gs-password">Password</FieldLabel>
+              <FieldLabel htmlFor="gs-personalEmail">{t('personalEmail')}</FieldLabel>
+              <Input
+                id="gs-personalEmail"
+                required
+                type="email"
+                name="personalEmail"
+                autoComplete="email"
+                className="min-h-11 bg-input/30"
+              />
+            </Field>
+            {accountType === 'professional' ? (
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field>
+                  <FieldLabel htmlFor="gs-workEmail">{t('workEmail')}</FieldLabel>
+                  <Input
+                    id="gs-workEmail"
+                    required
+                    type="email"
+                    name="workEmail"
+                    autoComplete="work email"
+                    className="min-h-11 bg-input/30"
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="gs-jobTitle">{t('jobTitle')}</FieldLabel>
+                  <Input id="gs-jobTitle" required name="jobTitle" className="min-h-11 bg-input/30" />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="gs-company">{t('company')}</FieldLabel>
+                  <Input id="gs-company" required name="company" className="min-h-11 bg-input/30" />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="gs-industry">{t('industry')}</FieldLabel>
+                  <Input id="gs-industry" required name="industry" className="min-h-11 bg-input/30" />
+                </Field>
+              </div>
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field>
+                  <FieldLabel htmlFor="gs-universityEmail">{t('universityEmail')}</FieldLabel>
+                  <Input
+                    id="gs-universityEmail"
+                    required
+                    type="email"
+                    name="universityEmail"
+                    className="min-h-11 bg-input/30"
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="gs-university">{t('university')}</FieldLabel>
+                  <Input id="gs-university" required name="university" className="min-h-11 bg-input/30" />
+                </Field>
+                <Field className="sm:col-span-2">
+                  <FieldLabel htmlFor="gs-fieldOfStudy">{t('fieldOfStudy')}</FieldLabel>
+                  <Input
+                    id="gs-fieldOfStudy"
+                    required
+                    name="fieldOfStudy"
+                    className="min-h-11 bg-input/30"
+                  />
+                </Field>
+              </div>
+            )}
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor="gs-city">{t('city')}</FieldLabel>
+                <Input id="gs-city" required name="city" className="min-h-11 bg-input/30" />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="gs-country">{t('country')}</FieldLabel>
+                <Input
+                  id="gs-country"
+                  required
+                  name="country"
+                  defaultValue="Qatar"
+                  className="min-h-11 bg-input/30"
+                />
+              </Field>
+            </div>
+            {accountType === 'professional' ? (
+              <Field>
+                <FieldLabel htmlFor="gs-phone">{t('phone')}</FieldLabel>
+                <Input
+                  id="gs-phone"
+                  required
+                  type="tel"
+                  name="phone"
+                  autoComplete="tel"
+                  className="min-h-11 bg-input/30"
+                />
+              </Field>
+            ) : null}
+            <Field>
+              <FieldLabel htmlFor="gs-password">{t('password')}</FieldLabel>
               <PasswordInput
                 id="gs-password"
+                name="password"
                 required
                 minLength={8}
                 autoComplete="new-password"
@@ -110,7 +239,7 @@ export function GetStartedAccountForm() {
               </p>
             ) : null}
             <Button type="submit" disabled={busy} className={cn('min-h-11 w-full', ctaPrimary)}>
-              {busy ? 'Creating…' : 'Create account'}
+              {busy ? t('loading') : t('getStartedCreateAccount')}
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
           </FieldGroup>

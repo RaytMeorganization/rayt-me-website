@@ -9,6 +9,7 @@ const backend = (process.env.API_PROXY_TARGET || 'http://localhost:4000').replac
 
 const nextConfig = {
   outputFileTracingRoot: monorepoRoot,
+  allowedDevOrigins: ['127.0.0.1', 'localhost'],
   turbopack: {
     root: monorepoRoot,
   },

@@ -8,6 +8,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const legal = ['/privacy', '/terms', '/acceptable-use', '/support', '/legal'] as const
   return [
     { url: siteUrl(), lastModified: now, changeFrequency: 'weekly', priority: 1 },
+    {
+      url: siteUrl('/get-started'),
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
     ...(!WEB_SIGN_IN_DISABLED
       ? [
           { url: siteUrl('/sign-in'), lastModified: now, changeFrequency: 'monthly' as const, priority: 0.4 },

@@ -1,28 +1,29 @@
-'use client'
-
-import { Suspense, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { MarketingShell } from '@/components/product/marketing-shell'
-import { GetStartedAccountForm } from '@/components/product/get-started-account-form'
-import { capturePlanFromSearchParams } from '@/lib/get-started-funnel'
+import { GetStartedFunnel } from '@/components/product/get-started-funnel'
+import { funnelFromSearch } from '@/lib/get-started-funnel'
+import { buildPublicPageMetadata } from '@/lib/seo'
 
-function GetStartedCapture() {
-  const params = useSearchParams()
-  useEffect(() => {
-    capturePlanFromSearchParams(params)
-  }, [params])
-  return null
-}
+export const metadata = buildPublicPageMetadata({
+  title: 'Get started — create your RaytME card',
+  description:
+    'Create your RaytME account, choose Basic, Pro, or Business, and open your portable professional reputation card.',
+  path: '/get-started',
+})
 
-export default function GetStartedPage() {
+export default async function GetStartedPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const initial = funnelFromSearch(await searchParams)
   return (
     <MarketingShell hideAuthLinks>
-      <Suspense fallback={null}>
-        <GetStartedCapture />
-      </Suspense>
-      <div className="mx-auto max-w-lg px-5 py-10 sm:py-14">
-        <GetStartedAccountForm />
-      </div>
+      <GetStartedFunnel
+        initialPlan={initial.plan}
+        initialInterval={initial.interval}
+        initialEmployees={initial.employees}
+        initialEditing={initial.editing}
+      />
     </MarketingShell>
   )
 }

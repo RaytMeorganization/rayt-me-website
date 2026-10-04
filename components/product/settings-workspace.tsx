@@ -320,11 +320,14 @@ export function SettingsWorkspace() {
           {tab === 'plan' && (
             <div className="grid gap-6">
               <Panel title={t('plan')}>
+                {searchParams.get('paid') === '1' ? (
+                  <p className="mb-4 text-sm leading-6 text-emerald-200">
+                    {t('saved')}
+                  </p>
+                ) : null}
                 {searchParams.get('upgrade') === 'pro' ? (
                   <p className="mb-4 text-sm leading-6 text-muted-foreground">
-                    You opened this page from the Rayt Me app. When web checkout is enabled for your
-                    account, complete Pro purchase here — the mobile app will pick up your plan
-                    automatically.
+                    {t('getStartedUpgrade')}
                   </p>
                 ) : null}
                 <p className="text-3xl font-semibold capitalize">{entitlements?.tier ?? user?.tier}</p>
@@ -354,7 +357,13 @@ export function SettingsWorkspace() {
                 </div>
               </Panel>
               <Panel title={t('subscribe')}>
-                <PlanSubscribePanel defaultPlan="pro" />
+                <PlanSubscribePanel
+                  defaultPlan={searchParams.get('plan') === 'business' ? 'business' : 'pro'}
+                  defaultInterval={searchParams.get('interval') === 'year' ? 'year' : 'month'}
+                  employeeSeats={Number(searchParams.get('employees') || '1')}
+                  currentTier={entitlements?.tier ?? user?.tier ?? 'basic'}
+                  autoStart={searchParams.get('checkout') === '1'}
+                />
               </Panel>
               <Panel title={t('theme')}>
                 {entitlements ? (
