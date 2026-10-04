@@ -445,13 +445,8 @@ html[dir="rtl"] .rate-hero-video-fade {
 }
 
 .rate-how-share-stage {
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 90%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(to bottom, #000 0%, #000 90%, transparent 100%);
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 .rate-landing [data-rate-me-copy] {
@@ -711,6 +706,32 @@ html[dir="rtl"] .rate-about-mix {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
+[data-slot="sheet-content"][data-offer-card] {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  width: min(40rem, calc(100vw - 1.5rem));
+  height: auto;
+  max-height: min(32rem, calc(100vh - 2rem));
+  overflow: auto;
+  padding: 1.35rem 1.35rem 1.5rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1.5rem;
+  background: rgb(12 9 18 / 0.96);
+  box-shadow:
+    0 28px 80px -28px rgb(0 0 0 / 0.88),
+    0 0 50px -16px rgb(139 92 246 / 0.28);
+  transform: translate(-50%, -50%);
+}
+
+[data-slot="sheet-content"][data-offer-card][data-starting-style],
+[data-slot="sheet-content"][data-offer-card][data-ending-style] {
+  opacity: 0;
+  transform: translate(-50%, -46%);
+}
+
 .rate-landing footer a {
   transition: color 300ms ease-out;
 }
@@ -728,13 +749,13 @@ html[dir="rtl"] .rate-about-mix {
 }
 
 .rate-ipad-frame {
-  transform: rotateY(-7deg) rotateX(3deg);
+  transform: rotateY(-2deg) rotateX(1deg);
   transform-style: preserve-3d;
   transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rate-ipad-stage:hover .rate-ipad-frame {
-  transform: rotateY(-3deg) rotateX(1deg);
+  transform: rotateY(-1deg) rotateX(0.5deg);
 }
 
 @media (prefers-reduced-motion: reduce) {

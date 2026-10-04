@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { ArrowRightIcon, CheckIcon, MinusIcon, PlusIcon } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -285,9 +286,9 @@ export function GetStartedPlansPanel({
             : t('getStartedContinuePlan').replace('{plan}', selected.toUpperCase())}
           <ArrowRightIcon data-icon="inline-end" />
         </Button>
-        <a href="/" className={cn(buttonVariants({ variant: 'ghost' }), 'text-white/60')}>
+        <Link href="/" className={cn(buttonVariants({ variant: 'ghost' }), 'text-white/60')}>
           {t('getStartedBackHome')}
-        </a>
+        </Link>
       </div>
     </div>
   )

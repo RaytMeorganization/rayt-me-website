@@ -924,16 +924,16 @@ function HowShareStage() {
   return (
     <div
       aria-hidden="true"
-      className="rate-how-share-stage relative isolate h-[38rem] w-full overflow-visible pb-4"
+      className="rate-how-share-stage relative isolate min-h-[42rem] w-full overflow-visible px-5 pb-10 pt-12"
     >
       <div
         data-gsap-float
         data-float-duration="2.6"
-        className="absolute end-0 top-0 z-20"
+        className="absolute end-8 top-10 z-20"
       >
         <Card
           size="sm"
-          className={cn(glassStatic, "w-[13rem] rotate-6 overflow-visible")}
+          className={cn(glassStatic, "w-[13rem] rotate-3 overflow-visible")}
         >
           <CardContent className="pt-3">
             <div className="mx-auto aspect-square w-[8rem] overflow-hidden rounded-xl bg-background p-1.5 ring-1 ring-foreground/10">
@@ -954,13 +954,13 @@ function HowShareStage() {
       <div
         data-gsap-float
         data-float-duration="3.4"
-        className="absolute start-0 top-[8.25rem] z-30"
+        className="absolute start-2 top-[10.5rem] z-30"
       >
         <Card
           size="sm"
           className={cn(
             glassStatic,
-            "w-[16.5rem] -rotate-3 overflow-visible rounded-[1.6rem]",
+            "w-[16.5rem] -rotate-2 overflow-visible rounded-[1.6rem]",
           )}
         >
           <CardHeader className="gap-2 has-data-[slot=card-action]:grid-cols-1">
@@ -1019,11 +1019,11 @@ function HowShareStage() {
       <div
         data-gsap-float
         data-float-duration="2.9"
-        className="absolute bottom-1 start-1 z-10"
+        className="absolute bottom-6 start-3 z-10"
       >
         <Card
           size="sm"
-          className={cn(glassStatic, "w-[13rem] -rotate-6 overflow-visible")}
+          className={cn(glassStatic, "w-[13rem] -rotate-3 overflow-visible")}
         >
           <CardHeader>
             <Badge variant="outline">
@@ -1141,16 +1141,16 @@ function SuperVoterStage() {
   return (
     <div
       aria-hidden="true"
-      className="relative isolate h-[32rem] w-full overflow-hidden"
+      className="relative isolate min-h-[38rem] w-full overflow-visible px-5 pb-10 pt-12"
     >
       <div
         data-gsap-float
         data-float-duration="2.7"
-        className="absolute end-0 top-0 z-20"
+        className="absolute end-8 top-10 z-20"
       >
         <Card
           size="sm"
-          className={cn(glassStatic, "w-[13.5rem] rotate-6 overflow-visible")}
+          className={cn(glassStatic, "w-[13.5rem] rotate-3 overflow-visible")}
         >
           <CardHeader>
             <Badge variant="outline">
@@ -1184,13 +1184,13 @@ function SuperVoterStage() {
       <div
         data-gsap-float
         data-float-duration="3.3"
-        className="absolute start-0 top-[7.5rem] z-30"
+        className="absolute start-2 top-[10rem] z-30"
       >
         <Card
           size="sm"
           className={cn(
             glassStatic,
-            "w-[16rem] -rotate-3 overflow-visible rounded-[1.6rem]",
+            "w-[16rem] -rotate-2 overflow-visible rounded-[1.6rem]",
           )}
         >
           <CardHeader>
@@ -1228,11 +1228,11 @@ function SuperVoterStage() {
       <div
         data-gsap-float
         data-float-duration="2.8"
-        className="absolute bottom-0 start-1 z-10"
+        className="absolute bottom-6 start-3 z-10"
       >
         <Card
           size="sm"
-          className={cn(glassStatic, "w-[14rem] -rotate-6 overflow-visible")}
+          className={cn(glassStatic, "w-[14rem] -rotate-3 overflow-visible")}
         >
           <CardHeader>
             <Badge variant="outline">
@@ -2125,7 +2125,7 @@ export default function RateMeLanding() {
               title="Your reputation, proven when it matters."
               copy="Professional reputation today lives in scattered, unverifiable places — a recommendation written as a favor, a testimonial from a screenshot, a “trust me” during a pitch. RaytME is a portable, tamper-resistant way to demonstrate real-world credibility at the exact moment it matters."
             />
-            <div className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
+            <div className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,1fr)_28rem] lg:gap-16">
               <div className="flex min-w-0 flex-col">
                 {pillars.map((item) => (
                   <div key={item.num} data-gsap-feature-card>
@@ -2151,7 +2151,7 @@ export default function RateMeLanding() {
                 <Separator />
               </div>
               <aside className="relative hidden min-h-0 self-stretch overflow-visible lg:block">
-                <div className="sticky top-28 pt-4">
+                <div className="sticky top-28 overflow-visible pt-6">
                   <HowShareStage />
                 </div>
               </aside>
@@ -2211,7 +2211,7 @@ export default function RateMeLanding() {
         <section className="px-5 py-28 lg:px-8 lg:py-36">
           <Separator />
           <div className="mx-auto max-w-7xl py-28 lg:py-36">
-            <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
+            <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_28rem] lg:gap-16">
               <div>
                 <SectionHead
                   eyebrow="A card that outlasts the job"
@@ -2244,7 +2244,7 @@ export default function RateMeLanding() {
                 </div>
               </div>
               <aside className="relative hidden min-h-0 self-stretch overflow-visible lg:block">
-                <div className="sticky top-28 pt-4">
+                <div className="sticky top-28 overflow-visible pt-6">
                   <SuperVoterStage />
                 </div>
               </aside>
@@ -2334,7 +2334,7 @@ export default function RateMeLanding() {
               title="Everything worth knowing."
               titleId="landing-faq-heading"
             />
-            <div className="mt-14 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_28rem] lg:gap-14">
+            <div className="mt-14 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_32rem] lg:gap-14">
               <Accordion
                 defaultValue={["item-0"]}
                 className="rounded-3xl border border-white/[0.05] bg-slate-900/40 px-6 backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(139,92,246,0.12)]"
@@ -2354,8 +2354,8 @@ export default function RateMeLanding() {
                   </AccordionItem>
                 ))}
               </Accordion>
-              <aside className="relative mx-auto w-full max-w-[28rem] lg:max-w-none">
-                <div className="lg:sticky lg:top-28">
+              <aside className="relative mx-auto w-full max-w-[32rem] overflow-visible lg:max-w-none">
+                <div className="overflow-visible px-2 pt-4 lg:sticky lg:top-28">
                   <IpadAppStage />
                 </div>
               </aside>

@@ -1173,7 +1173,7 @@ export function LegalDeviceStage() {
 
 export function IpadAppStage() {
   return (
-    <div className="relative mx-auto w-full max-w-[32rem]">
+    <div className="relative mx-auto w-full max-w-[32rem] overflow-visible px-6 pt-8 pb-4">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-[12%] -z-10 rounded-[40%] bg-[radial-gradient(circle,rgb(139_92_246_/_0.38),transparent_70%)] blur-3xl"
