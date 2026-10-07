@@ -46,6 +46,7 @@ import {
 } from '@/components/product/admin-subscriptions-panel'
 import { AdminPlanCard } from '@/components/product/admin-plan-card'
 import { AdminAuditRecord, AdminCommunityReportRecord, AdminRatingRecord } from '@/components/product/admin-ops-record'
+import { AdminCommunityCatalogPanel } from '@/components/product/admin-community-catalog'
 import { AdminUserCard, normalizeDbRole } from '@/components/product/admin-user-card'
 import { AdminReputationLab } from '@/components/product/admin-reputation-lab'
 import { InteractiveLink } from '@/components/product/interactive-value'
@@ -933,6 +934,7 @@ export function AdminDashboard() {
             </CollectionList>
           ) : section === 'communities' ? (
             <div className="grid gap-8">
+              <AdminCommunityCatalogPanel />
               {communityGroups.length ? (
                 <div className="grid gap-3">
                   <h3 className="text-sm font-semibold text-foreground">{t('communityGroups')}</h3>
