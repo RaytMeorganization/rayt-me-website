@@ -212,10 +212,9 @@ export function AdminCommunityCatalogPanel() {
             <div>
               <h3 className="text-sm font-semibold text-foreground">{t('communityOverviewTitle')}</h3>
               <p className="text-xs text-muted-foreground">
-                {t('communityOverviewMeta', {
-                  groups: overview.catalogGroupCount,
-                  categories: overview.catalogCategoryCount,
-                })}
+                {t('communityOverviewMeta')
+                  .replace('{groups}', String(overview.catalogGroupCount))
+                  .replace('{categories}', String(overview.catalogCategoryCount))}
               </p>
             </div>
           </div>
@@ -233,7 +232,10 @@ export function AdminCommunityCatalogPanel() {
                 </p>
                 <p className="text-xs text-muted-foreground">{t('communityCountryMembers')}</p>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {t('communityActiveGroups', { count: country.activeCommunities })}
+                  {t('communityActiveGroups').replace(
+                    '{count}',
+                    String(country.activeCommunities),
+                  )}
                 </p>
               </div>
             ))}
