@@ -24,11 +24,36 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Install SSH key
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_PORT: ${{ secrets.VPS_SSH_PORT }}
         run: |
+          set -euo pipefail
+          PORT="${VPS_SSH_PORT:-22}"
           install -m 700 -d ~/.ssh
           printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/vps
           chmod 600 ~/.ssh/vps
-          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "$PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Verify VPS SSH (from GitHub runner)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_PORT: ${{ secrets.VPS_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          PORT="${VPS_SSH_PORT:-22}"
+          SSH_OPTS="-i ~/.ssh/vps -o IdentitiesOnly=yes -o ConnectTimeout=20 -o ServerAliveInterval=10 -p $PORT"
+          echo "Checking TCP ${VPS_HOST}:${PORT} ..."
+          if ! timeout 45 bash -c "until nc -z -w 5 '$VPS_HOST' '$PORT'; do sleep 3; done"; then
+            echo "::error::GitHub Actions cannot reach ${VPS_HOST}:${PORT} (connection timed out)."
+            echo "Your laptop may still reach the VPS while runner IPs are blocked by UFW/fail2ban/GoDaddy firewall."
+            echo "Fix: allow SSH from GitHub Actions IP ranges, add a self-hosted runner on the VPS, or deploy manually:"
+            echo "  cd deploy && ./scripts/vps-rsync-website.sh"
+            echo "See deploy/README.md (section GitOps-lite troubleshooting)."
+            exit 1
+          fi
+          ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" 'echo "SSH OK from GitHub Actions"'
 
       # rayt-me-shared lives only on the VPS workspace (no public GitHub repo).
       # Sync website sources, then rebuild the web image on the server.
@@ -36,12 +61,15 @@ jobs:
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_PORT: ${{ secrets.VPS_SSH_PORT }}
         run: |
           set -euo pipefail
+          PORT="${VPS_SSH_PORT:-22}"
+          SSH_OPTS="-i ~/.ssh/vps -o IdentitiesOnly=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 -p $PORT"
           rsync -az --delete \
             --exclude node_modules --exclude .next --exclude .git \
             --exclude .env.production \
-            -e 'ssh -i ~/.ssh/vps -o IdentitiesOnly=yes' \
+            -e "ssh $SSH_OPTS" \
             ./ "${VPS_USER}@${VPS_HOST}:/opt/rayt-me/rayt-me-website/"
-          ssh -i ~/.ssh/vps -o IdentitiesOnly=yes "${VPS_USER}@${VPS_HOST}" \
+          ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" \
             'cd /opt/rayt-me/deploy && unset WEB_IMAGE API_IMAGE && ./remote-deploy.sh web'
