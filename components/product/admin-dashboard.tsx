@@ -48,6 +48,7 @@ import { AdminPlanCard } from '@/components/product/admin-plan-card'
 import { AdminAuditRecord, AdminCommunityReportRecord, AdminRatingRecord } from '@/components/product/admin-ops-record'
 import { AdminCommunityCatalogPanel } from '@/components/product/admin-community-catalog'
 import { AdminUserCard, normalizeDbRole } from '@/components/product/admin-user-card'
+import { AdminUserPasswordPanel } from '@/components/product/admin-user-password-panel'
 import { AdminReputationLab } from '@/components/product/admin-reputation-lab'
 import { InteractiveLink } from '@/components/product/interactive-value'
 import { EmptyState, StatCard } from '@/components/product/brand-art'
@@ -395,6 +396,22 @@ export function AdminDashboard() {
         body: JSON.stringify(data),
       })
       setSuccess(t('saved'))
+      await load()
+    } catch (cause) {
+      setError(errorMessage(cause, t('error')))
+      setBusy(false)
+    }
+  }
+
+  async function updateUserPassword(item: Record<string, unknown>, password: string) {
+    setBusy(true)
+    setError('')
+    try {
+      await api(`/admin/users/${encodeURIComponent(String(item.id))}/password`, {
+        method: 'PATCH',
+        body: JSON.stringify({ password }),
+      })
+      setSuccess(t('adminPasswordUpdated'))
       await load()
     } catch (cause) {
       setError(errorMessage(cause, t('error')))
@@ -793,6 +810,7 @@ export function AdminDashboard() {
                       onRoleChange={role => void updateUser(item, { role })}
                       onTierChange={tier => void updateUser(item, { tier })}
                       onToggleActive={() => void updateUser(item, { isActive: !Boolean(item.isActive) })}
+                      onPasswordSave={password => void updateUserPassword(item, password)}
                       onOpenRecord={() => {
                         void api<Record<string, unknown>>(`/admin/users/${encodeURIComponent(String(item.id))}`)
                           .then(setDossier)
@@ -844,6 +862,14 @@ export function AdminDashboard() {
                   <p className="mt-2 text-sm text-muted-foreground">
                     {[dossier.personalEmail, dossier.workEmail, dossier.universityEmail, dossier.phone].filter(Boolean).join(' · ') || t('noData')}
                   </p>
+                  <div className="mt-4 max-w-md">
+                    <AdminUserPasswordPanel
+                      busy={busy}
+                      onSave={password =>
+                        void updateUserPassword({ id: dossier.id }, password)
+                      }
+                    />
+                  </div>
                 </DashboardSurface>
               ) : null}
             </>

@@ -8,6 +8,7 @@ import { Field, FieldLabel } from '@/components/ui/field'
 import { Separator } from '@/components/ui/separator'
 import { inputClass } from '@/components/product/shell'
 import { useI18n } from '@/components/product/providers'
+import { AdminUserPasswordPanel } from '@/components/product/admin-user-password-panel'
 
 export type DbRole = 'USER' | 'BUSINESS_ADMIN' | 'PLATFORM_ADMIN'
 
@@ -69,6 +70,7 @@ export function AdminUserCard({
   onTierChange,
   onToggleActive,
   onOpenRecord,
+  onPasswordSave,
 }: {
   name: string
   email: string
@@ -88,6 +90,7 @@ export function AdminUserCard({
   onTierChange?: (tier: 'basic' | 'pro' | 'business') => void
   onToggleActive: () => void
   onOpenRecord?: () => void
+  onPasswordSave?: (password: string) => void | Promise<void>
 }) {
   const { t } = useI18n()
   const joined = createdAt ? new Date(createdAt).toLocaleDateString() : null
@@ -155,6 +158,14 @@ export function AdminUserCard({
           </div>
         </div>
       </CardContent>
+      {onPasswordSave ? (
+        <>
+          <Separator className="bg-white/10" />
+          <div className="px-4 pb-2">
+            <AdminUserPasswordPanel busy={busy} onSave={onPasswordSave} />
+          </div>
+        </>
+      ) : null}
       <Separator className="bg-white/10" />
       <CardFooter className="flex flex-col gap-3 border-0 bg-muted/15 px-4 py-4 sm:flex-row sm:items-end sm:justify-between">
         <Field className="w-full min-w-0 flex-1 sm:max-w-[14rem]">
