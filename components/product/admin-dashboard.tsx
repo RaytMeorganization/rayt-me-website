@@ -48,7 +48,7 @@ import { AdminPlanCard } from '@/components/product/admin-plan-card'
 import { AdminAuditRecord, AdminCommunityReportRecord, AdminRatingRecord } from '@/components/product/admin-ops-record'
 import { AdminCommunityCatalogPanel } from '@/components/product/admin-community-catalog'
 import { AdminUserCard, normalizeDbRole } from '@/components/product/admin-user-card'
-import { AdminUserPasswordPanel } from '@/components/product/admin-user-password-panel'
+import { AdminUserRecordSheet } from '@/components/product/admin-user-record-sheet'
 import { AdminReputationLab } from '@/components/product/admin-reputation-lab'
 import { InteractiveLink } from '@/components/product/interactive-value'
 import { EmptyState, StatCard } from '@/components/product/brand-art'
@@ -172,6 +172,10 @@ export function AdminDashboard() {
   const [appliedRatingsSearch, setAppliedRatingsSearch] = useState('')
   const [metrics, setMetrics] = useState<Record<string, number> | null>(null)
   const [dossier, setDossier] = useState<Record<string, unknown> | null>(null)
+  const [userRecordOpen, setUserRecordOpen] = useState(false)
+  const [userRecordLoading, setUserRecordLoading] = useState(false)
+  const [userRecordError, setUserRecordError] = useState('')
+  const [userRecordItem, setUserRecordItem] = useState<Record<string, unknown> | null>(null)
   const [subscriptionsPayload, setSubscriptionsPayload] = useState<AdminSubscriptionsPayload | null>(null)
   const [invoicePage, setInvoicePage] = useState(1)
   const [fetchedFor, setFetchedFor] = useState<SectionKey | null>(null)
@@ -202,6 +206,10 @@ export function AdminDashboard() {
     setUserPage(1)
     setInvoicePage(1)
     setSubscriptionsPayload(null)
+    setUserRecordOpen(false)
+    setUserRecordItem(null)
+    setDossier(null)
+    setUserRecordError('')
     const params = new URLSearchParams(searchParams.toString())
     if (next === 'overview') params.delete('section')
     else params.set('section', next)
@@ -406,6 +414,7 @@ export function AdminDashboard() {
   async function updateUserPassword(item: Record<string, unknown>, password: string) {
     setBusy(true)
     setError('')
+    setUserRecordError('')
     try {
       await api(`/admin/users/${encodeURIComponent(String(item.id))}/password`, {
         method: 'PATCH',
@@ -414,10 +423,39 @@ export function AdminDashboard() {
       setSuccess(t('adminPasswordUpdated'))
       await load()
     } catch (cause) {
-      setError(errorMessage(cause, t('error')))
+      const message = errorMessage(cause, t('error'))
+      setError(message)
+      setUserRecordError(message)
       setBusy(false)
     }
   }
+
+  const openUserRecord = useCallback(
+    (item: Record<string, unknown>) => {
+      const id = String(item.id)
+      setUserRecordItem(item)
+      setUserRecordOpen(true)
+      setUserRecordLoading(true)
+      setUserRecordError('')
+      setDossier({
+        id: item.id,
+        name: item.name,
+        email: item.email,
+        personalEmail: item.personalEmail,
+        workEmail: item.workEmail,
+        universityEmail: item.universityEmail,
+        phone: item.phone,
+      })
+      void api<Record<string, unknown>>(`/admin/users/${encodeURIComponent(id)}`)
+        .then(data => {
+          setDossier(data)
+          setUserRecordError('')
+        })
+        .catch(cause => setUserRecordError(errorMessage(cause, t('loadFailed'))))
+        .finally(() => setUserRecordLoading(false))
+    },
+    [t],
+  )
 
   async function updatePlan(item: Record<string, unknown>, activePlan: boolean) {
     setBusy(true)
@@ -810,12 +848,7 @@ export function AdminDashboard() {
                       onRoleChange={role => void updateUser(item, { role })}
                       onTierChange={tier => void updateUser(item, { tier })}
                       onToggleActive={() => void updateUser(item, { isActive: !Boolean(item.isActive) })}
-                      onPasswordSave={password => void updateUserPassword(item, password)}
-                      onOpenRecord={() => {
-                        void api<Record<string, unknown>>(`/admin/users/${encodeURIComponent(String(item.id))}`)
-                          .then(setDossier)
-                          .catch(cause => setError(errorMessage(cause, t('loadFailed'))))
-                      }}
+                      onOpenRecord={() => openUserRecord(item)}
                     />
                   )
                 })}
@@ -853,24 +886,6 @@ export function AdminDashboard() {
                     </div>
                   ) : null}
                 </div>
-              ) : null}
-              {dossier ? (
-                <DashboardSurface title={t('userRecord')} description={String(dossier.email ?? '')}>
-                  <p className="text-sm text-muted-foreground">
-                    {t('score')}: {String(dossier.score ?? '—')} · {t('ratingsGiven')}: {String((dossier.stats as { ratingsGiven?: number } | undefined)?.ratingsGiven ?? 0)} · {t('ratingsReceived')}: {String((dossier.stats as { ratingsReceived?: number } | undefined)?.ratingsReceived ?? 0)}
-                  </p>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {[dossier.personalEmail, dossier.workEmail, dossier.universityEmail, dossier.phone].filter(Boolean).join(' · ') || t('noData')}
-                  </p>
-                  <div className="mt-4 max-w-md">
-                    <AdminUserPasswordPanel
-                      busy={busy}
-                      onSave={password =>
-                        void updateUserPassword({ id: dossier.id }, password)
-                      }
-                    />
-                  </div>
-                </DashboardSurface>
               ) : null}
             </>
           ) : section === 'payments' ? (
@@ -1104,6 +1119,27 @@ export function AdminDashboard() {
           )}
         </DashboardSurface>
       </main>
+      <AdminUserRecordSheet
+        open={userRecordOpen}
+        onOpenChange={open => {
+          setUserRecordOpen(open)
+          if (!open) {
+            setUserRecordItem(null)
+            setDossier(null)
+            setUserRecordError('')
+            setUserRecordLoading(false)
+          }
+        }}
+        dossier={dossier}
+        loading={userRecordLoading}
+        loadError={userRecordError}
+        busy={busy}
+        onRetry={userRecordItem ? () => openUserRecord(userRecordItem) : undefined}
+        onPasswordSave={password => {
+          if (!dossier?.id) return
+          void updateUserPassword({ id: dossier.id }, password)
+        }}
+      />
     </ProductShell>
   )
 }
