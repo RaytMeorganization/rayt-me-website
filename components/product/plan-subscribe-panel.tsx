@@ -16,6 +16,7 @@ import {
   type BillingInterval,
 } from '@/lib/plan-pricing'
 import { startWebsiteCheckout } from '@/lib/website-checkout'
+import { clampBusinessSeats } from '@/lib/business-seats'
 
 type PaidPlan = 'pro' | 'business'
 
@@ -42,7 +43,7 @@ export function PlanSubscribePanel({
 
   const catalog = plans.find(row => row.code === planCode)
   const { yearlyCents, monthlyCents } = resolvePlanPrices(planCode, catalog)
-  const seats = Math.max(1, employeeSeats)
+  const seats = planCode === 'business' ? clampBusinessSeats(employeeSeats) : 1
 
   function displayAmount(cents: number) {
     const total = planCode === 'business' ? cents * seats : cents

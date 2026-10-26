@@ -30,7 +30,7 @@ export function MarketingShell({ children, className, hideAuthLinks }: Marketing
           >
             <LogoLockup tone="light" />
           </Link>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 shrink-0 items-center gap-2">
             <LocaleButton tone="dark" />
             {!hideAuthLinks && !WEB_SIGN_IN_DISABLED ? (
               <Link
@@ -50,8 +50,8 @@ export function MarketingShell({ children, className, hideAuthLinks }: Marketing
               </Link>
             ) : null}
             {!hideAuthLinks && WEB_SIGN_UP_DISABLED ? (
-              <Link href={getStartedPath()} className={buttonVariants({ size: 'sm', className: 'bg-white text-black hover:bg-white/90' })}>
-                Get started
+              <Link href={getStartedPath()} className={buttonVariants({ size: 'sm', className: 'whitespace-nowrap bg-white text-black hover:bg-white/90' })}>
+                {t('getStarted')}
               </Link>
             ) : null}
           </div>

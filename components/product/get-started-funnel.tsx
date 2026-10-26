@@ -18,6 +18,7 @@ import {
 } from '@/lib/get-started-funnel'
 import type { BillingInterval } from '@/lib/plan-pricing'
 import { storeUrlForUserAgent } from '@/lib/store-links'
+import { clampBusinessSeats } from '@/lib/business-seats'
 
 function goToTiedCheckout() {
   const remembered = readRememberedPlan()
@@ -65,7 +66,7 @@ export function GetStartedFunnel({
   const { user, loading } = useAuth()
   const [plan, setPlan] = useState<FunnelPlanCode>(initialPlan ?? 'pro')
   const [interval, setInterval] = useState<BillingInterval>(initialInterval)
-  const [employees, setEmployees] = useState(initialEmployees)
+  const [employees, setEmployees] = useState(() => clampBusinessSeats(initialEmployees))
   const [editing, setEditing] = useState(initialEditing)
   const [tied, setTied] = useState(Boolean(initialPlan))
 
@@ -106,7 +107,7 @@ export function GetStartedFunnel({
       const next = funnelFromSearch(new URLSearchParams(window.location.search))
       setPlan(next.plan ?? 'pro')
       setInterval(next.interval)
-      setEmployees(next.employees)
+      setEmployees(clampBusinessSeats(next.employees))
       setEditing(next.editing)
       setTied(Boolean(next.plan))
     }
@@ -127,7 +128,7 @@ export function GetStartedFunnel({
   }) {
     setPlan(selection.plan)
     setInterval(selection.interval)
-    setEmployees(selection.employees)
+    setEmployees(clampBusinessSeats(selection.employees))
     setTied(true)
     setEditing(false)
     writeUrl({
@@ -169,6 +170,8 @@ export function GetStartedFunnel({
           <GetStartedAccountForm
             onCreated={() => {
               if (readRememberedPlan().tied && goToTiedCheckout()) return
+              // Full reload on purpose: the new session cookie must reach server-rendered /settings.
+              // eslint-disable-next-line @next/next/no-location-assign-relative-destination
               window.location.assign('/settings')
             }}
             tied={tied}

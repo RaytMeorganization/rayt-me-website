@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useState } from 'react'
 import { Check, Lock, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,6 +13,7 @@ import type { PublicProfile } from '@/lib/types'
 
 export function PublicCard({ profile }: { profile: PublicProfile }) {
   const { t } = useI18n()
+  const [logoFailed, setLogoFailed] = useState(false)
   const surface = cardThemeSurface(profile.theme)
   const title = profile.jobTitle || profile.education?.fieldOfStudy
   const organization = profile.company || profile.education?.university
@@ -70,10 +72,19 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
                   </p>
                 ) : null}
               </div>
-              <ScoreRing score={Number(profile.reputation.score)} verified={profile.isVerified} />
-              {surface.logoUrl ? (
-                <Image src={surface.logoUrl} alt="" width={48} height={48} unoptimized className="size-12 shrink-0 rounded-xl object-contain" />
-              ) : null}
+              <div className="flex shrink-0 flex-col items-center gap-2">
+                <ScoreRing
+                  score={Number(profile.reputation.score)}
+                  verified={profile.isVerified}
+                  textColor={surface.light ? '#11213D' : '#FFFFFF'}
+                  verifiedLabel={t('verified')}
+                  ariaLabel={t(profile.isVerified ? 'scoreOutOf5Verified' : 'scoreOutOf5').replace('{score}', Math.max(0, Math.min(5, Number(profile.reputation.score) || 0)).toFixed(1))}
+                />
+                {/* Hide the theme logo if it fails to load instead of showing a broken-image "?" icon. */}
+                {surface.logoUrl && !logoFailed ? (
+                  <Image src={surface.logoUrl} alt="" width={40} height={40} unoptimized onError={() => setLogoFailed(true)} className="size-10 rounded-xl object-contain" />
+                ) : null}
+              </div>
             </div>
             {profile.bio ? <p className="mt-6 text-sm leading-6 text-foreground/90">{profile.bio}</p> : null}
             <p className="mt-6 text-xs text-muted-foreground">

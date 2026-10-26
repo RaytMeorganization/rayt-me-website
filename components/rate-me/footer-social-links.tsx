@@ -6,7 +6,7 @@ const RAYT_INSTAGRAM_URL = "https://www.instagram.com/rayt_me/";
 const socialLinks = [
   {
     href: RAYT_LINKEDIN_URL,
-    label: "Rayt Me on LinkedIn",
+    label: "RaytME on LinkedIn",
     icon: (
       <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
         <path
@@ -18,7 +18,7 @@ const socialLinks = [
   },
   {
     href: RAYT_FACEBOOK_URL,
-    label: "Rayt Me on Facebook",
+    label: "RaytME on Facebook",
     icon: (
       <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
         <path
@@ -30,7 +30,7 @@ const socialLinks = [
   },
   {
     href: RAYT_INSTAGRAM_URL,
-    label: "Rayt Me on Instagram",
+    label: "RaytME on Instagram",
     icon: (
       <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
         <path

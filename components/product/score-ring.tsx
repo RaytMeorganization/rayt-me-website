@@ -8,18 +8,26 @@ export function ScoreRing({
   verified = true,
   size = 62,
   className = '',
+  textColor = NAVY,
+  verifiedLabel = 'Verified',
+  ariaLabel,
 }: {
   score: number
   verified?: boolean
   size?: number
   className?: string
+  /** Score digits colour; pass a light colour on dark card surfaces so the value stays legible. */
+  textColor?: string
+  verifiedLabel?: string
+  /** Localized screen-reader label; defaults to English. */
+  ariaLabel?: string
 }) {
   const clamped = Math.max(0, Math.min(5, Number(score) || 0))
   const stroke = Math.max(3.5, size * 0.065)
   const radius = (size - stroke) / 2
   const circumference = 2 * Math.PI * radius
   const filled = circumference * (clamped / 5)
-  const label = `${clamped.toFixed(1)} out of 5${verified ? ', verified reputation' : ''}`
+  const label = ariaLabel ?? `${clamped.toFixed(1)} out of 5${verified ? ', verified reputation' : ''}`
 
   return (
     <div className={`inline-flex flex-col items-center ${className}`}>
@@ -54,7 +62,7 @@ export function ScoreRing({
           y="50%"
           dominantBaseline="middle"
           textAnchor="middle"
-          fill={NAVY}
+          fill={textColor}
           fontFamily="Georgia, 'Iowan Old Style', Palatino, serif"
           fontSize={size * 0.28}
           aria-hidden="true"
@@ -64,7 +72,7 @@ export function ScoreRing({
       </svg>
       {verified ? (
         <p className="mt-1 text-[10px] font-semibold tracking-[.04em] text-[#2E6B4C]" style={{ color: SAGE }}>
-          Verified
+          {verifiedLabel}
         </p>
       ) : null}
     </div>

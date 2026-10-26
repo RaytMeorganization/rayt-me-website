@@ -149,7 +149,7 @@ export function WorkspaceMemberCard({
                   {roleLabel}
                 </Badge>
               )}
-              <ScoreRing score={Number(score ?? 0)} verified={isVerified} size={52} />
+              <ScoreRing score={Number(score ?? 0)} verified={isVerified} size={52} verifiedLabel={t('verified')} ariaLabel={t(isVerified ? 'scoreOutOf5Verified' : 'scoreOutOf5').replace('{score}', Math.max(0, Math.min(5, Number(score ?? 0) || 0)).toFixed(1))} />
             </div>
             {ratingsCount != null ? (
               <p className="mt-2 text-xs text-muted-foreground">

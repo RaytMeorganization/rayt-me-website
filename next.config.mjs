@@ -8,6 +8,7 @@ const monorepoRoot = path.join(__dirname, '..')
 const backend = (process.env.API_PROXY_TARGET || 'http://localhost:4000').replace(/\/$/, '')
 
 const nextConfig = {
+  poweredByHeader: false,
   outputFileTracingRoot: monorepoRoot,
   allowedDevOrigins: ['127.0.0.1', 'localhost'],
   turbopack: {
@@ -19,6 +20,15 @@ const nextConfig = {
   },
   async headers() {
     return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
       {
         source: '/.well-known/apple-app-site-association',
         headers: [{ key: 'content-type', value: 'application/json' }],

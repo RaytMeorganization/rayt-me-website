@@ -23,6 +23,7 @@ import {
 } from '@/lib/get-started-funnel'
 import { storeUrlForUserAgent } from '@/lib/store-links'
 import { cn } from '@/lib/utils'
+import { BUSINESS_MIN_SEATS, clampBusinessSeats } from '@/lib/business-seats'
 
 const ctaPrimary =
   'bg-violet-600 text-white shadow-[0_0_40px_-10px_rgba(139,92,246,0.8)] hover:bg-violet-500'
@@ -212,7 +213,7 @@ export function GetStartedPlansPanel({
                           aria-label="Decrease employees"
                           onClick={event => {
                             event.stopPropagation()
-                            onEmployees(Math.max(1, employees - 1))
+                            onEmployees(clampBusinessSeats(employees - 1))
                           }}
                         >
                           <MinusIcon />
@@ -220,11 +221,12 @@ export function GetStartedPlansPanel({
                         <Input
                           id="gs-employees"
                           type="number"
-                          min={1}
+                          min={BUSINESS_MIN_SEATS}
                           max={10000}
                           value={employees}
                           onClick={event => event.stopPropagation()}
-                          onChange={event => onEmployees(Number(event.target.value) || 1)}
+                          onChange={event => onEmployees(Number(event.target.value) || BUSINESS_MIN_SEATS)}
+                          onBlur={() => onEmployees(clampBusinessSeats(employees))}
                           className="rounded-xl text-center font-brand text-lg tabular-nums"
                         />
                         <Button

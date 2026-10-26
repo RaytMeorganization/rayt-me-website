@@ -1,5 +1,3 @@
-import type { Metadata } from 'next'
-
 import { ForgotPasswordForm } from '@/components/product/forgot-password-form'
 import { buildPublicPageMetadata } from '@/lib/seo'
 

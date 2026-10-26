@@ -83,7 +83,7 @@ import {
 } from "@/components/rate-me/landing-animations";
 import { LogoLockup } from "@/components/brand/logo-lockup";
 import { applyLandingCopy } from "@/components/rate-me/landing-copy";
-import { LEGAL_NAV } from "@/lib/company";
+import { COMPANY, LEGAL_NAV } from "@/lib/company";
 import { RaytmeBot } from "@/components/rate-me/raytme-bot";
 import { cardThemeBarColor } from "@/lib/card-theme";
 import { WEB_SIGN_IN_DISABLED } from "@/lib/web-sign-in";
@@ -103,6 +103,7 @@ import { YearlyBillingOfferDialog } from "@/components/product/yearly-billing-of
 import { cn } from "@/lib/utils";
 import { FooterSocialLinks } from "@/components/rate-me/footer-social-links";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/store-links";
+import { BUSINESS_MIN_SEATS, clampBusinessSeats } from "@/lib/business-seats";
 
 type LandingLocaleValue = {
   arabic: boolean;
@@ -1658,7 +1659,7 @@ function Pricing() {
   const [employees, setEmployees] = useState(10);
   const [billingInterval, setBillingInterval] = useState<"month" | "year">("month");
   const [yearlyOffer, setYearlyOffer] = useState<null | { plan: "pro" | "business" }>(null);
-  const seats = Math.max(1, Math.min(10000, employees));
+  const seats = clampBusinessSeats(employees);
   const businessPrices = resolvePlanPrices(
     "business",
     catalogPlans.find((row) => row.code === "business"),
@@ -1848,7 +1849,7 @@ function Pricing() {
                         className="rounded-xl border-white/[0.08] bg-white/[0.03] transition-all duration-300 ease-out"
                         aria-label="Decrease employees"
                         onClick={() =>
-                          setEmployees((value) => Math.max(1, value - 1))
+                          setEmployees((value) => clampBusinessSeats(value - 1))
                         }
                       >
                         <MinusIcon />
@@ -1856,7 +1857,7 @@ function Pricing() {
                       <Input
                         id="employees"
                         type="number"
-                        min={1}
+                        min={BUSINESS_MIN_SEATS}
                         max={10000}
                         value={seats}
                         onChange={(event) =>
@@ -1899,7 +1900,7 @@ function Pricing() {
               ))}
             </ul>
           </CardContent>
-          <CardFooter className="mt-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <CardFooter className="mt-auto flex-col items-stretch pb-[max(1rem,env(safe-area-inset-bottom))]">
             {"subscribeMonthly" in plan && plan.subscribeMonthly ? (
               <button
                 type="button"
@@ -1922,6 +1923,14 @@ function Pricing() {
                 {plan.cta}
               </SignUpCta>
             )}
+            {plan.id === "business" ? (
+              <a
+                href={`mailto:${COMPANY.emails.info}?subject=${encodeURIComponent("RaytME Business enquiry")}`}
+                className="mt-3 block text-center text-sm font-medium text-muted-foreground underline underline-offset-4 hover:text-foreground"
+              >
+                {arabic ? "تواصل معنا" : "Contact us"}
+              </a>
+            ) : null}
           </CardFooter>
         </Card>
       ))}

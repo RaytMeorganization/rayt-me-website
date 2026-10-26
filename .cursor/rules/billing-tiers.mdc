@@ -10,8 +10,8 @@ Prices live in `@rayt-me/plan-pricing`. Do not invent a second price table.
 | Tier | Price | Given / month |
 |---|---|---|
 | Basic | $0 | 25 |
-| Pro | $27 / year | 60 |
-| Business | $21 / employee / year | 50 per employee |
+| Pro | $48 / year | 60 |
+| Business | $36 / employee / year | 50 per employee |
 
 Received ratings are unlimited on every tier. iOS does not sell plans in-app. Billing provider default is `disabled`; never `sandbox` on production. Super Voter is not a paid SKU. One server `OPENAI_API_KEY` (default model `gpt-5-mini`).
 
