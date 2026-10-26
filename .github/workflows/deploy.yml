@@ -12,16 +12,56 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-website
+  cancel-in-progress: false
+
+env:
+  # Same tag compose uses by default (WEB_IMAGE unset), so manual recover/up keeps working.
+  LOCAL_TAG: rayt-me-web:local
+
 jobs:
   deploy:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     environment: Production
-    timeout-minutes: 45
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          path: rayt-me-website
+
+      # The Dockerfile builds from the monorepo root and expects ../rayt-me-shared.
+      # Recreate it from the copy vendored in this repo (no public shared repo).
+      - name: Prepare build context
+        run: |
+          set -euo pipefail
+          cp -R rayt-me-website/.local-packages/rayt-me-shared ./rayt-me-shared
+          rm -rf ./rayt-me-shared/node_modules
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Built on the runner instead of the VPS: the on-server next build hung (likely memory).
+      # Build args mirror deploy/docker-compose.prod.yml; the overridable ones come from repo/env vars.
+      - name: Build image
+        uses: docker/build-push-action@v6
+        timeout-minutes: 20
+        with:
+          context: .
+          file: rayt-me-website/Dockerfile
+          load: true
+          tags: ${{ env.LOCAL_TAG }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+          build-args: |
+            API_PROXY_TARGET=http://api:4000
+            NEXT_PUBLIC_API_URL=https://api.raytme.me
+            NEXT_PUBLIC_SITE_URL=https://raytme.me
+            NEXT_PUBLIC_WEB_SIGN_UP_DISABLED=${{ vars.NEXT_PUBLIC_WEB_SIGN_UP_DISABLED || 'true' }}
+            NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=${{ vars.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '' }}
+            NEXT_PUBLIC_APP_STORE_URL=${{ vars.NEXT_PUBLIC_APP_STORE_URL || 'https://apps.apple.com/' }}
+            NEXT_PUBLIC_PLAY_STORE_URL=${{ vars.NEXT_PUBLIC_PLAY_STORE_URL || 'https://play.google.com/store/apps/details?id=com.raytme.app' }}
 
       - name: Install SSH key
         env:
@@ -36,6 +76,7 @@ jobs:
           ssh-keyscan -p "$PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Verify VPS SSH (from GitHub runner)
+        timeout-minutes: 2
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -55,9 +96,9 @@ jobs:
           fi
           ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" 'echo "SSH OK from GitHub Actions"'
 
-      # rayt-me-shared lives only on the VPS workspace (no public GitHub repo).
-      # Sync website sources, then rebuild the web image on the server.
-      - name: Sync website to VPS and rebuild
+      # Keep VPS sources in sync so a manual ./remote-deploy.sh web still has current code.
+      - name: Sync website sources to VPS
+        timeout-minutes: 5
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -70,6 +111,30 @@ jobs:
             --exclude node_modules --exclude .next --exclude .git \
             --exclude .env.production \
             -e "ssh $SSH_OPTS" \
-            ./ "${VPS_USER}@${VPS_HOST}:/opt/rayt-me/rayt-me-website/"
+            rayt-me-website/ "${VPS_USER}@${VPS_HOST}:/opt/rayt-me/rayt-me-website/"
+
+      - name: Stream image to VPS and restart web
+        timeout-minutes: 10
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_PORT: ${{ secrets.VPS_SSH_PORT }}
+        run: |
+          set -euo pipefail
+          PORT="${VPS_SSH_PORT:-22}"
+          SSH_OPTS="-i ~/.ssh/vps -o IdentitiesOnly=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 -p $PORT"
+          docker save "$LOCAL_TAG" | gzip -1 | ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" 'gunzip | docker load'
+          # No pull/build on the VPS: start the image just loaded, web only.
           ssh $SSH_OPTS "${VPS_USER}@${VPS_HOST}" \
-            'cd /opt/rayt-me/deploy && unset WEB_IMAGE API_IMAGE && ./remote-deploy.sh web'
+            'cd /opt/rayt-me/deploy && unset WEB_IMAGE API_IMAGE && docker compose -f docker-compose.prod.yml --env-file .env.production up -d --no-build --no-deps --pull never web'
+
+      - name: Health check
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 40); do
+            code="$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' https://raytme.me/ || true)"
+            if [[ "$code" =~ ^(200|301|302|308)$ ]]; then echo "health: ok ($code)"; exit 0; fi
+            echo "health: waiting ($i/40) web=$code"; sleep 3
+          done
+          echo "::error::raytme.me did not return 2xx/3xx after restart"; exit 1
