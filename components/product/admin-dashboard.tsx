@@ -930,6 +930,11 @@ export function AdminDashboard() {
                       </StatusBadge>
                     }
                   >
+                    {(item.organization as { name?: string } | null | undefined)?.name ? (
+                      <p className="text-sm text-foreground">
+                        {t('billedOrganization')}: {String((item.organization as { name?: string }).name)}
+                      </p>
+                    ) : null}
                     <p className="text-xs text-muted-foreground">
                       {item.description ? `${String(item.description)} · ` : ''}
                       {t('paidOn')}: {formatAdminDate(item.paidAt || item.createdAt)}

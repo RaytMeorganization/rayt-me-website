@@ -134,6 +134,11 @@ export function AdminSubscriptionsPanel({
                   <p className="text-sm text-muted-foreground">
                     {planLabel(String(row.planCode ?? ''))} · {formatPriceCentsUsd(Number(row.amountCents ?? 0))} · {formatAdminDate(row.paidAt || row.createdAt)}
                   </p>
+                  {(row.organization as { name?: string } | null | undefined)?.name ? (
+                    <p className="mt-1 text-sm text-foreground">
+                      {t('billedOrganization')}: {String((row.organization as { name?: string }).name)}
+                    </p>
+                  ) : null}
                   {row.description ? (
                     <p className="mt-1 text-xs text-muted-foreground">{String(row.description)}</p>
                   ) : null}
