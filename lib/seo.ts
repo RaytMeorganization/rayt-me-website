@@ -47,13 +47,7 @@ export function buildRootMetadata(): Metadata {
     },
     description: DEFAULT_DESCRIPTION,
     metadataBase: new URL(SITE_ORIGIN),
-    alternates: {
-      canonical: '/',
-      languages: {
-        'en-US': siteUrl('/'),
-        ar: siteUrl('/'),
-      },
-    },
+    // No root alternates: pages without their own metadata must not inherit canonical "/".
     applicationName: 'RaytME',
     openGraph: {
       title: DEFAULT_TITLE,
@@ -108,12 +102,15 @@ export function buildPublicPageMetadata(options: {
   title: string
   description: string
   path: `/${string}`
+  /** Auth/funnel pages: keep links followable but out of the index. */
+  noindex?: boolean
 }): Metadata {
   const canonical = siteUrl(options.path)
   return {
     title: options.title,
     description: options.description,
     alternates: { canonical },
+    ...(options.noindex ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       title: options.title,
       description: options.description,

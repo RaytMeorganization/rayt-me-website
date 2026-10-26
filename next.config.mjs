@@ -43,6 +43,12 @@ const nextConfig = {
     const signInOff = process.env.NEXT_PUBLIC_WEB_SIGN_IN_DISABLED === 'true'
     const signUpOff = process.env.NEXT_PUBLIC_WEB_SIGN_UP_DISABLED !== 'false'
     return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.raytme.me' }],
+        destination: 'https://raytme.me/:path*',
+        permanent: true,
+      },
       { source: '/subprocessors', destination: '/legal', permanent: false },
       ...(signInOff
         ? [{ source: '/sign-in', destination: '/', permanent: false }]

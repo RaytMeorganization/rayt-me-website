@@ -5,6 +5,7 @@ export const metadata = buildPublicPageMetadata({
   title: 'Forgot password',
   description: 'Reset your RaytME password with a one-time code sent to your email.',
   path: '/forgot-password',
+  noindex: true,
 })
 
 export default function ForgotPasswordPage() {

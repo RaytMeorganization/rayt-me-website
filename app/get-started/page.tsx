@@ -8,6 +8,7 @@ export const metadata = buildPublicPageMetadata({
   description:
     'Create your RaytME account, choose Basic, Pro, or Business, and open your portable professional reputation card.',
   path: '/get-started',
+  noindex: true,
 })
 
 export default async function GetStartedPage({
