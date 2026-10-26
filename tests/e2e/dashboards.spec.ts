@@ -6,7 +6,7 @@ async function signIn(page: Page, email: string) {
   })
   await page.goto('/sign-in')
   await page.getByLabel('Email').fill(email)
-  await page.getByLabel('Password').fill('RaytDev!2026')
+  await page.getByLabel('Password', { exact: true }).fill('RaytDev!2026')
   const loginResponse = page.waitForResponse(response =>
     response.url().includes('/backend/auth/login'),
   )

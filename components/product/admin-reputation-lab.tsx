@@ -6,22 +6,168 @@ import { Input } from '@/components/ui/input'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Badge } from '@/components/ui/badge'
 import { api, errorMessage } from '@/lib/api'
+import { useI18n } from '@/components/product/providers'
+
+// Admin-only copy, EN + AR. Numeric weights are shown as-is; the formula text comes from the API.
+const LAB_COPY = {
+  en: {
+    rel_worked_with: 'Colleague — worked with (0.90)',
+    rel_client: 'Client (1.00)',
+    rel_manager: 'Manager (1.15)',
+    rel_employee: 'Employee (0.95)',
+    rel_supplier: 'Supplier (0.80)',
+    rel_met_professionally: 'Met professionally (0.55)',
+    rel_event_networking: 'Met at an event (0.40)',
+    preset_alwaysFive: 'Always gives 5',
+    preset_lowCredibility: 'Low credibility (mostly 5s)',
+    preset_realistic: 'Realistic mix',
+    preset_highlyCredible: 'Highly credible raters',
+    'profile_lab-profile-one-five': 'Noor — one 5 from an always-5 colleague',
+    'profile_lab-profile-super-colleague': 'Hadi — one 5 from a Super Voter colleague',
+    'profile_lab-profile-event': 'Lina — one 5 from an always-5 event contact',
+    'profile_lab-profile-built': 'Omar — eight mixed colleague ratings',
+    simulationFailed: 'Simulation failed',
+    checkFailed: 'Profile check failed',
+    internalNote: 'Internal calibration only. Runs the live scoring formula and snapshot shape. It does not save ratings or change profile scores.',
+    simulationTitle: 'Rating and scoring simulation',
+    starsGiven: 'Stars they give (R)',
+    timesApplied: 'How many times this pattern is applied',
+    relationship: 'Relationship',
+    raterHistory: 'Rater history',
+    peopleInWindow: 'Different people rated in 90 days (Super Voter)',
+    alreadySuperVoter: 'Already a Super Voter',
+    yes: 'Yes',
+    no: 'No',
+    running: 'Running…',
+    runSimulation: 'Run simulation',
+    checkTitle: 'Live profile accuracy and snapshot',
+    checkHelp: 'Replays visible ratings with the same formula and shows the professional snapshot the app would return. Nothing is written. Demo profiles are created by the backend seed.',
+    userId: 'User id',
+    checking: 'Checking…',
+    checkProfile: 'Check profile',
+    finalScore: 'Final score',
+    startsAt: 'Starts at',
+    afterFirst: 'After first rating',
+    credibility: 'Credibility',
+    weight: 'Weight W',
+    superVoter: 'Super Voter',
+    active: 'active',
+    notActive: 'not active',
+    needs: 'Needs {min} different people in 90 days and credibility at least {cred}.',
+    hasPeople: 'This rater has {people} people and credibility {cred}.',
+    wouldEarn: 'They would earn Super Voter on this rating.',
+    wouldSuspend: 'Super Voter would be suspended.',
+    headline: 'Headline',
+    previousEmployment: 'Previous employment',
+    education: 'Education',
+    skills: 'Skills',
+    languages: 'Languages',
+    licenses: 'Licenses',
+    certifications: 'Certifications',
+    memberships: 'Memberships',
+    cv: 'CV',
+    matches: 'Stored score matches replay',
+    mismatch: 'Mismatch Δ',
+    storedScore: 'Stored score',
+    replayedScore: 'Replayed score',
+    visibleRatings: 'Visible ratings',
+    snapshot: 'Professional snapshot',
+    relWeight: 'Rel. weight',
+    noRatings: 'No visible ratings yet. Score should stay at 3.00.',
+    scorePath: 'Score path',
+  },
+  ar: {
+    rel_worked_with: 'زميل — عمل معه (0.90)',
+    rel_client: 'عميل (1.00)',
+    rel_manager: 'مدير (1.15)',
+    rel_employee: 'موظف (0.95)',
+    rel_supplier: 'مورّد (0.80)',
+    rel_met_professionally: 'تعارف مهني (0.55)',
+    rel_event_networking: 'تعارف في فعالية (0.40)',
+    preset_alwaysFive: 'يعطي 5 دائماً',
+    preset_lowCredibility: 'مصداقية منخفضة (غالباً 5)',
+    preset_realistic: 'مزيج واقعي',
+    preset_highlyCredible: 'مقيّمون ذوو مصداقية عالية',
+    'profile_lab-profile-one-five': 'نور — تقييم 5 واحد من زميل يعطي 5 دائماً',
+    'profile_lab-profile-super-colleague': 'هادي — تقييم 5 واحد من زميل مُقيّم مميز',
+    'profile_lab-profile-event': 'لينا — تقييم 5 واحد من جهة اتصال في فعالية تعطي 5 دائماً',
+    'profile_lab-profile-built': 'عمر — ثمانية تقييمات متنوعة من زملاء',
+    simulationFailed: 'فشلت المحاكاة',
+    checkFailed: 'فشل فحص الملف',
+    internalNote: 'للمعايرة الداخلية فقط. تُشغّل معادلة التقييم الحالية وشكل الملخص. لا تحفظ تقييمات ولا تغيّر نتائج الملفات.',
+    simulationTitle: 'محاكاة التقييم والنتيجة',
+    starsGiven: 'النجوم الممنوحة (R)',
+    timesApplied: 'عدد مرات تطبيق هذا النمط',
+    relationship: 'العلاقة',
+    raterHistory: 'سجل المقيّم',
+    peopleInWindow: 'عدد الأشخاص المختلفين المقيَّمين خلال 90 يوماً (مُقيّم مميز)',
+    alreadySuperVoter: 'مُقيّم مميز حالياً',
+    yes: 'نعم',
+    no: 'لا',
+    running: 'جارٍ التشغيل…',
+    runSimulation: 'تشغيل المحاكاة',
+    checkTitle: 'دقة الملف الحالي والملخص',
+    checkHelp: 'تعيد احتساب التقييمات الظاهرة بالمعادلة نفسها وتعرض الملخص المهني الذي يعيده التطبيق. لا يُحفظ أي شيء. الملفات التجريبية تُنشأ من بيانات الخادم التجريبية.',
+    userId: 'معرّف المستخدم',
+    checking: 'جارٍ الفحص…',
+    checkProfile: 'فحص الملف',
+    finalScore: 'النتيجة النهائية',
+    startsAt: 'تبدأ عند',
+    afterFirst: 'بعد أول تقييم',
+    credibility: 'المصداقية',
+    weight: 'الوزن W',
+    superVoter: 'مُقيّم مميز',
+    active: 'مفعّل',
+    notActive: 'غير مفعّل',
+    needs: 'يتطلب {min} أشخاص مختلفين خلال 90 يوماً ومصداقية لا تقل عن {cred}.',
+    hasPeople: 'لدى هذا المقيّم {people} أشخاص ومصداقية {cred}.',
+    wouldEarn: 'سيحصل على صفة مُقيّم مميز بهذا التقييم.',
+    wouldSuspend: 'سيتم تعليق صفة مُقيّم مميز.',
+    headline: 'العنوان المهني',
+    previousEmployment: 'الوظائف السابقة',
+    education: 'التعليم',
+    skills: 'المهارات',
+    languages: 'اللغات',
+    licenses: 'التراخيص',
+    certifications: 'الشهادات',
+    memberships: 'العضويات',
+    cv: 'السيرة الذاتية',
+    matches: 'النتيجة المحفوظة تطابق إعادة الاحتساب',
+    mismatch: 'عدم تطابق Δ',
+    storedScore: 'النتيجة المحفوظة',
+    replayedScore: 'النتيجة المعاد احتسابها',
+    visibleRatings: 'التقييمات الظاهرة',
+    snapshot: 'الملخص المهني',
+    relWeight: 'وزن العلاقة',
+    noRatings: 'لا توجد تقييمات ظاهرة بعد. يجب أن تبقى النتيجة 3.00.',
+    scorePath: 'مسار النتيجة',
+  },
+} as const
+
+type LabKey = keyof typeof LAB_COPY.en
+
+function useLabCopy() {
+  const { locale } = useI18n()
+  const dict = LAB_COPY[locale === 'ar' ? 'ar' : 'en']
+  return (key: LabKey, vars?: Record<string, string | number>) =>
+    Object.entries(vars ?? {}).reduce<string>((text, [name, value]) => text.replace(`{${name}}`, String(value)), dict[key])
+}
 
 const RELATIONSHIPS = [
-  ['worked_with', 'Colleague — worked with (0.90)'],
-  ['client', 'Client (1.00)'],
-  ['manager', 'Manager (1.15)'],
-  ['employee', 'Employee (0.95)'],
-  ['supplier', 'Supplier (0.80)'],
-  ['met_professionally', 'Met professionally (0.55)'],
-  ['event_networking', 'Met at an event (0.40)'],
+  ['worked_with'],
+  ['client'],
+  ['manager'],
+  ['employee'],
+  ['supplier'],
+  ['met_professionally'],
+  ['event_networking'],
 ] as const
 
 const PRESETS = [
-  ['alwaysFive', 'Always gives 5'],
-  ['lowCredibility', 'Low credibility (mostly 5s)'],
-  ['realistic', 'Realistic mix'],
-  ['highlyCredible', 'Highly credible raters'],
+  ['alwaysFive'],
+  ['lowCredibility'],
+  ['realistic'],
+  ['highlyCredible'],
 ] as const
 
 type SimulateResult = {
@@ -77,10 +223,10 @@ type CheckResult = {
 }
 
 const LAB_PROFILES = [
-  ['lab-profile-one-five', 'Noor — one 5 from an always-5 colleague'],
-  ['lab-profile-super-colleague', 'Hadi — one 5 from a Super Voter colleague'],
-  ['lab-profile-event', 'Lina — one 5 from an always-5 event contact'],
-  ['lab-profile-built', 'Omar — eight mixed colleague ratings'],
+  ['lab-profile-one-five'],
+  ['lab-profile-super-colleague'],
+  ['lab-profile-event'],
+  ['lab-profile-built'],
 ] as const
 
 const selectClass = 'h-11 w-full rounded-lg border border-white/10 bg-input/30 px-3 text-sm'
@@ -97,6 +243,7 @@ export function AdminReputationLab() {
   const [check, setCheck] = useState<CheckResult | null>(null)
   const [busy, setBusy] = useState<'simulate' | 'check' | null>(null)
   const [error, setError] = useState('')
+  const lab = useLabCopy()
 
   async function runSimulation() {
     setBusy('simulate')
@@ -115,7 +262,7 @@ export function AdminReputationLab() {
       })
       setSimulation(result)
     } catch (cause) {
-      setError(errorMessage(cause, 'Simulation failed'))
+      setError(errorMessage(cause, lab('simulationFailed')))
     } finally {
       setBusy(null)
     }
@@ -131,7 +278,7 @@ export function AdminReputationLab() {
       setCheck(result)
     } catch (cause) {
       setCheck(null)
-      setError(errorMessage(cause, 'Profile check failed'))
+      setError(errorMessage(cause, lab('checkFailed')))
     } finally {
       setBusy(null)
     }
@@ -140,15 +287,15 @@ export function AdminReputationLab() {
   return (
     <div className="grid gap-8">
       <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-        Internal calibration only. Runs the live scoring formula and snapshot shape. It does not save ratings or change profile scores.
+        {lab('internalNote')}
       </p>
       {error ? <p className="text-sm text-red-300">{error}</p> : null}
 
       <section className="grid gap-4">
-        <h3 className="font-serif text-lg">Rating and scoring simulation</h3>
+        <h3 className="font-serif text-lg">{lab('simulationTitle')}</h3>
         <div className="grid gap-4 md:grid-cols-2">
           <Field>
-            <FieldLabel>Stars they give (R) — {incoming.toFixed(1)}</FieldLabel>
+            <FieldLabel>{lab('starsGiven')} — {incoming.toFixed(1)}</FieldLabel>
             <input
               type="range"
               min={1}
@@ -159,7 +306,7 @@ export function AdminReputationLab() {
             />
           </Field>
           <Field>
-            <FieldLabel>How many times this pattern is applied — {count}</FieldLabel>
+            <FieldLabel>{lab('timesApplied')} — {count}</FieldLabel>
             <input
               type="range"
               min={1}
@@ -174,23 +321,23 @@ export function AdminReputationLab() {
             />
           </Field>
           <Field>
-            <FieldLabel>Relationship</FieldLabel>
+            <FieldLabel>{lab('relationship')}</FieldLabel>
             <select className={selectClass} value={relationship} onChange={(event) => setRelationship(event.target.value as typeof relationship)}>
-              {RELATIONSHIPS.map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+              {RELATIONSHIPS.map(([value]) => (
+                <option key={value} value={value}>{lab(`rel_${value}`)}</option>
               ))}
             </select>
           </Field>
           <Field>
-            <FieldLabel>Rater history</FieldLabel>
+            <FieldLabel>{lab('raterHistory')}</FieldLabel>
             <select className={selectClass} value={preset} onChange={(event) => setPreset(event.target.value as typeof preset)}>
-              {PRESETS.map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+              {PRESETS.map(([value]) => (
+                <option key={value} value={value}>{lab(`preset_${value}`)}</option>
               ))}
             </select>
           </Field>
           <Field>
-            <FieldLabel>Different people rated in 90 days (Super Voter)</FieldLabel>
+            <FieldLabel>{lab('peopleInWindow')}</FieldLabel>
             <Input
               type="number"
               min={0}
@@ -201,31 +348,30 @@ export function AdminReputationLab() {
             />
           </Field>
           <Field>
-            <FieldLabel>Already a Super Voter</FieldLabel>
+            <FieldLabel>{lab('alreadySuperVoter')}</FieldLabel>
             <select
               className={selectClass}
               value={superVoterNow ? 'yes' : 'no'}
               onChange={(event) => setSuperVoterNow(event.target.value === 'yes')}
             >
-              <option value="no">No</option>
-              <option value="yes">Yes</option>
+              <option value="no">{lab('no')}</option>
+              <option value="yes">{lab('yes')}</option>
             </select>
           </Field>
         </div>
         <Button type="button" disabled={busy != null} onClick={() => void runSimulation()}>
-          {busy === 'simulate' ? 'Running…' : 'Run simulation'}
+          {busy === 'simulate' ? lab('running') : lab('runSimulation')}
         </Button>
         {simulation ? <SimulationCard result={simulation} /> : null}
       </section>
 
       <section className="grid gap-4 border-t border-white/10 pt-6">
-        <h3 className="font-serif text-lg">Live profile accuracy and snapshot</h3>
+        <h3 className="font-serif text-lg">{lab('checkTitle')}</h3>
         <p className="text-sm text-muted-foreground">
-          Replays visible ratings with the same formula and shows the professional snapshot the app would return. Nothing is written.
-          Demo profiles are created by the backend seed.
+          {lab('checkHelp')}
         </p>
         <div className="flex flex-wrap gap-2">
-          {LAB_PROFILES.map(([id, label]) => (
+          {LAB_PROFILES.map(([id]) => (
             <Button
               key={id}
               type="button"
@@ -240,12 +386,12 @@ export function AdminReputationLab() {
                   .then(setCheck)
                   .catch((cause: unknown) => {
                     setCheck(null)
-                    setError(errorMessage(cause, 'Profile check failed'))
+                    setError(errorMessage(cause, lab('checkFailed')))
                   })
                   .finally(() => setBusy(null))
               }}
             >
-              {label}
+              {lab(`profile_${id}`)}
             </Button>
           ))}
         </div>
@@ -253,11 +399,12 @@ export function AdminReputationLab() {
           <Input
             value={userId}
             onChange={(event) => setUserId(event.target.value)}
-            placeholder="User id"
+            placeholder={lab('userId')}
+            aria-label={lab('userId')}
             className="max-w-md bg-input/30"
           />
           <Button type="button" variant="outline" disabled={busy != null || !userId.trim()} onClick={() => void runCheck()}>
-            {busy === 'check' ? 'Checking…' : 'Check profile'}
+            {busy === 'check' ? lab('checking') : lab('checkProfile')}
           </Button>
         </div>
         {check ? <CheckCard result={check} /> : null}
@@ -267,28 +414,29 @@ export function AdminReputationLab() {
 }
 
 function SimulationCard({ result }: { result: SimulateResult }) {
+  const lab = useLabCopy()
   const first = result.steps[0]
   return (
     <div className="grid gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
       <div className="flex flex-wrap items-end gap-6">
-        <ScoreMark label="Final score" value={result.finalScore} />
-        <ScoreMark label="Starts at" value={result.startingScore} />
-        {first ? <ScoreMark label="After first rating" value={first.newScore} /> : null}
+        <ScoreMark label={lab('finalScore')} value={result.finalScore} />
+        <ScoreMark label={lab('startsAt')} value={result.startingScore} />
+        {first ? <ScoreMark label={lab('afterFirst')} value={first.newScore} /> : null}
       </div>
       <p className="text-sm text-muted-foreground">{result.formula}</p>
       <div className="flex flex-wrap gap-2 text-sm">
-        <Badge variant="outline">Credibility {result.credibility}</Badge>
-        <Badge variant="outline">Relationship {result.relationshipWeight}</Badge>
-        <Badge variant="outline">Weight W {result.weight}</Badge>
+        <Badge variant="outline">{lab('credibility')} {result.credibility}</Badge>
+        <Badge variant="outline">{lab('relationship')} {result.relationshipWeight}</Badge>
+        <Badge variant="outline">{lab('weight')} {result.weight}</Badge>
         <Badge variant={result.superVoter.active ? 'default' : 'outline'}>
-          Super Voter {result.superVoter.active ? 'active' : 'not active'}
+          {lab('superVoter')} {result.superVoter.active ? lab('active') : lab('notActive')}
         </Badge>
       </div>
       <p className="text-sm text-muted-foreground">
-        Needs {result.superVoter.minPeople} different people in 90 days and credibility at least {result.superVoter.credibilityEarn}.
-        This rater has {result.superVoter.peopleInWindow} people and credibility {result.credibility}.
-        {result.superVoter.earnedNow ? ' They would earn Super Voter on this rating.' : ''}
-        {result.superVoter.suspendedNow ? ' Super Voter would be suspended.' : ''}
+        {lab('needs', { min: result.superVoter.minPeople, cred: result.superVoter.credibilityEarn })}{' '}
+        {lab('hasPeople', { people: result.superVoter.peopleInWindow, cred: result.credibility })}
+        {result.superVoter.earnedNow ? ` ${lab('wouldEarn')}` : ''}
+        {result.superVoter.suspendedNow ? ` ${lab('wouldSuspend')}` : ''}
       </p>
       <ScoreTrail steps={result.steps} />
       <p className="text-xs text-muted-foreground">{result.note}</p>
@@ -297,17 +445,18 @@ function SimulationCard({ result }: { result: SimulateResult }) {
 }
 
 function CheckCard({ result }: { result: CheckResult }) {
+  const lab = useLabCopy()
   const snapshotRows = [
-    ['Headline', result.snapshot.headline],
-    ['Previous employment', result.snapshot.previousEmployment.join(', ')],
-    ['Education', result.snapshot.education.join(', ')],
-    ['Skills', result.snapshot.skills.join(', ')],
-    ['Languages', result.snapshot.languages.join(', ')],
-    ['Licenses', result.snapshot.licenses.join(', ')],
-    ['Certifications', result.snapshot.certifications.join(', ')],
-    ['Memberships', result.snapshot.memberships.join(', ')],
-    ['CV', result.snapshot.cvUrl],
-  ] as const
+    [lab('headline'), result.snapshot.headline],
+    [lab('previousEmployment'), result.snapshot.previousEmployment.join(', ')],
+    [lab('education'), result.snapshot.education.join(', ')],
+    [lab('skills'), result.snapshot.skills.join(', ')],
+    [lab('languages'), result.snapshot.languages.join(', ')],
+    [lab('licenses'), result.snapshot.licenses.join(', ')],
+    [lab('certifications'), result.snapshot.certifications.join(', ')],
+    [lab('memberships'), result.snapshot.memberships.join(', ')],
+    [lab('cv'), result.snapshot.cvUrl],
+  ]
   return (
     <div className="grid gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -316,17 +465,17 @@ function CheckCard({ result }: { result: CheckResult }) {
           <p className="text-sm text-muted-foreground">{result.user.email}</p>
         </div>
         <Badge variant={result.accuracy.matches ? 'default' : 'outline'}>
-          {result.accuracy.matches ? 'Stored score matches replay' : `Mismatch Δ ${result.accuracy.delta}`}
+          {result.accuracy.matches ? lab('matches') : `${lab('mismatch')} ${result.accuracy.delta}`}
         </Badge>
-        {result.user.isSuperVoter ? <Badge>Super Voter</Badge> : null}
+        {result.user.isSuperVoter ? <Badge>{lab('superVoter')}</Badge> : null}
       </div>
       <div className="flex flex-wrap gap-6">
-        <ScoreMark label="Stored score" value={result.accuracy.storedScore} />
-        <ScoreMark label="Replayed score" value={result.accuracy.replayedScore} />
-        <ScoreMark label="Visible ratings" value={result.accuracy.visibleCount} />
+        <ScoreMark label={lab('storedScore')} value={result.accuracy.storedScore} />
+        <ScoreMark label={lab('replayedScore')} value={result.accuracy.replayedScore} />
+        <ScoreMark label={lab('visibleRatings')} value={result.accuracy.visibleCount} integer />
       </div>
       <div>
-        <p className="mb-2 text-sm font-medium">Professional snapshot</p>
+        <p className="mb-2 text-sm font-medium">{lab('snapshot')}</p>
         <dl className="grid gap-2 text-sm">
           {snapshotRows.map(([label, value]) => (
             <div key={label} className="grid gap-1 sm:grid-cols-[12rem_1fr]">
@@ -338,14 +487,14 @@ function CheckCard({ result }: { result: CheckResult }) {
       </div>
       {result.recentRatings.length ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-start text-sm">
             <thead className="text-muted-foreground">
               <tr>
                 <th className="py-1 pe-3 font-medium">R</th>
-                <th className="py-1 pe-3 font-medium">Relationship</th>
-                <th className="py-1 pe-3 font-medium">Credibility</th>
-                <th className="py-1 pe-3 font-medium">Rel. weight</th>
-                <th className="py-1 font-medium">Super Voter</th>
+                <th className="py-1 pe-3 font-medium">{lab('relationship')}</th>
+                <th className="py-1 pe-3 font-medium">{lab('credibility')}</th>
+                <th className="py-1 pe-3 font-medium">{lab('relWeight')}</th>
+                <th className="py-1 font-medium">{lab('superVoter')}</th>
               </tr>
             </thead>
             <tbody>
@@ -355,14 +504,14 @@ function CheckCard({ result }: { result: CheckResult }) {
                   <td className="py-1 pe-3">{rating.relationship}</td>
                   <td className="py-1 pe-3">{rating.raterCredibility.toFixed(2)}</td>
                   <td className="py-1 pe-3">{rating.relationshipWeight.toFixed(2)}</td>
-                  <td className="py-1">{rating.isSuperVoter ? 'Yes' : 'No'}</td>
+                  <td className="py-1">{rating.isSuperVoter ? lab('yes') : lab('no')}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">No visible ratings yet. Score should stay at 3.00.</p>
+        <p className="text-sm text-muted-foreground">{lab('noRatings')}</p>
       )}
       <ScoreTrail steps={result.steps.map((step) => ({ index: step.index, newScore: step.newScore }))} />
       <p className="text-xs text-muted-foreground">{result.note}</p>
@@ -370,16 +519,17 @@ function CheckCard({ result }: { result: CheckResult }) {
   )
 }
 
-function ScoreMark({ label, value }: { label: string; value: number }) {
+function ScoreMark({ label, value, integer = false }: { label: string; value: number; integer?: boolean }) {
   return (
     <div>
       <p className="text-xs tracking-wide text-muted-foreground uppercase">{label}</p>
-      <p className="font-serif text-3xl">{Number.isInteger(value) && label === 'Visible ratings' ? value : value.toFixed(2)}</p>
+      <p className="font-serif text-3xl">{integer && Number.isInteger(value) ? value : value.toFixed(2)}</p>
     </div>
   )
 }
 
 function ScoreTrail({ steps }: { steps: Array<{ index: number; newScore: number }> }) {
+  const lab = useLabCopy()
   if (!steps.length) return null
   const width = 280
   const height = 72
@@ -391,7 +541,7 @@ function ScoreTrail({ steps }: { steps: Array<{ index: number; newScore: number 
     return `${x},${y}`
   })
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="h-20 w-full max-w-md" role="img" aria-label="Score path">
+    <svg viewBox={`0 0 ${width} ${height}`} className="h-20 w-full max-w-md" role="img" aria-label={lab('scorePath')}>
       <polyline fill="none" stroke="currentColor" strokeWidth="2" points={points.join(' ')} className="text-amber-200" />
     </svg>
   )

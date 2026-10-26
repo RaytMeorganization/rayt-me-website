@@ -168,7 +168,7 @@ export function AdminPlanCard({
                   key={ent.id ?? ent.key}
                   type="button"
                   onClick={() => pickEntitlement(ent)}
-                  className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-left text-xs transition hover:border-primary/40 hover:bg-primary/10"
+                  className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-start text-xs transition hover:border-primary/40 hover:bg-primary/10"
                 >
                   <span className="font-medium text-foreground">{ent.key}</span>
                   <span className="ms-2 font-mono tabular-nums text-muted-foreground">{ent.value}</span>

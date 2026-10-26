@@ -35,7 +35,7 @@ test('public profile supports RTL without exposing app-only actions', async ({ p
 test('platform admin can sign in and reach protected operations', async ({ page }) => {
   await page.goto('/sign-in')
   await page.getByLabel('Email').fill('admin@demo.rayt.me')
-  await page.getByLabel('Password').fill('RaytDev!2026')
+  await page.getByLabel('Password', { exact: true }).fill('RaytDev!2026')
   const loginResponse = page.waitForResponse(response =>
     response.url().includes('/backend/auth/login'),
   )
@@ -48,7 +48,7 @@ test('platform admin can sign in and reach protected operations', async ({ page 
 test('member entitlements and server-controlled themes load in settings', async ({ page }) => {
   await page.goto('/sign-in')
   await page.getByLabel('Email').fill('user@demo.rayt.me')
-  await page.getByLabel('Password').fill('RaytDev!2026')
+  await page.getByLabel('Password', { exact: true }).fill('RaytDev!2026')
   await page.getByRole('button', { name: 'Continue' }).click()
   await expect(page).toHaveURL(/settings/)
   await expect(page.getByText('Ratings given per month:')).toBeVisible()

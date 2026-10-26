@@ -29,6 +29,7 @@ import { WorkspaceMemberCard } from '@/components/product/workspace-member-card'
 import { EmptyState, Illustration, StatCard } from '@/components/product/brand-art'
 import { AnimatedNumber } from '@/components/product/premium-motion'
 import { useAuth, useI18n } from '@/components/product/providers'
+import { dictionaries } from '@/lib/i18n'
 import { formatAdminDate } from '@/components/product/interactive-value'
 import { api, errorMessage } from '@/lib/api'
 import type { BusinessReputation, BusinessUsage, Organization } from '@/lib/types'
@@ -47,8 +48,27 @@ function formatScore(value: number | null | undefined, decimals = 1): string {
   return value.toFixed(decimals)
 }
 
+const PLAN_LABELS: Record<string, string> = { basic: 'Basic', pro: 'Pro', business: 'Business' }
+const BOOLEAN_ENTITLEMENTS = new Set(['custom_branding', 'analytics', 'custom_theme', 'company_branded_theme'])
+
+type Translate = ReturnType<typeof useI18n>['t']
+type DictKey = Parameters<Translate>[0]
+function planLabel(plan: string | null | undefined) {
+  if (!plan) return '—'
+  return PLAN_LABELS[plan.toLowerCase()] ?? plan
+}
+function statusLabel(t: Translate, status: string | null | undefined) {
+  if (!status) return t('status')
+  const key = `subStatus${status}`
+  return key in dictionaries.en ? t(key as DictKey) : status
+}
+function entitlementLabel(t: Translate, key: string) {
+  const dictKey = `entitlement_${key}`
+  return dictKey in dictionaries.en ? t(dictKey as DictKey) : key
+}
+
 export function BusinessDashboard() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const { user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -336,7 +356,7 @@ export function BusinessDashboard() {
                     value={String(usage?.usage.pendingInvites ?? 0)}
                     hint={t('status')}
                   />
-                  <StatCard label={t('plan')} value={usage?.plan || '—'} hint={usage?.status || t('status')} />
+                  <StatCard label={t('plan')} value={planLabel(usage?.plan)} hint={statusLabel(t, usage?.status)} />
                   <StatCard
                     label={t('ratingsGiven')}
                     value={String(teamActivity?.totals.ratingsGiven ?? 0)}
@@ -594,7 +614,7 @@ export function BusinessDashboard() {
                   </p>
                 ) : null}
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <StatCard label={t('plan')} value={usage?.plan || '—'} hint={usage?.status || t('status')} />
+                  <StatCard label={t('plan')} value={planLabel(usage?.plan)} hint={statusLabel(t, usage?.status)} />
                   <StatCard
                     label={t('members')}
                     value={String(usage?.usage.members ?? 0)}
@@ -606,14 +626,23 @@ export function BusinessDashboard() {
                   />
                   <StatCard label={t('pendingInvites')} value={String(usage?.usage.pendingInvites ?? 0)} />
                 </div>
-                <p className="mt-4 text-sm text-muted-foreground">{t('billingUnavailable')}</p>
+                {usage?.currentPeriodEnd ? (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    {t('periodEnd')}:{' '}
+                    {new Date(usage.currentPeriodEnd).toLocaleDateString(locale === 'ar' ? 'ar' : 'en-US', { dateStyle: 'medium' })}
+                  </p>
+                ) : usage?.status !== 'ACTIVE' && usage?.status !== 'TRIALING' ? (
+                  <p className="mt-4 text-sm text-muted-foreground">{t('billingUnavailable')}</p>
+                ) : null}
                 <h3 className="mt-8 text-sm font-semibold text-foreground">{t('entitlements')}</h3>
                 {usage?.entitlements.length ? (
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     {usage.entitlements.map(item => (
                       <div key={item.key} className="flex items-center justify-between rounded-xl border border-white/10 bg-muted/20 px-4 py-3 text-sm">
-                        <span className="text-muted-foreground">{item.key}</span>
-                        <span className="font-mono font-medium text-foreground">{item.value}</span>
+                        <span className="text-muted-foreground">{entitlementLabel(t, item.key)}</span>
+                        <span className="font-mono font-medium text-foreground">
+                          {BOOLEAN_ENTITLEMENTS.has(item.key) && item.value === 1 ? t('entitlementEnabled') : item.value}
+                        </span>
                       </div>
                     ))}
                   </div>
