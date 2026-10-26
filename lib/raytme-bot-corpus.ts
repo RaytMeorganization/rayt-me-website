@@ -1,6 +1,8 @@
 import { arabicCopy } from '@/components/rate-me/landing-copy'
 import { dictionaries } from '@/lib/i18n'
 import { LEGAL_DOCUMENTS, type LegalBlock } from '@/lib/legal-docs'
+import { BUSINESS_MIN_SEATS } from '@/lib/business-seats'
+import { USD_PER_EMPLOYEE_MONTH, USD_PER_EMPLOYEE_YEAR, USD_PRO_MONTH, USD_PRO_YEAR } from '@/lib/plan-pricing'
 
 export type BotLocale = 'en' | 'ar'
 
@@ -45,13 +47,13 @@ const RULES: BotPassage[] = [
     locale: 'en',
     href: '/',
     rule: true,
-    text: 'Pro price: Pro costs $27 per year. Basic costs $0. Business costs $21 per employee per year. The iOS app does not sell these plans.',
+    text: `Pro price: Pro costs $${USD_PRO_YEAR} per year or $${USD_PRO_MONTH} per month. Basic costs $0. Business costs $${USD_PER_EMPLOYEE_YEAR} per employee per year or $${USD_PER_EMPLOYEE_MONTH} per employee per month, with a minimum of ${BUSINESS_MIN_SEATS} seats. Plans are sold on the website; the iOS app does not sell these plans.`,
   },
   {
     locale: 'ar',
     href: '/',
     rule: true,
-    text: 'سعر Pro هو 27 دولاراً في السنة. Basic مجاني بسعر 0. Business سعره 21 دولاراً لكل موظف في السنة. تطبيق iOS لا يبيع هذه الخطط.',
+    text: `سعر Pro هو ${USD_PRO_YEAR} دولاراً في السنة أو ${USD_PRO_MONTH} دولارات في الشهر. Basic مجاني بسعر 0. Business سعره ${USD_PER_EMPLOYEE_YEAR} دولاراً لكل موظف في السنة أو ${USD_PER_EMPLOYEE_MONTH} دولارات لكل موظف في الشهر، بحد أدنى ${BUSINESS_MIN_SEATS} مقاعد. تُباع الخطط عبر الموقع؛ تطبيق iOS لا يبيع هذه الخطط.`,
   },
   {
     locale: 'en',

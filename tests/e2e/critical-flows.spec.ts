@@ -3,11 +3,11 @@ import { expect, test } from '@playwright/test'
 test('landing renders the branded hero and paused account CTA', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: /professional identity platform/i })).toBeVisible()
-  await expect(page.getByRole('button', { name: /create your card/i }).first()).toBeDisabled()
+  await expect(page.getByRole('link', { name: /create your card/i }).first()).toHaveAttribute('href', /\/get-started/)
   await expect(page.locator('[data-gsap-hero-bg]')).toBeAttached()
   await expect(page.getByText('Your reputation, proven when it matters.')).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'James Carter' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Sofia Mendes' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'James Carter' }).first()).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Sofia Mendes' }).first()).toBeVisible()
   await expect(page.getByText('LinkedIn')).toHaveCount(0)
 })
 
@@ -26,7 +26,7 @@ test('public QR profile is card-only, privacy-safe, and app-directed', async ({ 
 
 test('public profile supports RTL without exposing app-only actions', async ({ page }) => {
   await page.goto('/p/demo-omar-al-kuwari')
-  await page.getByRole('button', { name: 'Change language' }).click()
+  await page.getByRole('button', { name: 'Language' }).first().click()
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   await expect(page.getByText('معاينة البطاقة العامة')).toBeVisible()
   await expect(page.getByRole('button', { name: /^rate$/i })).toHaveCount(0)
@@ -45,39 +45,41 @@ test('platform admin can sign in and reach protected operations', async ({ page 
   await expect(page.getByRole('heading', { name: 'Admin dashboard' })).toBeVisible()
 })
 
-test('member entitlements and server-controlled themes load in settings', async ({ page }) => {
+test('member entitlements load in settings and card themes stay in the app', async ({ page }) => {
   await page.goto('/sign-in')
   await page.getByLabel('Email').fill('user@demo.rayt.me')
   await page.getByLabel('Password', { exact: true }).fill('RaytDev!2026')
   await page.getByRole('button', { name: 'Continue' }).click()
   await expect(page).toHaveURL(/settings/)
+  await page.getByRole('button', { name: 'Plan & entitlement' }).click()
   await expect(page.getByText('Ratings given per month:')).toBeVisible()
-  await expect(page.getByText('25', { exact: true })).toBeVisible()
+  await expect(page.getByText('60', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Your data' }).click()
   await expect(page.getByRole('button', { name: 'Download my data' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Delete account' })).toBeDisabled()
-  const themeResponse = page.waitForResponse(response =>
-    response.url().includes('/backend/me/theme'),
-  )
-  await page.getByLabel('Card theme').selectOption('slate')
-  expect((await themeResponse).status()).toBe(200)
+  await expect(page.getByRole('button', { name: 'Delete account' }).last()).toBeDisabled()
+  await expect(page.getByLabel('Card theme')).toHaveCount(0)
 })
 
 test('privacy notice lists RAYTME LLC and store contact details', async ({ page }) => {
   await page.goto('/privacy')
   await expect(page.getByRole('heading', { name: 'Privacy Notice' })).toBeVisible()
-  await expect(page.getByText('RAYTME LLC')).toBeVisible()
-  await expect(page.getByText(/30 N Gould St, Ste R, Sheridan, WY 82801/)).toBeVisible()
+  await expect(page.getByText('RAYTME LLC').first()).toBeVisible()
+  await expect(page.getByText(/30 N Gould St, Ste R, Sheridan, WY 82801/).first()).toBeVisible()
   await expect(page.getByText('privacy@raytme.me').first()).toBeVisible()
   await expect(page.getByRole('link', { name: 'Support' }).first()).toHaveAttribute('href', '/support')
-  await expect(page.getByRole('link', { name: 'Next' })).toHaveAttribute('href', '/terms')
-  await expect(page.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/legal')
+  await expect(page.getByRole('link', { name: 'Terms of Service' })).toHaveAttribute('href', '/terms')
+  await expect(page.getByRole('link', { name: 'Legal' })).toHaveAttribute('href', '/legal')
+  await page.getByRole('button', { name: 'Next' }).click()
+  await expect(page).toHaveURL(/\/terms$/)
+  await expect(page.getByRole('heading', { name: 'Terms of Service' })).toBeVisible()
 })
 
 test('legal slideshow advances to home and supports Arabic', async ({ page }) => {
   await page.goto('/support')
   await expect(page.getByRole('heading', { name: 'Support' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/')
-  await page.getByRole('button', { name: /language|العربية/i }).click()
+  await expect(page.getByRole('link', { name: 'RaytME' }).first()).toHaveAttribute('href', '/')
+  await expect(page.getByRole('button', { name: 'Home' }).first()).toBeVisible()
+  await page.getByRole('button', { name: /language|العربية/i }).first().click()
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   await expect(page.getByRole('heading', { name: 'الدعم' })).toBeVisible()
 })

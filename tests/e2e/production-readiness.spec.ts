@@ -1,27 +1,27 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('public signup and billing smoke', { tag: '@smoke' }, () => {
-  test('Get Started stays paused until website sign-up is turned on', async ({ page }) => {
+  test('Get Started opens website sign-up', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('button', { name: /get started/i }).first()).toBeDisabled()
+    await expect(page.getByRole('link', { name: /get started/i }).first()).toHaveAttribute('href', /\/get-started/)
     await expect(page.getByRole('link', { name: /app store/i })).toBeVisible()
     await expect(page.getByRole('link', { name: /google play/i })).toBeVisible()
   })
 
   test('pricing shows the published yearly prices', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByText('$27')).toBeVisible()
-    await expect(page.getByText('$21')).toBeVisible()
-    await expect(page.getByRole('button', { name: /go pro/i })).toBeDisabled()
+    await page.getByRole('button', { name: 'Yearly' }).click()
+    await expect(page.getByText('$48', { exact: true })).toBeVisible()
+    await expect(page.getByText('$36', { exact: true })).toBeVisible()
   })
 
   test('RaytME Bot answers from the site', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Open RaytME Bot' }).click()
-    await expect(page.getByText('On this site')).toBeVisible()
+    await expect(page.getByText('On this site', { exact: true })).toBeVisible()
     await page.getByLabel('Message RaytME Bot').fill('What is the Pro price?')
     await page.getByRole('button', { name: 'Send message' }).click()
-    await expect(page.getByText(/\$27/)).toBeVisible()
+    await expect(page.getByText(/\$48 per year/)).toBeVisible()
   })
 })
 

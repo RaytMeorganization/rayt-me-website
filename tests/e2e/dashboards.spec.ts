@@ -52,7 +52,7 @@ test('business dashboard shows company reputation and manages seats', async ({ p
   await expect(page.getByText(/Seats used/)).toBeVisible()
 
   await page.getByRole('tab', { name: 'Roster & invites' }).click()
-  await expect(page.getByRole('heading', { name: 'Michael Brennan' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Michael Brennan', exact: true })).toBeVisible()
   const inviteEmail = `seat-${Date.now()}@demo.rayt.me`
   await page.getByRole('textbox', { name: 'Email' }).fill(inviteEmail)
   const inviteResponse = page.waitForResponse(response =>

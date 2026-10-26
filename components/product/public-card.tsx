@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import { Check, Lock, MapPin } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { MarketingShell } from '@/components/product/marketing-shell'
 import { ScoreRing } from '@/components/product/score-ring'
@@ -111,19 +111,12 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
           <p className="font-semibold text-foreground">{t('download')}</p>
           <p className="mt-2 text-sm text-muted-foreground">{t('appOnly')}</p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <Button
-              nativeButton={false}
-              render={<a href={process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://apps.apple.com/'} />}
-            >
+            <a className={buttonVariants()} href={process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://apps.apple.com/'}>
               App Store
-            </Button>
-            <Button
-              nativeButton={false}
-              variant="outline"
-              render={<a href={process.env.NEXT_PUBLIC_PLAY_STORE_URL || 'https://play.google.com/store'} />}
-            >
+            </a>
+            <a className={buttonVariants({ variant: 'outline' })} href={process.env.NEXT_PUBLIC_PLAY_STORE_URL || 'https://play.google.com/store'}>
               Google Play
-            </Button>
+            </a>
           </div>
         </Card>
       </div>

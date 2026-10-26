@@ -4,7 +4,7 @@ import { answerRaytmeBot } from './raytme-bot-corpus'
 
 test('Pro price comes from the plan rule', () => {
   const answer = answerRaytmeBot('What is the Pro price?', 'en')
-  assert.match(answer.text, /\$27/)
+  assert.match(answer.text, /\$48 per year/)
   assert.equal(answer.href, '/')
 })
 

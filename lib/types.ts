@@ -105,5 +105,7 @@ export interface BusinessUsage {
   status: string | null
   currentPeriodEnd: string | null
   usage: { members: number; pendingInvites: number }
+  /** Purchased Business seats and how many members + pending invites use them. */
+  seats?: { purchased: number | null; used: number }
   entitlements: { key: string; value: number }[]
 }

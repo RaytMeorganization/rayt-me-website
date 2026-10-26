@@ -168,7 +168,7 @@ function HubSlide({ arabic }: { arabic: boolean }) {
   return (
     <SlideCard>
       <CardHeader className="border-b">
-        <CardTitle className="font-serif text-3xl leading-tight">{copy.legal}</CardTitle>
+        <CardTitle className="font-serif text-3xl leading-tight"><h1>{copy.legal}</h1></CardTitle>
         <CardDescription>{copy.legalIntro}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -207,7 +207,7 @@ function DocumentSlide({ doc, arabic }: { doc: LegalDocument; arabic: boolean })
           {copy.lastUpdated} {arabic ? doc.lastUpdatedAr : doc.lastUpdated}
         </CardDescription>
         <CardTitle className="font-serif text-3xl leading-tight">
-          {arabic ? doc.titleAr : doc.title}
+          <h1>{arabic ? doc.titleAr : doc.title}</h1>
         </CardTitle>
         <Badge variant="secondary">{copy.controlling}</Badge>
       </CardHeader>
@@ -227,7 +227,7 @@ function SupportSlide({ arabic }: { arabic: boolean }) {
   return (
     <SlideCard>
       <CardHeader className="border-b">
-        <CardTitle className="font-serif text-3xl leading-tight">{copy.supportTitle}</CardTitle>
+        <CardTitle className="font-serif text-3xl leading-tight"><h1>{copy.supportTitle}</h1></CardTitle>
         <CardDescription>{copy.supportIntro}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 pt-4 pb-6">

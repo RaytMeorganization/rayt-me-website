@@ -68,7 +68,7 @@ function entitlementLabel(t: Translate, key: string) {
 }
 
 export function BusinessDashboard() {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   const { user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -276,8 +276,9 @@ export function BusinessDashboard() {
     }
   }
 
-  const memberSeatLimit = usage?.entitlements.find(item => item.key === 'members')?.value
-  const seatCount = usage?.usage.members ?? reputation?.memberCount ?? members.length
+  // Purchased seats (members + pending invites fill them); older subscriptions fall back to the plan limit server-side.
+  const memberSeatLimit = usage?.seats?.purchased ?? usage?.entitlements.find(item => item.key === 'members')?.value
+  const seatCount = usage?.seats?.used ?? usage?.usage.members ?? reputation?.memberCount ?? members.length
   const orgInitials = (organization?.name || 'OR').slice(0, 2).toUpperCase()
 
   return (
@@ -613,25 +614,18 @@ export function BusinessDashboard() {
                     {t('renewalDate')}: {formatAdminDate(usage.currentPeriodEnd)}
                   </p>
                 ) : null}
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <StatCard label={t('plan')} value={planLabel(usage?.plan)} hint={statusLabel(t, usage?.status)} />
                   <StatCard
-                    label={t('members')}
-                    value={String(usage?.usage.members ?? 0)}
-                    hint={
-                      memberSeatLimit != null
-                        ? `${t('seatsUsed')}: ${usage?.usage.members ?? 0} / ${memberSeatLimit}`
-                        : `${t('seatsUsed')}: ${usage?.usage.members ?? 0}`
-                    }
+                    label={t('seatsPurchased')}
+                    value={memberSeatLimit != null ? String(memberSeatLimit) : '—'}
+                    hint={`${t('seatsUsed')}: ${seatCount}${memberSeatLimit != null ? ` / ${memberSeatLimit}` : ''}`}
                   />
+                  <StatCard label={t('members')} value={String(usage?.usage.members ?? 0)} />
                   <StatCard label={t('pendingInvites')} value={String(usage?.usage.pendingInvites ?? 0)} />
                 </div>
-                {usage?.currentPeriodEnd ? (
-                  <p className="mt-4 text-sm text-muted-foreground">
-                    {t('periodEnd')}:{' '}
-                    {new Date(usage.currentPeriodEnd).toLocaleDateString(locale === 'ar' ? 'ar' : 'en-US', { dateStyle: 'medium' })}
-                  </p>
-                ) : usage?.status !== 'ACTIVE' && usage?.status !== 'TRIALING' ? (
+                <p className="mt-4 text-sm text-muted-foreground">{t('seatsHelp')}</p>
+                {usage?.status !== 'ACTIVE' && usage?.status !== 'TRIALING' ? (
                   <p className="mt-4 text-sm text-muted-foreground">{t('billingUnavailable')}</p>
                 ) : null}
                 <h3 className="mt-8 text-sm font-semibold text-foreground">{t('entitlements')}</h3>
