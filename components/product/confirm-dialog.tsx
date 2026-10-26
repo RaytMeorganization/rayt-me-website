@@ -53,7 +53,7 @@ export function ConfirmDialogHost() {
       aria-describedby="confirm-dialog-message"
       onCancel={event => { event.preventDefault(); finish(false) }}
       onClick={event => { if (event.target === event.currentTarget) finish(false) }}
-      className="m-auto w-[min(92vw,28rem)] rounded-2xl border border-white/10 bg-card p-0 text-foreground shadow-[0_24px_80px_-20px_rgba(0,0,0,0.9)] backdrop:bg-black/70 backdrop:backdrop-blur-sm"
+      className="dark m-auto w-[min(92vw,28rem)] rounded-2xl border border-white/10 bg-[#0B1220] p-0 text-foreground shadow-[0_24px_80px_-20px_rgba(0,0,0,0.9)] backdrop:bg-black/70 backdrop:backdrop-blur-sm"
     >
       {request ? (
         <div className="grid gap-4 p-6">
