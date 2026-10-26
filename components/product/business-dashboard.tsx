@@ -30,6 +30,7 @@ import { EmptyState, Illustration, StatCard } from '@/components/product/brand-a
 import { AnimatedNumber } from '@/components/product/premium-motion'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { dictionaries } from '@/lib/i18n'
+import { inviteStatusLabel } from '@/components/product/status-labels'
 import { formatAdminDate } from '@/components/product/interactive-value'
 import { api, errorMessage } from '@/lib/api'
 import type { BusinessReputation, BusinessUsage, Organization } from '@/lib/types'
@@ -143,9 +144,7 @@ export function BusinessDashboard() {
     const failures = results.filter(result => result.status === 'rejected')
     if (failures.length) {
       setMessage(
-        failures
-          .map(result => errorMessage((result as PromiseRejectedResult).reason, t('loadFailed')))
-          .join(' · '),
+        [...new Set(failures.map(result => errorMessage((result as PromiseRejectedResult).reason, t('loadFailed'))))].join(' · '),
       )
       setMessageIsError(true)
     }
@@ -463,27 +462,36 @@ export function BusinessDashboard() {
 
             {tab === 'team' && (
               <DashboardSurface title={t('roster')} description={t('emptyRosterHelp')}>
-                <form onSubmit={invite} className="relative z-10 grid max-w-3xl gap-3 sm:grid-cols-[1fr_auto_auto]">
-                  <Input
-                    required
-                    type="email"
-                    className="bg-input/30"
-                    value={inviteEmail}
-                    onChange={e => setInviteEmail(e.target.value)}
-                    placeholder={t('email')}
-                    aria-label={t('email')}
-                  />
-                  <select
-                    aria-label={t('role')}
-                    className={`${inputClass} sm:w-44`}
-                    value={inviteRole}
-                    onChange={event => setInviteRole(event.target.value as 'MEMBER' | 'ADMIN')}
-                  >
-                    <option value="MEMBER">{t('memberRole')}</option>
-                    <option value="ADMIN">{t('organizationAdminRole')}</option>
-                  </select>
-                  <Button type="submit" disabled={busy}>{t('invite')}</Button>
+                <form onSubmit={invite} className="relative z-10 grid max-w-3xl gap-3 sm:grid-cols-[minmax(0,1fr)_11rem_auto] sm:items-end">
+                  <Field>
+                    <FieldLabel htmlFor="invite-email" className="text-xs">{t('inviteEmailLabel')}</FieldLabel>
+                    <Input
+                      id="invite-email"
+                      required
+                      type="email"
+                      dir="ltr"
+                      className="bg-input/30"
+                      value={inviteEmail}
+                      onChange={e => setInviteEmail(e.target.value)}
+                      placeholder="name@company.com"
+                      aria-label={t('email')}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="invite-role" className="text-xs">{t('inviteRoleLabel')}</FieldLabel>
+                    <select
+                      id="invite-role"
+                      className={inputClass}
+                      value={inviteRole}
+                      onChange={event => setInviteRole(event.target.value as 'MEMBER' | 'ADMIN')}
+                    >
+                      <option value="MEMBER">{t('memberRole')}</option>
+                      <option value="ADMIN">{t('organizationAdminRole')}</option>
+                    </select>
+                  </Field>
+                  <Button type="submit" className="h-11" disabled={busy || !inviteEmail.trim()}>{busy ? t('saving') : t('invite')}</Button>
                 </form>
+                <p className="relative z-10 mt-2 text-xs text-muted-foreground">{t('seatsHelp')}</p>
 
                 <Separator className="my-6 bg-white/10" />
 
@@ -549,25 +557,19 @@ export function BusinessDashboard() {
 
                 <h3 className="mt-8 text-sm font-semibold text-foreground">{t('pendingInvites')}</h3>
                 {invites.filter(item => String(item.status) === 'PENDING').length ? (
-                  <div className="mt-3 grid gap-2">
+                  <ul className="mt-3 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-muted/20">
                     {invites.filter(item => String(item.status) === 'PENDING').map((item, index) => (
-                      <RecordShell
-                        key={String(item.id || index)}
-                        title={String(item.email)}
-                        badges={
-                          <StatusBadge tone={String(item.status) === 'PENDING' ? 'warn' : 'muted'}>
-                            {String(item.status)}
-                          </StatusBadge>
-                        }
-                      >
-                        {String(item.status) === 'PENDING' ? (
-                          <Button size="sm" variant="outline" disabled={busy} onClick={() => void revokeInvite(String(item.id))}>
-                            {t('revoke')}
-                          </Button>
-                        ) : null}
-                      </RecordShell>
+                      <li key={String(item.id || index)} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <span dir="ltr" className="truncate text-sm text-foreground">{String(item.email)}</span>
+                          <StatusBadge tone="warn">{inviteStatusLabel(t, String(item.status))}</StatusBadge>
+                        </div>
+                        <Button size="sm" variant="outline" disabled={busy} onClick={() => void revokeInvite(String(item.id))}>
+                          {t('revoke')}
+                        </Button>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 ) : (
                   <p className="mt-2 text-sm text-muted-foreground">{t('emptyInvites')}</p>
                 )}

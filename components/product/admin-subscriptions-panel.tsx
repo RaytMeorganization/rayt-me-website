@@ -7,8 +7,8 @@ import { RecordShell, StatusBadge } from '@/components/product/dashboard-ui'
 import { formatAdminDate, InteractiveLink } from '@/components/product/interactive-value'
 import { useI18n } from '@/components/product/providers'
 import { formatPriceCentsUsd } from '@/lib/plan-pricing'
-import { inputClass } from '@/components/product/shell'
-import { Field, FieldLabel } from '@/components/ui/field'
+import { AdminSubscriptionEditor, type SubscriptionChange } from '@/components/product/admin-subscription-editor'
+import { paymentStatusLabel, paymentStatusTone, planLabel, subscriptionStatusLabel, subscriptionStatusTone } from '@/components/product/status-labels'
 
 export type AdminSubscriptionsPayload = {
   summary: Record<string, number>
@@ -31,7 +31,7 @@ export function AdminSubscriptionsPanel({
   busy?: boolean
   onSubscriptionChange: (
     organizationId: string,
-    data: { planCode?: string; status?: string },
+    data: SubscriptionChange,
   ) => void
   onInvoicePage: (page: number) => void
 }) {
@@ -81,11 +81,11 @@ export function AdminSubscriptionsPanel({
                   subtitle={org?.slug ? String(org.slug) : undefined}
                   badges={
                     <>
-                      <StatusBadge tone={status === 'ACTIVE' || status === 'TRIALING' ? 'ok' : status === 'CANCELED' ? 'muted' : 'warn'}>
-                        {status}
+                      <StatusBadge tone={subscriptionStatusTone(status)}>
+                        {subscriptionStatusLabel(t, status)}
                       </StatusBadge>
-                      {plan?.name || plan?.code ? (
-                        <Badge variant="outline" className="rounded-full">{plan.name || plan.code}</Badge>
+                      {plan?.code ? (
+                        <Badge variant="outline" className="rounded-full">{planLabel(plan.code)}</Badge>
                       ) : null}
                       {memberCount != null ? (
                         <Badge variant="secondary" className="rounded-full">{memberCount} {t('members')}</Badge>
@@ -93,64 +93,17 @@ export function AdminSubscriptionsPanel({
                     </>
                   }
                 >
-                  <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                    <Field>
-                      <FieldLabel className="text-xs">{t('plan')}</FieldLabel>
-                      <select
-                        className={inputClass}
-                        disabled={busy || !orgId}
-                        defaultValue={planCode}
-                        id={`sub-plan-${String(row.id)}`}
-                      >
-                        <option value="basic">Basic</option>
-                        <option value="pro">Pro</option>
-                        <option value="business">Business</option>
-                      </select>
-                    </Field>
-                    <Field>
-                      <FieldLabel className="text-xs">{t('status')}</FieldLabel>
-                      <select
-                        className={inputClass}
-                        disabled={busy || !orgId}
-                        defaultValue={status}
-                        id={`sub-status-${String(row.id)}`}
-                      >
-                        <option value="ACTIVE">ACTIVE</option>
-                        <option value="TRIALING">TRIALING</option>
-                        <option value="PAST_DUE">PAST_DUE</option>
-                        <option value="CANCELED">CANCELED</option>
-                      </select>
-                    </Field>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        disabled={busy || !orgId}
-                        onClick={() => {
-                          const planEl = document.getElementById(`sub-plan-${String(row.id)}`) as HTMLSelectElement | null
-                          const statusEl = document.getElementById(`sub-status-${String(row.id)}`) as HTMLSelectElement | null
-                          onSubscriptionChange(orgId, {
-                            planCode: planEl?.value,
-                            status: statusEl?.value,
-                          })
-                        }}
-                      >
-                        {t('save')}
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        disabled={busy || !orgId || status === 'CANCELED'}
-                        onClick={() => onSubscriptionChange(orgId, { status: 'CANCELED' })}
-                      >
-                        {t('adminCancelSubscription')}
-                      </Button>
-                    </div>
-                  </div>
+                  <AdminSubscriptionEditor
+                    idPrefix={`sub-${String(row.id)}`}
+                    planCode={planCode}
+                    status={status}
+                    seatQuantity={row.seatQuantity != null ? Number(row.seatQuantity) : null}
+                    busy={busy || !orgId}
+                    onSave={data => onSubscriptionChange(orgId, data)}
+                  />
                   <p className="mt-2 text-xs text-muted-foreground">
                     {t('periodEnd')}: {formatAdminDate(row.currentPeriodEnd)}
-                    {plan?.priceCents != null ? ` · ${formatPriceCentsUsd(plan.priceCents)}` : ''}
+                    {plan?.priceCents != null ? ` · ${formatPriceCentsUsd(plan.priceCents)}${plan.code === 'business' ? ` / ${t('perEmployeeYear')}` : ''}` : ''}
                   </p>
                 </RecordShell>
               )
@@ -173,13 +126,13 @@ export function AdminSubscriptionsPanel({
                   title={String(user?.name || user?.email || row.id)}
                   subtitle={String(user?.email || '')}
                   badges={
-                    <StatusBadge tone={row.status === 'paid' ? 'ok' : row.status === 'pending' ? 'warn' : 'muted'}>
-                      {String(row.status)}
+                    <StatusBadge tone={paymentStatusTone(String(row.status ?? ''))}>
+                      {paymentStatusLabel(t, String(row.status ?? ''))}
                     </StatusBadge>
                   }
                 >
                   <p className="text-sm text-muted-foreground">
-                    {String(row.planCode)} · {formatPriceCentsUsd(Number(row.amountCents ?? 0))} · {formatAdminDate(row.paidAt || row.createdAt)}
+                    {planLabel(String(row.planCode ?? ''))} · {formatPriceCentsUsd(Number(row.amountCents ?? 0))} · {formatAdminDate(row.paidAt || row.createdAt)}
                   </p>
                   {row.description ? (
                     <p className="mt-1 text-xs text-muted-foreground">{String(row.description)}</p>

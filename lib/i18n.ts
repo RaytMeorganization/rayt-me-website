@@ -2,6 +2,7 @@ import type { Locale } from '@/lib/types'
 
 export const dictionaries = {
   en: {
+    perEmployeeYear: 'employee / year', confirmDeactivateUser: 'Deactivate this account? The user is signed out and cannot sign in until reactivated.', tabsScrollBack: 'Show previous tabs', tabsScrollForward: 'Show more tabs', editDetails: 'Edit details', hideDetails: 'Hide details', seatQuantity: 'Seats purchased', seatQuantityHelp: 'Business seats, 3 to 10,000. Members and pending invites both use a seat.', seatQuantityInvalid: 'Enter a whole number from 3 to 10,000.', slugHelp: 'Lowercase letters, numbers and dashes, e.g. acme-qatar.', orgNameHelp: 'The organization name shown on member cards.', confirmCancelSubscription: 'Cancel this subscription? Members lose Business features at once.', created: 'Created.', payStatus_paid: 'Paid', payStatus_pending: 'Pending', payStatus_failed: 'Failed', payStatus_refunded: 'Refunded', inviteStatus_PENDING: 'Pending', inviteStatus_ACCEPTED: 'Accepted', inviteStatus_REVOKED: 'Revoked', inviteStatus_EXPIRED: 'Expired', invoiceAmount: 'Amount', paidOn: 'Paid on', payer: 'Payer', inviteEmailLabel: 'Colleague email', inviteRoleLabel: 'Role', subscriptionEditor: 'Subscription',
     brand: 'RaytME', signIn: 'Sign in', signUp: 'Create account', signOut: 'Sign out',
     settings: 'Settings', admin: 'Admin dashboard', business: 'Business dashboard',
     save: 'Save changes', saving: 'Saving…', loading: 'Loading…', retry: 'Try again',
@@ -264,6 +265,7 @@ export const dictionaries = {
     getStartedProBlurb: 'For professionals who share often.',
   },
   ar: {
+    perEmployeeYear: 'موظف / سنة', confirmDeactivateUser: 'هل تريد تعطيل هذا الحساب؟ سيتم تسجيل خروج المستخدم ولن يتمكن من الدخول حتى إعادة التفعيل.', tabsScrollBack: 'إظهار التبويبات السابقة', tabsScrollForward: 'إظهار المزيد من التبويبات', editDetails: 'تعديل التفاصيل', hideDetails: 'إخفاء التفاصيل', seatQuantity: 'المقاعد المشتراة', seatQuantityHelp: 'مقاعد Business من 3 إلى 10,000. يستخدم كل عضو وكل دعوة معلقة مقعداً.', seatQuantityInvalid: 'أدخل عدداً صحيحاً من 3 إلى 10,000.', slugHelp: 'أحرف إنجليزية صغيرة وأرقام وشرطات، مثل acme-qatar.', orgNameHelp: 'اسم المؤسسة الظاهر على بطاقات الأعضاء.', confirmCancelSubscription: 'هل تريد إلغاء هذا الاشتراك؟ سيفقد الأعضاء ميزات Business فوراً.', created: 'تم الإنشاء.', payStatus_paid: 'مدفوع', payStatus_pending: 'معلّق', payStatus_failed: 'فشل', payStatus_refunded: 'مسترد', inviteStatus_PENDING: 'معلّقة', inviteStatus_ACCEPTED: 'مقبولة', inviteStatus_REVOKED: 'ملغاة', inviteStatus_EXPIRED: 'منتهية', invoiceAmount: 'المبلغ', paidOn: 'تاريخ الدفع', payer: 'الدافع', inviteEmailLabel: 'بريد الزميل', inviteRoleLabel: 'الدور', subscriptionEditor: 'الاشتراك',
     brand: 'RaytME', signIn: 'تسجيل الدخول', signUp: 'إنشاء حساب', signOut: 'تسجيل الخروج',
     settings: 'الإعدادات', admin: 'لوحة الإدارة', business: 'لوحة الشركة',
     save: 'حفظ التغييرات', saving: 'جارٍ الحفظ…', loading: 'جارٍ التحميل…', retry: 'حاول مجدداً',

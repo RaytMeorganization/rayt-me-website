@@ -62,3 +62,17 @@ test('business dashboard shows company reputation and manages seats', async ({ p
   expect((await inviteResponse).status()).toBe(201)
   await expect(page.getByText(inviteEmail)).toBeVisible()
 })
+
+test('admin organization editor validates purchased seats and tabs expose scroll controls', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 900 })
+  await signIn(page, 'admin@demo.rayt.me')
+  await expect(page).toHaveURL(/admin-dashboard/)
+  await expect(page.getByRole('button', { name: 'Show more tabs' })).toBeVisible()
+  await page.getByRole('tab', { name: 'Organizations' }).click()
+  await page.getByRole('button', { name: 'Edit details' }).first().click()
+  const seats = page.getByLabel('Seats purchased').first()
+  await expect(seats).toBeVisible()
+  await seats.fill('2')
+  await expect(page.getByText('Enter a whole number from 3 to 10,000.')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Save changes' }).last()).toBeDisabled()
+})

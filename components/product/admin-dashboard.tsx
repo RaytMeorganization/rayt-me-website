@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Field, FieldLabel } from '@/components/ui/field'
+import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
 import {
   Accordion,
   AccordionContent,
@@ -35,11 +35,13 @@ import {
   FieldItem,
   LoadingBlock,
   RecordShell,
+  StatusBadge,
   WorkspaceTabs,
 } from '@/components/product/dashboard-ui'
 import { AdminMetricsCharts } from '@/components/product/admin-metrics-charts'
 import { AdminFieldValue, shouldSkipAdminField } from '@/components/product/admin-field-value'
 import { AdminOrganizationCard } from '@/components/product/admin-organization-card'
+import { paymentStatusLabel, paymentStatusTone, planLabel } from '@/components/product/status-labels'
 import {
   AdminSubscriptionsPanel,
   type AdminSubscriptionsPayload,
@@ -50,7 +52,7 @@ import { AdminCommunityCatalogPanel } from '@/components/product/admin-community
 import { AdminUserCard, normalizeDbRole } from '@/components/product/admin-user-card'
 import { AdminUserRecordSheet } from '@/components/product/admin-user-record-sheet'
 import { AdminReputationLab } from '@/components/product/admin-reputation-lab'
-import { InteractiveLink } from '@/components/product/interactive-value'
+import { formatAdminDate, InteractiveLink } from '@/components/product/interactive-value'
 import { EmptyState, StatCard } from '@/components/product/brand-art'
 import { useI18n } from '@/components/product/providers'
 import { WAITING_LIST_CAMPAIGN } from '@/lib/waiting-list'
@@ -516,6 +518,7 @@ export function AdminDashboard() {
         })
       }
       form.reset()
+      setSuccess(t('created'))
       await load()
     } catch (cause) {
       setError(errorMessage(cause, t('error')))
@@ -562,32 +565,9 @@ export function AdminDashboard() {
     }
   }
 
-  async function assignOrganizationPlan(
-    item: Record<string, unknown>,
-    planCode: string,
-    status?: string,
-  ) {
-    setBusy(true)
-    setError('')
-    try {
-      await api(`/admin/organizations/${encodeURIComponent(String(item.id))}/subscription`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          planCode,
-          ...(status ? { status } : {}),
-        }),
-      })
-      setSuccess(t('saved'))
-      await load()
-    } catch (cause) {
-      setError(errorMessage(cause, t('error')))
-      setBusy(false)
-    }
-  }
-
   async function updateOrganizationSubscription(
     organizationId: string,
-    data: { planCode?: string; status?: string },
+    data: { planCode?: string; status?: string; seatQuantity?: number },
   ) {
     setBusy(true)
     setError('')
@@ -704,20 +684,44 @@ export function AdminDashboard() {
                   {section === 'organizations' ? t('createOrganization') : t('createPlan')}
                 </AccordionTrigger>
                 <AccordionContent>
-                  <form onSubmit={createRecord} className="grid gap-4 pb-2 sm:grid-cols-2 lg:grid-cols-4">
+                  <form onSubmit={createRecord} noValidate={false} className="grid gap-4 pb-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-start">
                     <Field>
-                      <FieldLabel>{t('name')}</FieldLabel>
-                      <Input required name="name" className="bg-input/30" />
+                      <FieldLabel htmlFor="create-name">{t('name')}</FieldLabel>
+                      <Input
+                        id="create-name"
+                        required
+                        name="name"
+                        className="bg-input/30"
+                        onChange={event => {
+                          if (section !== 'organizations') return
+                          const slug = event.currentTarget.form?.elements.namedItem('slug') as HTMLInputElement | null
+                          if (slug && !slug.dataset.touched) {
+                            slug.value = event.currentTarget.value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+                          }
+                        }}
+                      />
+                      {section === 'organizations' ? <FieldDescription className="text-xs">{t('orgNameHelp')}</FieldDescription> : null}
                     </Field>
                     {section === 'organizations' ? (
                       <Field>
-                        <FieldLabel>{t('slug')}</FieldLabel>
-                        <Input required name="slug" pattern="[a-z0-9-]+" className="bg-input/30" />
+                        <FieldLabel htmlFor="create-slug">{t('slug')}</FieldLabel>
+                        <Input
+                          id="create-slug"
+                          required
+                          name="slug"
+                          pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                          title={t('slugHelp')}
+                          dir="ltr"
+                          className="bg-input/30 font-mono invalid:[&:not(:placeholder-shown)]:border-destructive"
+                          placeholder="acme-qatar"
+                          onInput={event => { event.currentTarget.dataset.touched = '1' }}
+                        />
+                        <FieldDescription className="text-xs">{t('slugHelp')}</FieldDescription>
                       </Field>
                     ) : (
-                      <Field className="sm:col-span-2">
-                        <FieldLabel>{t('plan')}</FieldLabel>
-                        <select name="planCode" required className="h-11 w-full rounded-lg border border-white/10 bg-input/30 px-3 text-sm">
+                      <Field>
+                        <FieldLabel htmlFor="create-plan">{t('plan')}</FieldLabel>
+                        <select id="create-plan" name="planCode" required className="h-11 w-full rounded-lg border border-white/10 bg-input/30 px-3 text-sm">
                           {MARKETING_PLANS.map(plan => (
                             <option key={plan.code} value={plan.code}>
                               {plan.name} — {formatPriceCentsUsd(plan.priceCents)}
@@ -726,7 +730,9 @@ export function AdminDashboard() {
                         </select>
                       </Field>
                     )}
-                    <Button type="submit" disabled={busy} className="self-end">{t('create')}</Button>
+                    <Button type="submit" disabled={busy} className="h-11 sm:col-span-2 lg:col-span-1 lg:mt-7 lg:min-w-28">
+                      {busy ? t('saving') : t('create')}
+                    </Button>
                   </form>
                 </AccordionContent>
               </AccordionItem>
@@ -807,7 +813,7 @@ export function AdminDashboard() {
               })}
             </div>
           ) : section === 'organizations' ? (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-4">
               {records.map((record) => {
                 const item = record as Record<string, unknown>
                 if (!item.id) return null
@@ -817,7 +823,7 @@ export function AdminDashboard() {
                     org={item}
                     busy={busy}
                     onSave={data => void updateOrganization(item, data)}
-                    onAssignPlan={(planCode, status) => void assignOrganizationPlan(item, planCode, status)}
+                    onSubscriptionChange={data => void updateOrganizationSubscription(String(item.id), data)}
                   />
                 )
               })}
@@ -847,7 +853,10 @@ export function AdminDashboard() {
                       busy={busy}
                       onRoleChange={role => void updateUser(item, { role })}
                       onTierChange={tier => void updateUser(item, { tier })}
-                      onToggleActive={() => void updateUser(item, { isActive: !Boolean(item.isActive) })}
+                      onToggleActive={() => {
+                        if (item.isActive && !window.confirm(t('confirmDeactivateUser'))) return
+                        void updateUser(item, { isActive: !Boolean(item.isActive) })
+                      }}
                       onOpenRecord={() => openUserRecord(item)}
                     />
                   )
@@ -901,11 +910,21 @@ export function AdminDashboard() {
                 const payer = item.user as { name?: string; email?: string } | undefined
                 if (!item.id) return null
                 return (
-                  <DashboardSurface key={String(item.id)} title={String(item.planCode ?? t('payments'))} description={payer?.email ?? ''}>
-                    <p className="text-sm text-muted-foreground">
-                      {payer?.name ?? ''} · {String(item.status ?? '')} · {(Number(item.amountCents ?? 0) / 100).toFixed(2)} {String(item.currency ?? 'USD')}
+                  <RecordShell
+                    key={String(item.id)}
+                    title={`${planLabel(String(item.planCode ?? ''))} · ${formatPriceCentsUsd(Number(item.amountCents ?? 0))} ${String(item.currency ?? 'USD')}`}
+                    subtitle={[payer?.name, payer?.email].filter(Boolean).join(' · ')}
+                    badges={
+                      <StatusBadge tone={paymentStatusTone(String(item.status ?? ''))}>
+                        {paymentStatusLabel(t, String(item.status ?? ''))}
+                      </StatusBadge>
+                    }
+                  >
+                    <p className="text-xs text-muted-foreground">
+                      {item.description ? `${String(item.description)} · ` : ''}
+                      {t('paidOn')}: {formatAdminDate(item.paidAt || item.createdAt)}
                     </p>
-                  </DashboardSurface>
+                  </RecordShell>
                 )
               })}
             </CollectionList>
