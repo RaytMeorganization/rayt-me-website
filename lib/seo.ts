@@ -1,3 +1,5 @@
+import { localeAlternates } from '@/lib/locale-routes'
+import type { Locale } from '@/lib/types'
 import type { Metadata } from 'next'
 
 import { LANDING_FAQ_ITEMS } from '@/lib/landing-faq'
@@ -84,13 +86,15 @@ export function buildRootMetadata(): Metadata {
 }
 
 /** Landing page metadata (canonical + OG URL); does not change on-page copy. */
-export function buildHomePageMetadata(): Metadata {
+export function buildHomePageMetadata(locale: Locale = 'en'): Metadata {
+  const alternates = localeAlternates('/', locale)
   return {
     title: DEFAULT_TITLE,
     description: DEFAULT_DESCRIPTION,
-    alternates: { canonical: siteUrl('/') },
+    alternates,
     openGraph: {
-      url: siteUrl('/'),
+      url: alternates.canonical,
+      locale: locale === 'ar' ? 'ar' : 'en_US',
       title: DEFAULT_TITLE,
       description: DEFAULT_DESCRIPTION,
       images: defaultOpenGraphImages(),

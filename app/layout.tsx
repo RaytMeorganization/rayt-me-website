@@ -12,6 +12,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { Providers } from '@/components/product/providers'
 import { RootJsonLd } from '@/components/seo/root-json-ld'
 import { buildRootMetadata } from '@/lib/seo'
+import { requestLocale } from '@/lib/request-locale'
 import './globals.css'
 
 const outfit = Outfit({
@@ -74,20 +75,21 @@ export const viewport: Viewport = {
   themeColor: '#0c0912',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await requestLocale()
   return (
     <html
-      lang="en"
-      dir="ltr"
+      lang={locale}
+      dir={locale === 'ar' ? 'rtl' : 'ltr'}
       suppressHydrationWarning
-      className={`${outfit.variable} ${syne.variable} ${figtree.variable} ${newsreader.variable} ${plexArabic.variable} ${naskh.variable} ${notoArabic.variable}`}
+      className={`${locale === 'ar' ? 'arabic-mode ' : ''}${outfit.variable} ${syne.variable} ${figtree.variable} ${newsreader.variable} ${plexArabic.variable} ${naskh.variable} ${notoArabic.variable}`}
     >
       <body className="antialiased">
-        <Providers>{children}</Providers>
+        <Providers initialLocale={locale}>{children}</Providers>
         <RootJsonLd />
         {process.env.NODE_ENV === 'production' ? <Analytics /> : null}
       </body>

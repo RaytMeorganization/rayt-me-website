@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { COMPANY, STORE_URLS } from '@/lib/company'
+import { localeAlternates } from '@/lib/locale-routes'
+import type { Locale } from '@/lib/types'
 import {
   acceptableUseAr,
   privacyNoticeAr,
@@ -25,15 +27,26 @@ export type LegalDocument = {
   blocksAr: LegalBlock[]
 }
 
-export function legalMetadata(doc: Pick<LegalDocument, 'title' | 'description' | 'canonical'>): Metadata {
+export function legalMetadata(
+  doc: Pick<LegalDocument, 'title' | 'description' | 'canonical'> &
+    Partial<Pick<LegalDocument, 'titleAr' | 'descriptionAr'>>,
+  locale: Locale = 'en',
+): Metadata {
+  const arabic = locale === 'ar'
+  // Arabic titles only where the document already has them (no invented copy).
+  // The root title template already appends " · RaytME".
+  const title = (arabic && doc.titleAr) || doc.title
+  const description = (arabic && doc.descriptionAr) || doc.description
+  const alternates = localeAlternates(new URL(doc.canonical).pathname, locale)
   return {
-    title: `${doc.title} — ${COMPANY.brand}`,
-    description: doc.description,
-    alternates: { canonical: doc.canonical },
+    title,
+    description,
+    alternates,
     openGraph: {
-      title: `${doc.title} — ${COMPANY.brand}`,
-      description: doc.description,
-      url: doc.canonical,
+      title,
+      description,
+      url: alternates.canonical,
+      locale: arabic ? 'ar' : 'en_US',
       siteName: COMPANY.brand,
       type: 'website',
     },

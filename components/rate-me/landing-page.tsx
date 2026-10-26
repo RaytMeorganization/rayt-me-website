@@ -104,6 +104,8 @@ import { cn } from "@/lib/utils";
 import { FooterSocialLinks } from "@/components/rate-me/footer-social-links";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/store-links";
 import { BUSINESS_MIN_SEATS, clampBusinessSeats } from "@/lib/business-seats";
+import { localePath, splitLocalePath } from "@/lib/locale-routes";
+import { useI18n } from "@/components/product/providers";
 
 type LandingLocaleValue = {
   arabic: boolean;
@@ -125,7 +127,8 @@ function subscribeLocale(onStoreChange: () => void) {
 }
 
 function getLocaleSnapshot() {
-  return window.localStorage.getItem("rate-me-locale") === "ar";
+  // The landing has its own /ar URL, so the URL decides the language.
+  return splitLocalePath(window.location.pathname).locale === "ar";
 }
 
 function useLandingLocale() {
@@ -1964,30 +1967,28 @@ function Pricing() {
 
 export default function RateMeLanding() {
   const animationScope = useLandingAnimations();
-  const [localeOverride, setLocaleOverride] = useState<boolean | null>(null);
-  const storedArabic = useSyncExternalStore(
+  const { locale } = useI18n();
+  const arabic = useSyncExternalStore(
     subscribeLocale,
     getLocaleSnapshot,
-    () => false,
+    () => locale === "ar",
   );
-  const arabic = localeOverride ?? storedArabic;
   const setArabic = (value: boolean) => {
-    setLocaleOverride(value);
-    window.dispatchEvent(new Event("rate-me-locale-change"));
+    window.localStorage.setItem("rate-me-locale", value ? "ar" : "en");
+    // Full navigation to the matching language URL (/ or /ar) so the server renders it.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- full reload needed: lang/dir come from the server
+    window.location.assign(`${localePath("/", value ? "ar" : "en")}${window.location.hash}`);
   };
 
   useEffect(() => {
-    const next = localeOverride ?? window.localStorage.getItem("rate-me-locale") === "ar";
+    const next = arabic;
     document.documentElement.lang = next ? "ar" : "en";
     document.documentElement.dir = next ? "rtl" : "ltr";
     document.body.classList.toggle("arabic-mode", next);
-    if (localeOverride !== null) {
-      window.localStorage.setItem("rate-me-locale", next ? "ar" : "en");
-    }
     applyLandingCopy(next);
     const retry = window.setTimeout(() => applyLandingCopy(next), 80);
     return () => window.clearTimeout(retry);
-  }, [arabic, localeOverride]);
+  }, [arabic]);
 
   useEffect(() => {
     const scrollToFooter = () => {

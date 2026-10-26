@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { dictionaries } from '@/lib/i18n'
 import { WEB_SIGN_IN_DISABLED } from '@/lib/web-sign-in'
+import { isLocalizedPath, localePath, splitLocalePath } from '@/lib/locale-routes'
 import type { Locale, User } from '@/lib/types'
 
 type I18nValue = { locale: Locale; setLocale: (locale: Locale) => void; t: (key: keyof typeof dictionaries.en) => string }
@@ -18,8 +19,12 @@ type AuthValue = {
 }
 const AuthContext = createContext<AuthValue | null>(null)
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('en')
+export function Providers({ children, initialLocale = 'en' }: { children: React.ReactNode; initialLocale?: Locale }) {
+  // /ar URLs are server-rendered in Arabic; sync storage before children read it.
+  const [locale, setLocaleState] = useState<Locale>(() => {
+    if (initialLocale === 'ar' && typeof window !== 'undefined') window.localStorage.setItem('rate-me-locale', 'ar')
+    return initialLocale
+  })
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const pathname = usePathname()
@@ -27,13 +32,28 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = window.localStorage.getItem('rate-me-locale')
+    const { locale: urlLocale, path } = splitLocalePath(window.location.pathname)
+    if (isLocalizedPath(path)) {
+      // Pages with their own Arabic URL: the URL decides; a saved Arabic preference opens /ar.
+      if (urlLocale === 'en' && saved === 'ar') {
+        window.location.replace(`${localePath(path, 'ar')}${window.location.search}${window.location.hash}`)
+      }
+      return
+    }
     const timer = window.setTimeout(() => { if (saved === 'ar') setLocaleState('ar') }, 0)
     return () => window.clearTimeout(timer)
   }, [])
 
   const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next)
     window.localStorage.setItem('rate-me-locale', next)
+    const { path } = splitLocalePath(window.location.pathname)
+    if (isLocalizedPath(path)) {
+      // Full navigation so the server renders the matching language URL (lang/dir, canonical).
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- full reload needed: lang/dir come from the server
+      window.location.assign(`${localePath(path, next)}${window.location.search}${window.location.hash}`)
+      return
+    }
+    setLocaleState(next)
     window.dispatchEvent(new Event('rate-me-locale-change'))
   }, [])
 
