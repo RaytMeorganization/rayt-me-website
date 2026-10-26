@@ -1,5 +1,7 @@
 'use client'
 
+import { confirmAction } from '@/components/product/confirm-dialog'
+
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -203,7 +205,7 @@ export function BusinessDashboard() {
   }
 
   async function revokeInvite(id: string) {
-    if (!window.confirm(t('confirmRevoke'))) return
+    if (!(await confirmAction(t('confirmRevoke')))) return
     setBusy(true)
     setMessage('')
     setMessageIsError(false)
@@ -237,7 +239,7 @@ export function BusinessDashboard() {
   }
 
   async function removeMember(id: string) {
-    if (!window.confirm(t('confirmRemoveMember'))) return
+    if (!(await confirmAction(t('confirmRemoveMember')))) return
     setBusy(true)
     setMessage('')
     setMessageIsError(false)
@@ -318,7 +320,7 @@ export function BusinessDashboard() {
 
             {tab === 'overview' && (
               <div className="mt-5 grid gap-4">
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                   <StatCard
                     label={t('reputation')}
                     value={formatScore(reputation?.averageReputation)}
@@ -349,12 +351,11 @@ export function BusinessDashboard() {
                   <StatCard
                     label={t('verifiedMembers')}
                     value={String(reputation?.verifiedMemberCount ?? 0)}
-                    hint={t('verificationStatus')}
+                    hint={`${reputation?.verifiedMemberCount ?? 0} / ${usage?.usage.members ?? members.length}`}
                   />
                   <StatCard
                     label={t('pendingInvites')}
                     value={String(usage?.usage.pendingInvites ?? 0)}
-                    hint={t('status')}
                   />
                   <StatCard label={t('plan')} value={planLabel(usage?.plan)} hint={statusLabel(t, usage?.status)} />
                   <StatCard
@@ -616,7 +617,7 @@ export function BusinessDashboard() {
                     {t('renewalDate')}: {formatAdminDate(usage.currentPeriodEnd)}
                   </p>
                 ) : null}
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                   <StatCard label={t('plan')} value={planLabel(usage?.plan)} hint={statusLabel(t, usage?.status)} />
                   <StatCard
                     label={t('seatsPurchased')}

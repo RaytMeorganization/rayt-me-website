@@ -76,3 +76,17 @@ test('admin organization editor validates purchased seats and tabs expose scroll
   await expect(page.getByText('Enter a whole number from 3 to 10,000.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Save changes' }).last()).toBeDisabled()
 })
+
+test('destructive business actions ask for confirmation in a styled dialog', async ({ page }) => {
+  await signIn(page, 'business@demo.rayt.me')
+  await page.getByRole('tab', { name: 'Roster & invites' }).click()
+  await page.getByRole('button', { name: 'Revoke' }).first().click()
+  const dialog = page.getByRole('dialog', { name: 'Please confirm' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Confirm' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await page.getByRole('button', { name: 'Revoke' }).first().click()
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+  await expect(dialog).toBeHidden()
+})

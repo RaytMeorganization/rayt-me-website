@@ -51,7 +51,7 @@ export function AdminSubscriptionsPanel({
 
   return (
     <div className="grid gap-8">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {statKeys.map(([key, label]) =>
           summary[key] != null ? (
             <Card key={key} className="border-white/10 bg-card/80">

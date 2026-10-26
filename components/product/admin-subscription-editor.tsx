@@ -1,5 +1,7 @@
 'use client'
 
+import { confirmAction } from '@/components/product/confirm-dialog'
+
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field'
@@ -104,8 +106,8 @@ export function AdminSubscriptionEditor({
           variant="outline"
           className="border-destructive/40 text-destructive hover:bg-destructive/10"
           disabled={busy || initialStatus === 'CANCELED'}
-          onClick={() => {
-            if (!window.confirm(t('confirmCancelSubscription'))) return
+          onClick={async () => {
+            if (!(await confirmAction(t('confirmCancelSubscription')))) return
             setStatus('CANCELED')
             onSave({ status: 'CANCELED' })
           }}

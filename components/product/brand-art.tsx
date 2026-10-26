@@ -162,7 +162,7 @@ export function StatCard({ label, value, hint }: { label: string; value: string;
   return (
     <div className="group rounded-2xl border border-white/10 bg-card/80 p-4 backdrop-blur-xl">
       <p className="text-[10px] font-bold uppercase tracking-[.14em] text-muted-foreground">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-foreground">
+      <p className="mt-2 text-2xl font-semibold tabular-nums tracking-tight text-foreground break-words sm:text-3xl">
         <AnimatedValue value={value} />
       </p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}

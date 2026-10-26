@@ -1,5 +1,7 @@
 'use client'
 
+import { confirmAction } from '@/components/product/confirm-dialog'
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -104,7 +106,9 @@ function CollectionList({
   recordCount,
   onLoadMore,
   loadMoreLabel,
+  showingLabel,
 }: {
+  showingLabel: string
   children: React.ReactNode
   busy: boolean
   collectionMeta: { total: number; limit: number } | null
@@ -114,10 +118,13 @@ function CollectionList({
 }) {
   return (
     <div className="grid gap-3">
-      {children}
+      {collectionMeta ? (
+        <p className="text-xs text-muted-foreground" aria-live="polite">{showingLabel.replace('{shown}', String(recordCount)).replace('{total}', String(collectionMeta.total))}</p>
+      ) : null}
+      <div className="grid gap-3 xl:grid-cols-2">{children}</div>
       {collectionMeta && recordCount < collectionMeta.total ? (
-        <Button type="button" variant="outline" disabled={busy} onClick={onLoadMore}>
-          {loadMoreLabel}
+        <Button type="button" variant="outline" className="justify-self-center sm:min-w-48" disabled={busy} onClick={onLoadMore}>
+          {busy ? '…' : loadMoreLabel}
         </Button>
       ) : null}
     </div>
@@ -360,7 +367,7 @@ export function AdminDashboard() {
             : status === 'verified'
               ? t('confirmApprove')
               : t('confirmReject')
-    if (!window.confirm(prompt)) return
+    if (!(await confirmAction(prompt, { destructive: status !== 'verified' && status !== 'resolved' }))) return
     setBusy(true)
     setError('')
     try {
@@ -766,7 +773,7 @@ export function AdminDashboard() {
               {metrics && (section === 'overview' || section === 'analytics') ? (
                 <AdminMetricsCharts mode={section} metrics={metrics} t={t} />
               ) : null}
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                 {statEntries.map(entry => (
                   <StatCard
                     key={entry.label}
@@ -854,8 +861,10 @@ export function AdminDashboard() {
                       onRoleChange={role => void updateUser(item, { role })}
                       onTierChange={tier => void updateUser(item, { tier })}
                       onToggleActive={() => {
-                        if (item.isActive && !window.confirm(t('confirmDeactivateUser'))) return
-                        void updateUser(item, { isActive: !Boolean(item.isActive) })
+                        void (async () => {
+                          if (item.isActive && !(await confirmAction(t('confirmDeactivateUser')))) return
+                          await updateUser(item, { isActive: !Boolean(item.isActive) })
+                        })()
                       }}
                       onOpenRecord={() => openUserRecord(item)}
                     />
@@ -904,6 +913,7 @@ export function AdminDashboard() {
               recordCount={records.length}
               onLoadMore={() => void loadMore()}
               loadMoreLabel={t('loadMore')}
+              showingLabel={t('showingCount')}
             >
               {records.map((record) => {
                 const item = record as Record<string, unknown>
@@ -935,6 +945,7 @@ export function AdminDashboard() {
               recordCount={records.length}
               onLoadMore={() => void loadMore()}
               loadMoreLabel={t('loadMore')}
+              showingLabel={t('showingCount')}
             >
               {records.map((record) => {
                 const item = record as Record<string, unknown>
@@ -955,6 +966,7 @@ export function AdminDashboard() {
               recordCount={records.length}
               onLoadMore={() => void loadMore()}
               loadMoreLabel={t('loadMore')}
+              showingLabel={t('showingCount')}
             >
               {records.map((record) => {
                 const item = record as Record<string, unknown>
@@ -977,6 +989,7 @@ export function AdminDashboard() {
               recordCount={records.length}
               onLoadMore={() => void loadMore()}
               loadMoreLabel={t('loadMore')}
+              showingLabel={t('showingCount')}
             >
               {records.map((record) => {
                 const item = record as Record<string, unknown>
@@ -1029,6 +1042,7 @@ export function AdminDashboard() {
                   recordCount={records.length}
                   onLoadMore={() => void loadMore()}
                   loadMoreLabel={t('loadMore')}
+              showingLabel={t('showingCount')}
                 >
                   {records.map(record => {
                     const item = record as Record<string, unknown>
@@ -1054,6 +1068,7 @@ export function AdminDashboard() {
               recordCount={records.length}
               onLoadMore={() => void loadMore()}
               loadMoreLabel={t('loadMore')}
+              showingLabel={t('showingCount')}
             >
               {records.map((record, index) => {
                 const item = record as Record<string, unknown>
@@ -1067,6 +1082,7 @@ export function AdminDashboard() {
               recordCount={records.length}
               onLoadMore={() => void loadMore()}
               loadMoreLabel={t('loadMore')}
+              showingLabel={t('showingCount')}
             >
               {records.map((record, index) => {
                 const item = record as Record<string, unknown>

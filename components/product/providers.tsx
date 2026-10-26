@@ -1,5 +1,7 @@
 'use client'
 
+import { ConfirmDialogHost } from '@/components/product/confirm-dialog'
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
@@ -95,7 +97,7 @@ export function Providers({ children, initialLocale = 'en' }: { children: React.
   }), [locale, setLocale])
   const auth = useMemo(() => ({ user, loading, refresh, logout }), [user, loading, refresh, logout])
 
-  return <I18nContext.Provider value={i18n}><AuthContext.Provider value={auth} key={pathname}>{children}</AuthContext.Provider></I18nContext.Provider>
+  return <I18nContext.Provider value={i18n}><AuthContext.Provider value={auth} key={pathname}>{children}</AuthContext.Provider><ConfirmDialogHost /></I18nContext.Provider>
 }
 
 export function useI18n() {
