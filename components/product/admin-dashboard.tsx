@@ -43,7 +43,7 @@ import {
 import { AdminMetricsCharts } from '@/components/product/admin-metrics-charts'
 import { AdminFieldValue, shouldSkipAdminField } from '@/components/product/admin-field-value'
 import { AdminOrganizationCard } from '@/components/product/admin-organization-card'
-import { paymentStatusLabel, paymentStatusTone, planLabel } from '@/components/product/status-labels'
+import { paymentStatusLabel, paymentStatusTone, planLabel, statLabel, statValue } from '@/components/product/status-labels'
 import {
   AdminSubscriptionsPanel,
   type AdminSubscriptionsPayload,
@@ -777,11 +777,11 @@ export function AdminDashboard() {
                 {statEntries.map(entry => (
                   <StatCard
                     key={entry.label}
-                    label={humanize(entry.label)}
+                    label={statLabel(t, entry.label)}
                     value={
                       section === 'health'
                         ? String(entry.data).toLowerCase() === 'ok' ? t('systemOk') : t('systemDown')
-                        : String(entry.data)
+                        : statValue(entry.data)
                     }
                   />
                 ))}

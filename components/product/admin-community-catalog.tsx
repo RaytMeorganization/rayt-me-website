@@ -350,7 +350,7 @@ export function AdminCommunityCatalogPanel() {
                 >
                   <RecordShell
                     title={locale === 'ar' ? row.labelAr : row.labelEn}
-                    subtitle={`${row.key}${row.isActive ? '' : ' · inactive'}`}
+                    subtitle={`${row.key}${row.isActive ? '' : ` · ${t('communityInactive')}`}`}
                   />
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <select

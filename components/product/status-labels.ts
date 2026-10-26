@@ -44,3 +44,20 @@ export function inviteStatusLabel(t: Translate, status: string | null | undefine
 }
 
 export const SUBSCRIPTION_STATUSES = ['ACTIVE', 'TRIALING', 'PAST_DUE', 'CANCELED'] as const
+
+/** Entitlement keys such as ratings_given_monthly as readable labels. */
+export function entitlementLabel(t: Translate, key: string) {
+  return lookup(t, `entitlement_${key}`, key.replace(/_/g, ' '))
+}
+
+/** Admin stat keys (users, openDisputes, api…) as readable labels; unknown keys are humanized. */
+export function statLabel(t: Translate, key: string) {
+  if (`stat_${key}` in dictionaries.en) return t(`stat_${key}` as DictKey)
+  if (key in dictionaries.en) return t(key as DictKey)
+  return key.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/_/g, ' ').replace(/^./, c => c.toUpperCase())
+}
+
+export function statValue(value: unknown) {
+  if (typeof value === 'number' && !Number.isInteger(value)) return value.toFixed(2)
+  return String(value)
+}

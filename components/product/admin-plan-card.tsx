@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { CopyableText, formatAdminDate, formatPriceCents } from '@/components/product/interactive-value'
 import { useI18n } from '@/components/product/providers'
+import { entitlementLabel } from '@/components/product/status-labels'
 import {
   centsToUsd,
   marketingPlanByCode,
@@ -170,7 +171,7 @@ export function AdminPlanCard({
                   onClick={() => pickEntitlement(ent)}
                   className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-start text-xs transition hover:border-primary/40 hover:bg-primary/10"
                 >
-                  <span className="font-medium text-foreground">{ent.key}</span>
+                  <span className="font-medium text-foreground">{entitlementLabel(t, ent.key)}</span>
                   <span className="ms-2 font-mono tabular-nums text-muted-foreground">{ent.value}</span>
                 </button>
               ))}
