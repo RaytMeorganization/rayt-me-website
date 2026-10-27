@@ -10,6 +10,7 @@ import { MobileAppStoreCta } from '@/components/product/mobile-app-store-cta'
 import { PlanSubscribePanel } from '@/components/product/plan-subscribe-panel'
 import { checkoutSeatsForPlan } from '@/lib/get-started-funnel'
 import { checkoutErrorKey, startWebsiteCheckout } from '@/lib/website-checkout'
+import { ManageBillingButton } from '@/components/product/billing-actions'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { User } from '@/lib/types'
@@ -18,6 +19,13 @@ type Entitlements = {
   ratingsGivenPerMonth: number
   ratingsReceived: 'unlimited'
   billingCheckoutAvailable: boolean
+  billing?: {
+    status: string | null
+    planCode: string | null
+    currentPeriodEnd: string | null
+    cancelAtPeriodEnd: boolean
+    portalAvailable: boolean
+  }
 }
 
 const tabs = ['overview', 'profile', 'privacy', 'verification', 'plan', 'data'] as const
@@ -31,7 +39,7 @@ function parseTab(value: string | null): SettingsTab {
 const statusKey = (value: string) => (value === 'verified' ? 'complete' : 'pending')
 
 export function SettingsWorkspace() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const { user, refresh, logout } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -327,7 +335,22 @@ export function SettingsWorkspace() {
                   {!entitlements?.billingCheckoutAvailable && (
                     <p className="text-muted-foreground">{t('billingUnavailable')}</p>
                   )}
-                  {entitlements?.billingCheckoutAvailable && entitlements.tier !== 'basic' ? (
+                  {entitlements?.billing?.status === 'past_due' || entitlements?.billing?.status === 'unpaid' ? (
+                    <p role="alert" className="rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-amber-100">
+                      {t('paymentFailedNotice')}
+                    </p>
+                  ) : null}
+                  {entitlements?.billing?.cancelAtPeriodEnd && entitlements.billing.currentPeriodEnd ? (
+                    <p className="text-muted-foreground">
+                      {t('planEndsOn')} {new Date(entitlements.billing.currentPeriodEnd).toLocaleDateString(locale === 'ar' ? 'ar' : 'en')}
+                    </p>
+                  ) : null}
+                  {entitlements?.billing?.portalAvailable ? (
+                    <div className="mt-2 max-w-xs">
+                      <ManageBillingButton />
+                    </div>
+                  ) : null}
+                  {entitlements?.billingCheckoutAvailable && entitlements.tier !== 'basic' && !entitlements.billing?.portalAvailable ? (
                     <Button
                       type="button"
                       disabled={busy}

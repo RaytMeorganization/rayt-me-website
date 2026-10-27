@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { PageHeader, ProductShell, inputClass } from '@/components/product/shell'
+import { BusinessSeatsForm, ManageBillingButton } from '@/components/product/billing-actions'
 import {
   DashboardSurface,
   ErrorBanner,
@@ -628,7 +629,22 @@ export function BusinessDashboard() {
                   <StatCard label={t('pendingInvites')} value={String(usage?.usage.pendingInvites ?? 0)} />
                 </div>
                 <p className="mt-4 text-sm text-muted-foreground">{t('seatsHelp')}</p>
-                {usage?.status !== 'ACTIVE' && usage?.status !== 'TRIALING' ? (
+                {usage?.status === 'PAST_DUE' ? (
+                  <p role="alert" className="mt-4 rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
+                    {t('paymentFailedNotice')}
+                  </p>
+                ) : null}
+                {usage?.plan === 'business' && (usage.status === 'ACTIVE' || usage.status === 'TRIALING' || usage.status === 'PAST_DUE') ? (
+                  <BusinessSeatsForm
+                    purchased={usage.seats?.purchased ?? null}
+                    used={usage.seats?.used ?? seatCount}
+                    onUpdated={() => void load()}
+                  />
+                ) : null}
+                <div className="mt-4 max-w-xs">
+                  <ManageBillingButton />
+                </div>
+                {usage?.status !== 'ACTIVE' && usage?.status !== 'TRIALING' && usage?.status !== 'PAST_DUE' ? (
                   <p className="mt-4 text-sm text-muted-foreground">{t('billingUnavailable')}</p>
                 ) : null}
                 <h3 className="mt-8 text-sm font-semibold text-foreground">{t('entitlements')}</h3>
