@@ -9,6 +9,8 @@ import { VerificationPanel } from '@/components/product/verification-panel'
 import { MobileAppStoreCta } from '@/components/product/mobile-app-store-cta'
 import { PlanSubscribePanel } from '@/components/product/plan-subscribe-panel'
 import { checkoutSeatsForPlan } from '@/lib/get-started-funnel'
+import { checkoutErrorKey, startWebsiteCheckout } from '@/lib/website-checkout'
+import { ManageBillingButton } from '@/components/product/billing-actions'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { User } from '@/lib/types'
@@ -17,6 +19,13 @@ type Entitlements = {
   ratingsGivenPerMonth: number
   ratingsReceived: 'unlimited'
   billingCheckoutAvailable: boolean
+  billing?: {
+    status: string | null
+    planCode: string | null
+    currentPeriodEnd: string | null
+    cancelAtPeriodEnd: boolean
+    portalAvailable: boolean
+  }
 }
 
 const tabs = ['overview', 'profile', 'privacy', 'verification', 'plan', 'data'] as const
@@ -30,7 +39,7 @@ function parseTab(value: string | null): SettingsTab {
 const statusKey = (value: string) => (value === 'verified' ? 'complete' : 'pending')
 
 export function SettingsWorkspace() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const { user, refresh, logout } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -55,6 +64,39 @@ export function SettingsWorkspace() {
   const [busy, setBusy] = useState(false)
   const [entitlements, setEntitlements] = useState<Entitlements | null>(null)
   const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const paidReturn = searchParams.get('paid') === '1'
+  const canceledReturn = searchParams.get('canceled') === '1'
+  const [paymentPoll, setPaymentPoll] = useState<'processing' | 'active' | 'slow'>('processing')
+  const paymentState = paidReturn ? paymentPoll : canceledReturn ? 'canceled' : null
+
+  // Stripe redirects here before the webhook may have activated the plan: poll briefly.
+  useEffect(() => {
+    if (!paidReturn) return
+    let cancelled = false
+    let attempts = 0
+    const tick = async () => {
+      attempts += 1
+      try {
+        const next = await api<Entitlements>('/me/entitlements')
+        if (cancelled) return
+        if (next.tier !== 'basic') {
+          setEntitlements(next)
+          setPaymentPoll('active')
+          void refresh()
+          return
+        }
+      } catch {
+        // keep polling
+      }
+      if (cancelled) return
+      if (attempts >= 10) setPaymentPoll('slow')
+      else window.setTimeout(() => void tick(), 3000)
+    }
+    void tick()
+    return () => {
+      cancelled = true
+    }
+  }, [paidReturn, refresh])
 
   const setTab = useCallback((next: SettingsTab) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -265,9 +307,20 @@ export function SettingsWorkspace() {
           {tab === 'plan' && (
             <div className="grid gap-6">
               <Panel title={t('plan')}>
-                {searchParams.get('paid') === '1' ? (
-                  <p className="mb-4 text-sm leading-6 text-emerald-200">
-                    {t('saved')}
+                {paymentState ? (
+                  <p
+                    role="status"
+                    className={`mb-4 text-sm leading-6 ${paymentState === 'canceled' ? 'text-muted-foreground' : 'text-emerald-200'}`}
+                  >
+                    {t(
+                      paymentState === 'active'
+                        ? 'paymentActive'
+                        : paymentState === 'slow'
+                          ? 'paymentStillProcessing'
+                          : paymentState === 'canceled'
+                            ? 'paymentCanceled'
+                            : 'paymentProcessing',
+                    )}
                   </p>
                 ) : null}
                 {searchParams.get('upgrade') === 'pro' ? (
@@ -282,18 +335,30 @@ export function SettingsWorkspace() {
                   {!entitlements?.billingCheckoutAvailable && (
                     <p className="text-muted-foreground">{t('billingUnavailable')}</p>
                   )}
-                  {entitlements?.billingCheckoutAvailable && entitlements.tier !== 'basic' ? (
+                  {entitlements?.billing?.status === 'past_due' || entitlements?.billing?.status === 'unpaid' ? (
+                    <p role="alert" className="rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-amber-100">
+                      {t('paymentFailedNotice')}
+                    </p>
+                  ) : null}
+                  {entitlements?.billing?.cancelAtPeriodEnd && entitlements.billing.currentPeriodEnd ? (
+                    <p className="text-muted-foreground">
+                      {t('planEndsOn')} {new Date(entitlements.billing.currentPeriodEnd).toLocaleDateString(locale === 'ar' ? 'ar' : 'en')}
+                    </p>
+                  ) : null}
+                  {entitlements?.billing?.portalAvailable ? (
+                    <div className="mt-2 max-w-xs">
+                      <ManageBillingButton />
+                    </div>
+                  ) : null}
+                  {entitlements?.billingCheckoutAvailable && entitlements.tier !== 'basic' && !entitlements.billing?.portalAvailable ? (
                     <Button
                       type="button"
                       disabled={busy}
                       onClick={() => {
                         const planCode = entitlements.tier === 'business' ? 'business' : 'pro'
-                        void api<{ checkoutUrl: string }>('/billing/checkout', {
-                          method: 'POST',
-                          body: JSON.stringify({ planCode }),
-                        }).then(result => {
+                        void startWebsiteCheckout({ planCode, interval: 'year' }).then(result => {
                           window.location.assign(result.checkoutUrl)
-                        }).catch(cause => setMessage(errorMessage(cause, t('error'))))
+                        }).catch(cause => setMessage(t(checkoutErrorKey(cause))))
                       }}
                     >
                       {t('payments')}
