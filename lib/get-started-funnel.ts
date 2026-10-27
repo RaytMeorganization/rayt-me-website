@@ -1,3 +1,4 @@
+import { clampBusinessSeats } from '@/lib/business-seats'
 import type { BillingInterval } from '@/lib/plan-pricing'
 
 export type FunnelPlanCode = 'basic' | 'pro' | 'business'
@@ -71,12 +72,24 @@ export function capturePlanFromSearchParams(params: URLSearchParams) {
     window.sessionStorage.removeItem(PLAN_KEY)
     return
   }
+  const employeeCount = employees ? Number(employees) : undefined
   rememberPlanSelection({
     plan,
     interval: interval === 'month' ? 'month' : interval === 'year' ? 'year' : undefined,
-    employees: employees ? Number(employees) : undefined,
+    employees:
+      plan === 'business' && employeeCount != null && Number.isFinite(employeeCount)
+        ? clampBusinessSeats(employeeCount)
+        : undefined,
     tied: true,
   })
+  if (plan !== 'business' && typeof window !== 'undefined') {
+    window.sessionStorage.removeItem(EMPLOYEES_KEY)
+  }
+}
+
+/** Seat count only applies to Business; Pro/Basic ignore employee query params. */
+export function checkoutSeatsForPlan(plan: FunnelPlanCode, employees: number) {
+  return plan === 'business' ? clampBusinessSeats(employees) : 1
 }
 
 function firstSearchValue(value: string | string[] | undefined) {
@@ -140,12 +153,15 @@ export function settingsCheckoutPath(input: {
     plan: input.plan,
     interval: input.interval,
   })
-  if (input.employees != null && input.employees > 1) {
-    params.set('employees', String(input.employees))
+  const seats = checkoutSeatsForPlan(input.plan, input.employees ?? 1)
+  if (input.plan === 'business' && seats > 1) {
+    params.set('employees', String(seats))
   }
   if (input.autoCheckout) params.set('checkout', '1')
   return `/settings?${params}`
 }
+
+export const PLAN_SUBSCRIBE_PANEL_ID = 'plan-subscribe-checkout'
 
 export function planSummaryLabel(input: {
   plan: FunnelPlanCode

@@ -8,6 +8,7 @@ import { PageHeader, Panel, ProductShell, inputClass, LocaleButton } from '@/com
 import { VerificationPanel } from '@/components/product/verification-panel'
 import { MobileAppStoreCta } from '@/components/product/mobile-app-store-cta'
 import { PlanSubscribePanel } from '@/components/product/plan-subscribe-panel'
+import { checkoutSeatsForPlan } from '@/lib/get-started-funnel'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { User } from '@/lib/types'
@@ -34,6 +35,20 @@ export function SettingsWorkspace() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tab = parseTab(searchParams.get('tab'))
+  const checkoutPlan: 'pro' | 'business' =
+    searchParams.get('plan') === 'business' ? 'business' : 'pro'
+  const checkoutInterval = searchParams.get('interval') === 'year' ? 'year' : 'month'
+  const checkoutSeats = checkoutSeatsForPlan(
+    checkoutPlan,
+    Number(searchParams.get('employees') || '1'),
+  )
+
+  const clearCheckoutQuery = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('checkout')
+    const query = params.toString()
+    router.replace(query ? `/settings?${query}` : '/settings', { scroll: false })
+  }, [router, searchParams])
 
   const [form, setForm] = useState<Partial<User>>({})
   const [message, setMessage] = useState('')
@@ -288,11 +303,12 @@ export function SettingsWorkspace() {
               </Panel>
               <Panel title={t('subscribe')}>
                 <PlanSubscribePanel
-                  defaultPlan={searchParams.get('plan') === 'business' ? 'business' : 'pro'}
-                  defaultInterval={searchParams.get('interval') === 'year' ? 'year' : 'month'}
-                  employeeSeats={Number(searchParams.get('employees') || '1')}
+                  defaultPlan={checkoutPlan}
+                  defaultInterval={checkoutInterval}
+                  employeeSeats={checkoutSeats}
                   currentTier={entitlements?.tier ?? user?.tier ?? 'basic'}
                   autoStart={searchParams.get('checkout') === '1'}
+                  onAutoStartConsumed={clearCheckoutQuery}
                 />
               </Panel>
             </div>

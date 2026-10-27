@@ -239,7 +239,11 @@ export function GetStartedAccountForm({
               </p>
             ) : null}
             <Button type="submit" disabled={busy} className={cn('min-h-11 w-full', ctaPrimary)}>
-              {busy ? t('loading') : t('getStartedCreateAccount')}
+              {busy
+                ? t('loading')
+                : tied
+                  ? t('getStartedCreateAccountCheckout')
+                  : t('getStartedCreateAccount')}
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
           </FieldGroup>

@@ -17,6 +17,7 @@ import {
 } from '@/lib/plan-pricing'
 import { startWebsiteCheckout } from '@/lib/website-checkout'
 import { clampBusinessSeats } from '@/lib/business-seats'
+import { PLAN_SUBSCRIBE_PANEL_ID } from '@/lib/get-started-funnel'
 
 type PaidPlan = 'pro' | 'business'
 
@@ -26,12 +27,15 @@ export function PlanSubscribePanel({
   employeeSeats = 1,
   currentTier = 'basic',
   autoStart = false,
+  onAutoStartConsumed,
 }: {
   defaultPlan?: PaidPlan
   defaultInterval?: BillingInterval
   employeeSeats?: number
   currentTier?: 'basic' | 'pro' | 'business'
   autoStart?: boolean
+  /** Clears checkout=1 from settings URL after funnel redirect fires once. */
+  onAutoStartConsumed?: () => void
 }) {
   const { t } = useI18n()
   const { plans } = usePublicPlanCatalog()
@@ -86,9 +90,14 @@ export function PlanSubscribePanel({
   useEffect(() => {
     if (!autoStart) return
     const timer = window.setTimeout(() => {
-      if (defaultInterval === 'month') setOfferOpen(true)
-      else void confirmCheckout('year')
-    }, 0)
+      onAutoStartConsumed?.()
+      document.getElementById(PLAN_SUBSCRIBE_PANEL_ID)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+      // Funnel already picked the interval — go straight to Stripe (no second upsell).
+      void confirmCheckout(defaultInterval)
+    }, 120)
     return () => window.clearTimeout(timer)
     // Start once for the inbound checkout query.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- auto-start from settings query
@@ -102,7 +111,7 @@ export function PlanSubscribePanel({
   const actionLabel = isUpgrade ? t('getStartedUpgrade') : t('subscribe')
 
   return (
-    <div className="grid gap-4">
+    <div id={PLAN_SUBSCRIBE_PANEL_ID} className="grid gap-4 scroll-mt-28">
       {currentTier !== 'basic' ? (
         <p className="text-sm text-muted-foreground">
           {t('getStartedCurrentPlan').replace('{plan}', currentTier.toUpperCase())}

@@ -12,6 +12,7 @@ import {
   planSummaryLabel,
   readRememberedPlan,
   scrollToPlanPicker,
+  checkoutSeatsForPlan,
   settingsCheckoutPath,
   syncGetStartedUrl,
   type FunnelPlanCode,
@@ -34,7 +35,7 @@ function goToTiedCheckout() {
     settingsCheckoutPath({
       plan,
       interval: remembered.interval,
-      employees: remembered.employees,
+      employees: checkoutSeatsForPlan(plan, remembered.employees),
       autoCheckout: true,
     }),
   )
