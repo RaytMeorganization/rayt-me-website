@@ -9,6 +9,7 @@ import { VerificationPanel } from '@/components/product/verification-panel'
 import { MobileAppStoreCta } from '@/components/product/mobile-app-store-cta'
 import { PlanSubscribePanel } from '@/components/product/plan-subscribe-panel'
 import { checkoutSeatsForPlan } from '@/lib/get-started-funnel'
+import { checkoutErrorKey, startWebsiteCheckout } from '@/lib/website-checkout'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, errorMessage } from '@/lib/api'
 import type { User } from '@/lib/types'
@@ -55,6 +56,39 @@ export function SettingsWorkspace() {
   const [busy, setBusy] = useState(false)
   const [entitlements, setEntitlements] = useState<Entitlements | null>(null)
   const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const paidReturn = searchParams.get('paid') === '1'
+  const canceledReturn = searchParams.get('canceled') === '1'
+  const [paymentPoll, setPaymentPoll] = useState<'processing' | 'active' | 'slow'>('processing')
+  const paymentState = paidReturn ? paymentPoll : canceledReturn ? 'canceled' : null
+
+  // Stripe redirects here before the webhook may have activated the plan: poll briefly.
+  useEffect(() => {
+    if (!paidReturn) return
+    let cancelled = false
+    let attempts = 0
+    const tick = async () => {
+      attempts += 1
+      try {
+        const next = await api<Entitlements>('/me/entitlements')
+        if (cancelled) return
+        if (next.tier !== 'basic') {
+          setEntitlements(next)
+          setPaymentPoll('active')
+          void refresh()
+          return
+        }
+      } catch {
+        // keep polling
+      }
+      if (cancelled) return
+      if (attempts >= 10) setPaymentPoll('slow')
+      else window.setTimeout(() => void tick(), 3000)
+    }
+    void tick()
+    return () => {
+      cancelled = true
+    }
+  }, [paidReturn, refresh])
 
   const setTab = useCallback((next: SettingsTab) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -265,9 +299,20 @@ export function SettingsWorkspace() {
           {tab === 'plan' && (
             <div className="grid gap-6">
               <Panel title={t('plan')}>
-                {searchParams.get('paid') === '1' ? (
-                  <p className="mb-4 text-sm leading-6 text-emerald-200">
-                    {t('saved')}
+                {paymentState ? (
+                  <p
+                    role="status"
+                    className={`mb-4 text-sm leading-6 ${paymentState === 'canceled' ? 'text-muted-foreground' : 'text-emerald-200'}`}
+                  >
+                    {t(
+                      paymentState === 'active'
+                        ? 'paymentActive'
+                        : paymentState === 'slow'
+                          ? 'paymentStillProcessing'
+                          : paymentState === 'canceled'
+                            ? 'paymentCanceled'
+                            : 'paymentProcessing',
+                    )}
                   </p>
                 ) : null}
                 {searchParams.get('upgrade') === 'pro' ? (
@@ -288,12 +333,9 @@ export function SettingsWorkspace() {
                       disabled={busy}
                       onClick={() => {
                         const planCode = entitlements.tier === 'business' ? 'business' : 'pro'
-                        void api<{ checkoutUrl: string }>('/billing/checkout', {
-                          method: 'POST',
-                          body: JSON.stringify({ planCode }),
-                        }).then(result => {
+                        void startWebsiteCheckout({ planCode, interval: 'year' }).then(result => {
                           window.location.assign(result.checkoutUrl)
-                        }).catch(cause => setMessage(errorMessage(cause, t('error'))))
+                        }).catch(cause => setMessage(t(checkoutErrorKey(cause))))
                       }}
                     >
                       {t('payments')}

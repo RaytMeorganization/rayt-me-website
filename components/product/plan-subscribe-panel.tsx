@@ -6,7 +6,6 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { YearlyBillingOfferDialog } from '@/components/product/yearly-billing-offer-dialog'
 import { useI18n } from '@/components/product/providers'
 import { usePublicPlanCatalog } from '@/hooks/use-public-plan-catalog'
-import { errorMessage } from '@/lib/api'
 import {
   centsToUsd,
   formatMarketingUsd,
@@ -15,7 +14,7 @@ import {
   USD_PRO_YEARLY_SAVINGS,
   type BillingInterval,
 } from '@/lib/plan-pricing'
-import { startWebsiteCheckout } from '@/lib/website-checkout'
+import { startWebsiteCheckout, checkoutErrorKey } from '@/lib/website-checkout'
 import { clampBusinessSeats } from '@/lib/business-seats'
 import { PLAN_SUBSCRIBE_PANEL_ID } from '@/lib/get-started-funnel'
 
@@ -80,7 +79,7 @@ export function PlanSubscribePanel({
       setCheckoutNote(
         `${planCode.toUpperCase()} · ${chosen === 'year' ? t('billingYearly') : t('billingMonthly')} · ${amount}${
           planCode === 'business' && seats > 1 ? ` (${seats} ${t('employees')})` : ''
-        }. ${errorMessage(cause, t('billingCheckoutPending'))}`,
+        }. ${t(checkoutErrorKey(cause))}`,
       )
     } finally {
       setBusy(false)
