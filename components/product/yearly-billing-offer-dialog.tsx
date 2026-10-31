@@ -40,9 +40,13 @@ export function YearlyBillingOfferDialog({
         side="bottom"
         data-offer-card=""
         overlayClassName="offer-billing-overlay dark bg-black/70 backdrop-blur-md"
-        className="dark rate-landing z-[101] gap-4 text-foreground"
+        className={cn(
+          'dark rate-landing z-[1001] gap-4 bg-[#0c0912] text-foreground',
+          'max-h-[min(92dvh,100svh)] overflow-y-auto overscroll-contain',
+          'pb-[max(1.5rem,env(safe-area-inset-bottom))]',
+        )}
       >
-        <SheetHeader className="p-0">
+        <SheetHeader className="p-0 pe-10">
           <SheetTitle className="font-serif text-xl tracking-wide text-white">
             {copy.title}
           </SheetTitle>

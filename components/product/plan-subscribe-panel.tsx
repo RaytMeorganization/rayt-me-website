@@ -56,6 +56,13 @@ export function PlanSubscribePanel({
   function startSubscribe() {
     if (interval === 'month') {
       setOfferOpen(true)
+      // Ensure the offer sheet is not buried under scrolled content / PWA chrome.
+      window.requestAnimationFrame(() => {
+        document.getElementById(PLAN_SUBSCRIBE_PANEL_ID)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      })
       return
     }
     void confirmCheckout('year')

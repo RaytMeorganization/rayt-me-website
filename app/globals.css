@@ -706,18 +706,24 @@ html[dir="rtl"] .rate-about-mix {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
-/* Billing offer: bottom sheet on phones, centered card on md+ (portaled outside .rate-landing). */
+/* Billing offer: bottom sheet on phones, centered card on md+ (portaled to body).
+   Avoid translateY(100%) while data-starting-style is set — on iOS Safari / PWA that
+   attribute can stick and leave the sheet fully off-screen (“Subscribe does nothing”). */
 [data-slot="sheet-overlay"].offer-billing-overlay {
-  z-index: 100;
-  background: rgb(0 0 0 / 0.72);
+  z-index: 1000;
+  background: rgb(0 0 0 / 0.78);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 [data-slot="sheet-content"][data-offer-card] {
-  z-index: 101;
+  z-index: 1001;
   overflow: auto;
-  border: 1px solid rgb(255 255 255 / 0.1);
-  background: rgb(12 9 18 / 0.98);
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(12 9 18 / 0.98) !important;
+  color: rgb(248 250 252);
+  visibility: visible;
   box-shadow:
     0 28px 80px -28px rgb(0 0 0 / 0.88),
     0 0 50px -16px rgb(139 92 246 / 0.28);
@@ -725,46 +731,52 @@ html[dir="rtl"] .rate-about-mix {
 
 @media (max-width: 767px) {
   [data-slot="sheet-content"][data-offer-card] {
-    inset: 0 0 auto 0 !important;
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
     top: auto !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
     width: 100% !important;
-    max-width: 100%;
-    height: auto;
-    max-height: min(92dvh, 100%);
-    padding: 1.25rem 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: min(92dvh, 100svh) !important;
+    margin: 0 !important;
+    padding: 1.25rem 1.25rem max(1.5rem, env(safe-area-inset-bottom, 0px));
     border-radius: 1.35rem 1.35rem 0 0;
-    transform: translateY(0) !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
 
   [data-slot="sheet-content"][data-offer-card][data-starting-style],
   [data-slot="sheet-content"][data-offer-card][data-ending-style] {
-    opacity: 1;
-    transform: translateY(100%) !important;
+    /* Fade only — never park the sheet under the fold on mobile/PWA. */
+    opacity: 0.96 !important;
+    transform: none !important;
   }
 }
 
 @media (min-width: 768px) {
   [data-slot="sheet-content"][data-offer-card] {
-    inset: auto;
-    top: 50%;
-    left: 50%;
-    right: auto;
-    bottom: auto;
-    width: min(40rem, calc(100vw - 1.5rem));
-    height: auto;
-    max-height: min(32rem, calc(100vh - 2rem));
+    position: fixed !important;
+    inset: auto !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: min(40rem, calc(100vw - 1.5rem)) !important;
+    height: auto !important;
+    max-height: min(32rem, calc(100vh - 2rem)) !important;
     padding: 1.35rem 1.35rem 1.5rem;
     border-radius: 1.5rem;
     transform: translate(-50%, -50%) !important;
+    opacity: 1 !important;
   }
 
   [data-slot="sheet-content"][data-offer-card][data-starting-style],
   [data-slot="sheet-content"][data-offer-card][data-ending-style] {
-    opacity: 0;
-    transform: translate(-50%, -46%) !important;
+    opacity: 0 !important;
+    transform: translate(-50%, -48%) !important;
   }
 }
 
