@@ -1,5 +1,6 @@
 ---
 description: Website signup hands off to the app. Live checkout waits for the payment endpoint.
+globs: **/billing*,**/plan*,**/get-started*,**/pricing*
 alwaysApply: false
 ---
 

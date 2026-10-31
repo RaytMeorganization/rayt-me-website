@@ -1,6 +1,7 @@
 ---
 description: Privacy by default, contact visibility, Qatar/GCC data protection — overview v3.1
-alwaysApply: true
+globs: app/**/*,components/**/*,lib/legal*.ts,lib/i18n.ts
+alwaysApply: false
 ---
 
 # Privacy and compliance (overview v3.1)

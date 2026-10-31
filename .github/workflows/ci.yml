@@ -16,11 +16,12 @@ jobs:
           version: 10.12.1
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 22.15
           cache: pnpm
-      - run: pnpm install --frozen-lockfile || pnpm install
+      - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
+      - run: pnpm test:bot
       - run: pnpm build
         env:
           NEXT_PUBLIC_SITE_URL: https://raytme.me

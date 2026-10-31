@@ -77,9 +77,11 @@ export function plansForDisplay(apiPlans) {
         return {
             ...plan,
             priceLabel: yearly,
-            period: monthly && plan.code !== 'basic'
-                ? `${monthly} / month or ${yearly} / year`
-                : plan.period,
+            period: monthly && plan.code === 'business'
+                ? `${monthly} / employee / month or ${yearly} / employee / year`
+                : monthly && plan.code !== 'basic'
+                    ? `${monthly} / month or ${yearly} / year`
+                    : plan.period,
         };
     });
 }

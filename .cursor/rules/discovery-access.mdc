@@ -1,6 +1,7 @@
 ---
 description: QR, NFC, links, email signature, and app-vs-web split — Rate Me overview v3.1
-alwaysApply: true
+globs: app/**/*,components/**/*,lib/**/*
+alwaysApply: false
 ---
 
 # Discovery and access (overview v3.1)

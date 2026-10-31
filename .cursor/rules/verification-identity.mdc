@@ -1,6 +1,7 @@
 ---
 description: Sign-up fields and earned verification tick — Rate Me overview v3.1
-alwaysApply: true
+globs: app/**/*,components/**/*,lib/**/*
+alwaysApply: false
 ---
 
 # Verification (overview v3.1)

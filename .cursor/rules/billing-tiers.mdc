@@ -1,6 +1,6 @@
 ---
 description: Basic, Pro, and Business prices and give-caps
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Billing

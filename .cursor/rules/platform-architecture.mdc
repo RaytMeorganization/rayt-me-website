@@ -1,6 +1,6 @@
 ---
 description: Three separate repos, Fastify API, Next.js site, Expo app
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Architecture
