@@ -1,15 +1,14 @@
 import type { ApiEnvelope } from '@/lib/types'
+import { API_URL, refreshSessionSingleFlight } from '@/lib/api-refresh'
 
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window === 'undefined'
-    ? process.env.API_PROXY_TARGET || 'http://localhost:4000'
-    : '/backend')
+export { API_URL, refreshSessionSingleFlight } from '@/lib/api-refresh'
 
 export class ApiError extends Error {
-  constructor(message: string, public status: number) {
+  status: number
+  constructor(message: string, status: number) {
     super(message)
     this.name = 'ApiError'
+    this.status = status
   }
 }
 
@@ -28,8 +27,8 @@ export async function api<T>(
   })
 
   if (response.status === 401 && !options.server && !options.retried && path !== '/auth/refresh') {
-    const refreshed = await fetch(`${API_URL}/auth/refresh`, { method: 'POST', credentials: 'include' })
-    if (refreshed.ok) return api<T>(path, init, { ...options, retried: true })
+    const okRefresh = await refreshSessionSingleFlight()
+    if (okRefresh) return api<T>(path, init, { ...options, retried: true })
   }
 
   let body: ApiEnvelope<T> | null = null
