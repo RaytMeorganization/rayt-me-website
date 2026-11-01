@@ -3,7 +3,7 @@ import test from 'node:test'
 import {
   __resetRefreshSingleFlightForTests,
   refreshSessionSingleFlight,
-} from './api-refresh.ts'
+} from './api-refresh'
 
 test('five parallel 401 refreshes share one /auth/refresh call', async () => {
   __resetRefreshSingleFlightForTests()
