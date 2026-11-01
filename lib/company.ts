@@ -26,6 +26,8 @@ export const STORE_URLS = {
   terms: 'https://raytme.me/terms',
   acceptableUse: 'https://raytme.me/acceptable-use',
   support: 'https://raytme.me/support',
+  /** Google Play / App Store account + data deletion request URL */
+  deleteAccount: 'https://raytme.me/delete-account',
 } as const
 
 export const LEGAL_NAV = [
@@ -33,6 +35,7 @@ export const LEGAL_NAV = [
   { href: '/terms', label: 'Terms of Service', labelAr: 'شروط الخدمة' },
   { href: '/acceptable-use', label: 'Acceptable Use', labelAr: 'سياسة الاستخدام المقبول' },
   { href: '/support', label: 'Support', labelAr: 'الدعم' },
+  { href: '/delete-account', label: 'Delete account', labelAr: 'حذف الحساب' },
 ] as const
 
 export const SITE_FOOTER_NAV = [
@@ -63,6 +66,12 @@ export const SITE_FOOTER_NAV = [
       { label: 'Terms', labelAr: 'الشروط', href: '/terms', landingHref: '/terms' },
       { label: 'Acceptable Use', labelAr: 'الاستخدام المقبول', href: '/acceptable-use', landingHref: '/acceptable-use' },
       { label: 'Support', labelAr: 'الدعم', href: '/support', landingHref: '/support' },
+      {
+        label: 'Delete account',
+        labelAr: 'حذف الحساب',
+        href: '/delete-account',
+        landingHref: '/delete-account',
+      },
     ],
   },
 ] as const

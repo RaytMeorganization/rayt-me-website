@@ -48,6 +48,8 @@ const CHROME = {
     slideOf: (current: number, total: number) => `${current} of ${total}`,
     supportTitle: 'Support',
     supportIntro: `${COMPANY.displayName} operates the RaytME website and iOS/Android apps. Use this page for App Store and Google Play support, privacy requests, and safety reports.`,
+    deleteTitle: 'Delete account and data',
+    deleteIntro: `Use this page to request deletion of your ${COMPANY.brand} account and associated personal data. This URL is provided for App Store and Google Play account-deletion requirements.`,
   },
   ar: {
     lastUpdated: 'آخر تحديث',
@@ -60,6 +62,8 @@ const CHROME = {
     slideOf: (current: number, total: number) => `${current} من ${total}`,
     supportTitle: 'الدعم',
     supportIntro: `${COMPANY.displayName} تشغّل موقع RaytME وتطبيقي iOS وAndroid. استخدم هذه الصفحة لدعم App Store وGoogle Play وطلبات الخصوصية وبلاغات السلامة.`,
+    deleteTitle: 'حذف الحساب والبيانات',
+    deleteIntro: `استخدم هذه الصفحة لطلب حذف حسابك في ${COMPANY.brand} والبيانات الشخصية المرتبطة به. هذا الرابط مخصّص لمتطلبات حذف الحساب في App Store وGoogle Play.`,
   },
 } as const
 
@@ -282,11 +286,65 @@ function SupportSlide({ arabic }: { arabic: boolean }) {
   )
 }
 
+function DeleteAccountSlide({ arabic }: { arabic: boolean }) {
+  const copy = arabic ? CHROME.ar : CHROME.en
+  const steps = arabic
+    ? [
+        'في تطبيق RaytME: الإعدادات ← الحساب ← حذف الحساب، ثم أكّد بكتابة DELETE.',
+        'على الموقع: سجّل الدخول ← الإعدادات ← الحساب ← حذف الحساب، ثم أكّد بكتابة DELETE.',
+        `أو راسل ${COMPANY.emails.privacy} من البريد المرتبط بحسابك واطلب حذف الحساب والبيانات المرتبطة.`,
+      ]
+    : [
+        'In the RaytME app: Settings → Account → Delete account, then confirm by typing DELETE.',
+        'On the website: sign in → Settings → Account → Delete account, then confirm by typing DELETE.',
+        `Or email ${COMPANY.emails.privacy} from the address on your account and request deletion of your account and associated data.`,
+      ]
+  const aftermath = arabic
+    ? 'نحذف المعرّفات المباشرة عادةً خلال ٣٠ يوماً. قد تبقى أدلة التقييم مجهولة الهوية للحفاظ على نزاهة الدرجات، كما هو موضّح في إشعار الخصوصية.'
+    : 'We delete or anonymize direct identifiers within 30 days. Anonymized rating evidence may remain for score integrity, as described in the Privacy Notice.'
+
+  return (
+    <SlideCard>
+      <CardHeader className="border-b">
+        <CardTitle className="font-serif text-3xl leading-tight">
+          <h1>{copy.deleteTitle}</h1>
+        </CardTitle>
+        <CardDescription>{copy.deleteIntro}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4 pt-4 pb-6">
+        <ol className="flex list-decimal flex-col gap-3 ps-5 text-sm leading-7">
+          {steps.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <p className="text-sm text-muted-foreground">{aftermath}</p>
+        <div className="flex flex-wrap gap-2">
+          <Button nativeButton={false} render={<Link href="/settings?tab=data" />}>
+            {arabic ? 'فتح الإعدادات' : 'Open settings'}
+          </Button>
+          <Button
+            nativeButton={false}
+            variant="outline"
+            render={<a href={`mailto:${COMPANY.emails.privacy}?subject=Account%20deletion%20request`} />}
+          >
+            {COMPANY.emails.privacy}
+          </Button>
+          <Button nativeButton={false} variant="outline" render={<Link href="/privacy" />}>
+            {arabic ? 'إشعار الخصوصية' : 'Privacy Notice'}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">{copy.controlling}</p>
+      </CardContent>
+    </SlideCard>
+  )
+}
+
 function slideFor(href: string, arabic: boolean) {
   if (href === '/privacy') return <DocumentSlide doc={privacyNotice} arabic={arabic} />
   if (href === '/terms') return <DocumentSlide doc={termsOfService} arabic={arabic} />
   if (href === '/acceptable-use') return <DocumentSlide doc={acceptableUse} arabic={arabic} />
   if (href === '/support') return <SupportSlide arabic={arabic} />
+  if (href === '/delete-account') return <DeleteAccountSlide arabic={arabic} />
   return <HubSlide arabic={arabic} />
 }
 
@@ -415,4 +473,8 @@ export function LegalHubPage() {
 
 export function SupportLegalPage() {
   return <LegalChrome activeHref="/support" />
+}
+
+export function DeleteAccountLegalPage() {
+  return <LegalChrome activeHref="/delete-account" />
 }
