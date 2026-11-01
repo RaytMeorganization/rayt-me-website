@@ -290,13 +290,13 @@ function DeleteAccountSlide({ arabic }: { arabic: boolean }) {
   const copy = arabic ? CHROME.ar : CHROME.en
   const steps = arabic
     ? [
-        'في تطبيق RaytME: الإعدادات ← الحساب ← حذف الحساب، ثم أكّد بكتابة DELETE.',
-        'على الموقع: سجّل الدخول ← الإعدادات ← الحساب ← حذف الحساب، ثم أكّد بكتابة DELETE.',
+        'في تطبيق RaytME: الإعدادات ← الحساب والبيانات ← حذف الحساب، ثم أكّد بكتابة DELETE.',
+        'على الموقع: سجّل الدخول ← الإعدادات ← علامة تبويب البيانات ← حذف الحساب، ثم أكّد بكتابة DELETE.',
         `أو راسل ${COMPANY.emails.privacy} من البريد المرتبط بحسابك واطلب حذف الحساب والبيانات المرتبطة.`,
       ]
     : [
-        'In the RaytME app: Settings → Account → Delete account, then confirm by typing DELETE.',
-        'On the website: sign in → Settings → Account → Delete account, then confirm by typing DELETE.',
+        'In the RaytME app: Settings → Account & data → Delete account, then confirm by typing DELETE.',
+        'On the website: sign in → Settings → Data tab → Delete account, then confirm by typing DELETE.',
         `Or email ${COMPANY.emails.privacy} from the address on your account and request deletion of your account and associated data.`,
       ]
   const aftermath = arabic
