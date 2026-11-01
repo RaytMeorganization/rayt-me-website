@@ -2,7 +2,15 @@ import { siteUrl } from '@/lib/site'
 import type { Locale } from '@/lib/types'
 
 /** Indexable pages that also have a server-rendered Arabic URL under /ar. */
-export const LOCALIZED_PATHS = ['/', '/privacy', '/terms', '/acceptable-use', '/support', '/legal'] as const
+export const LOCALIZED_PATHS = [
+  '/',
+  '/privacy',
+  '/terms',
+  '/acceptable-use',
+  '/support',
+  '/legal',
+  '/delete-account',
+] as const
 
 export const LOCALE_HEADER = 'x-rayt-locale'
 
