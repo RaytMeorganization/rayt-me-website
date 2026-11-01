@@ -377,10 +377,17 @@ export function BusinessDashboard() {
                       {teamActivity.recentRatings.slice(0, 12).map((row) => {
                         const rater = row.rater as { name?: string } | undefined
                         const target = row.target as { name?: string } | undefined
+                        // Received ratings never expose rater name — show attribution title only.
+                        const fromLabel =
+                          typeof rater?.name === 'string' && rater.name
+                            ? rater.name
+                            : typeof row.attributionTitle === 'string' && row.attributionTitle
+                              ? row.attributionTitle
+                              : '—'
                         return (
                           <RecordShell
                             key={String(row.id)}
-                            title={`${rater?.name ?? '—'} → ${target?.name ?? '—'}`}
+                            title={`${fromLabel} → ${target?.name ?? '—'}`}
                             subtitle={formatAdminDate(row.createdAt)}
                             badges={
                               <StatusBadge tone="muted">{Number(row.r ?? 0).toFixed(1)}</StatusBadge>
