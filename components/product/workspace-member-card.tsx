@@ -27,6 +27,7 @@ export type WorkspaceMemberCardProps = {
   role: string
   accentColor?: string | null
   profileHref?: string | null
+  reputationHref?: string | null
   canRemove?: boolean
   canChangeRole?: boolean
   busy?: boolean
@@ -60,6 +61,7 @@ export function WorkspaceMemberCard({
   role,
   accentColor,
   profileHref,
+  reputationHref,
   canRemove = false,
   canChangeRole = false,
   busy = false,
@@ -166,17 +168,29 @@ export function WorkspaceMemberCard({
                   .join(' · ')}
               </p>
             ) : null}
-            {profileHref ? (
-              <Button
-                nativeButton={false}
-                size="sm"
-                variant="ghost"
-                className="mt-3 px-0"
-                render={<a href={profileHref} />}
-              >
-                {t('viewPublicCard')}
-              </Button>
-            ) : null}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {reputationHref ? (
+                <Button
+                  nativeButton={false}
+                  size="sm"
+                  variant="outline"
+                  render={<a href={reputationHref} />}
+                >
+                  {t('viewReputation')}
+                </Button>
+              ) : null}
+              {profileHref ? (
+                <Button
+                  nativeButton={false}
+                  size="sm"
+                  variant="ghost"
+                  className="px-0"
+                  render={<a href={profileHref} />}
+                >
+                  {t('viewPublicCard')}
+                </Button>
+              ) : null}
+            </div>
           </div>
         </div>
       </CardContent>

@@ -29,6 +29,8 @@ import {
   WorkspaceTabs,
 } from '@/components/product/dashboard-ui'
 import { WorkspaceMemberCard } from '@/components/product/workspace-member-card'
+import { BusinessPeriodAnalytics } from '@/components/product/business-period-analytics'
+import Link from 'next/link'
 import { EmptyState, Illustration, StatCard } from '@/components/product/brand-art'
 import { AnimatedNumber } from '@/components/product/premium-motion'
 import { useAuth, useI18n } from '@/components/product/providers'
@@ -371,8 +373,20 @@ export function BusinessDashboard() {
                   />
                 </div>
 
+                <BusinessPeriodAnalytics
+                  employees={members.flatMap((member) => {
+                    const memberUser = member.user as { id?: string; name?: string } | undefined
+                    if (!memberUser?.id) return []
+                    return [{ id: String(memberUser.id), name: String(memberUser.name || memberUser.id) }]
+                  })}
+                />
+
                 {teamActivity?.recentRatings.length ? (
-                  <DashboardSurface title={t('recentTeamRatings')} description={t('teamActivityHelp')}>
+                  <DashboardSurface
+                    title={t('recentTeamRatings')}
+                    description={t('teamActivityHelp')}
+                    action={<Link className="text-sm font-semibold text-emerald-700" href="/business-dashboard/ratings">{t('allTeamRatings')}</Link>}
+                  >
                     <div className="grid gap-2">
                       {teamActivity.recentRatings.slice(0, 12).map((row) => {
                         const rater = row.rater as { name?: string } | undefined
@@ -541,6 +555,7 @@ export function BusinessDashboard() {
                           }
                           isVerified={Boolean(memberUser?.isVerified)}
                           profileHref={memberUserId ? `/p/${encodeURIComponent(memberUserId)}` : null}
+                          reputationHref={memberUserId ? `/business-dashboard/employees/${encodeURIComponent(memberUserId)}` : null}
                           avatarUrl={memberUser?.avatarUrl ? String(memberUser.avatarUrl) : null}
                           employmentStatus={
                             memberUser?.employmentStatus === 'working' ||

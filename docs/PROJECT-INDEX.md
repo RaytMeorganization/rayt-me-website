@@ -97,6 +97,14 @@ Public and account:
 
 `/admin`: overview, users (`GET /users/:id` for email, rating stats, and invoices), verifications, ratings, disputes, communities, organizations, plans, payments, entitlements, audit log, health, analytics, `POST /reputation-lab/simulate`, `GET /reputation-lab/check/:userId`.
 
+Business analytics (org admin, same privacy as `/business/activity`):
+
+- `GET /business/employees/:employeeId/reputation` and `/reputation/history` — stored `sOld`/`sNew` path. Start is 3.00 until a rating exists. No invented history.
+- `GET /business/employees/:employeeId/ratings` and `GET /business/ratings` — cursor pages. External raters stay title-only.
+- `GET /business/analytics` — period comparison in an IANA timezone. Change is omitted when the earlier cohort did not exist.
+
+My List meeting place (owner only, city/country, no coordinates): `POST /mobile/network`, `PATCH /mobile/network/:profileId`, `POST /mobile/network/search`. A manual place is not replaced by a later device read. Search filters the caller's saved rows; the model only proposes filters.
+
 Schema: `prisma/schema.prisma`. `User.score` is `Decimal(4,2)`.
 
 CI: `pnpm exec prisma generate`, `pnpm typecheck`, `pnpm test`.
