@@ -35,11 +35,30 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
           {t('publicPreview')}
         </p>
         <Card
-          className="overflow-hidden border-white/10 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)] backdrop-blur-xl"
+          className="relative overflow-hidden border-white/10 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)] backdrop-blur-xl"
           style={{ backgroundColor: surface.background }}
         >
           <div className="h-[3px]" style={{ backgroundColor: surface.accent }} />
-          <CardContent className="p-6 sm:p-9">
+          {surface.artUrl ? (
+            <>
+              <Image
+                src={surface.artUrl}
+                alt=""
+                width={320}
+                height={220}
+                unoptimized
+                className="pointer-events-none absolute inset-y-0 end-0 h-full w-[52%] object-cover object-right opacity-95"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background: `linear-gradient(to right, ${surface.background} 0%, ${surface.background} 36%, transparent 78%)`,
+                }}
+              />
+            </>
+          ) : null}
+          <CardContent className="relative p-6 sm:p-9">
             <div className="flex items-start gap-4">
               {profile.avatarUrl ? (
                 <Image src={profile.avatarUrl} alt="" width={64} height={64} unoptimized className="size-16 shrink-0 rounded-[18px] object-cover" />

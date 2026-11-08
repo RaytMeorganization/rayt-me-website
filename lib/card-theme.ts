@@ -12,6 +12,7 @@ export type CustomThemeColors = {
   background: string
   accent: string
   logoUrl?: string | null
+  artUrl?: string | null
   name?: string | null
   type?: 'custom' | 'company'
 }
@@ -47,6 +48,7 @@ export function parseCustomTheme(theme?: string | null): CustomThemeColors | nul
         background: parsed.background,
         accent: parsed.accent,
         logoUrl: typeof parsed.logoUrl === 'string' ? parsed.logoUrl : null,
+        artUrl: typeof parsed.artUrl === 'string' ? parsed.artUrl : null,
         name: typeof parsed.name === 'string' ? parsed.name : null,
         type: parsed.type === 'company' ? 'company' : 'custom',
       }
@@ -87,19 +89,20 @@ export function cardThemeSurface(theme?: string | null, catalog?: ThemeCatalogIt
       accent: custom.accent,
       light: hexIsLight(custom.background),
       logoUrl: custom.logoUrl ?? null,
+      artUrl: custom.artUrl ?? null,
       name: custom.name,
     }
   }
   if (theme && PACKS[theme]) {
     const pack = packVisual(theme, catalog)
-    return { ...pack, logoUrl: null as string | null, name: theme }
+    return { ...pack, logoUrl: null as string | null, artUrl: null as string | null, name: theme }
   }
   if (theme && catalog?.some(item => item.key === theme)) {
     const pack = packVisual(theme, catalog)
-    return { ...pack, logoUrl: null as string | null, name: theme }
+    return { ...pack, logoUrl: null as string | null, artUrl: null as string | null, name: theme }
   }
   const pack = PACKS.forest
-  return { ...pack, logoUrl: null as string | null, name: 'forest' }
+  return { ...pack, logoUrl: null as string | null, artUrl: null as string | null, name: 'forest' }
 }
 
 export function themePackLabel(pack: string, catalog: ThemeCatalogItem[] | undefined, locale: 'en' | 'ar') {

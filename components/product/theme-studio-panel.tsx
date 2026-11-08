@@ -37,7 +37,7 @@ export function ThemeStudioPanel({
   onSavePack: (key: string) => void
   onSaveCustom: (custom: CustomThemeColors) => void
   onApplyCompany: () => void
-  onSuggest: (mood: string) => Promise<{ background: string; accent: string; label: string; suggestions?: CustomThemeColors[] } | null>
+  onSuggest: (mood: string) => Promise<{ background: string; accent: string; label: string; artUrl?: string | null; suggestions?: CustomThemeColors[] } | null>
 }) {
   const { t, locale } = useI18n()
   const saved = parseCustomTheme(entitlements.activeTheme)
@@ -45,7 +45,9 @@ export function ThemeStudioPanel({
     saved ?? { background: '#FAF6EE', accent: '#11213D' },
   )
   const [mood, setMood] = useState('')
-  const [suggestions, setSuggestions] = useState<{ background: string; accent: string; label?: string }[]>([])
+  const [suggestions, setSuggestions] = useState<
+    { background: string; accent: string; label?: string; artUrl?: string | null }[]
+  >([])
   const [suggesting, setSuggesting] = useState(false)
   const catalog = entitlements.catalog
   const preview = cardThemeSurface(
@@ -58,11 +60,28 @@ export function ThemeStudioPanel({
   return (
     <div className="grid gap-5">
       <div
-        className="overflow-hidden rounded-[24px] border border-white/10 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)]"
+        className="relative overflow-hidden rounded-[24px] border border-white/10 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)]"
         style={{ background: preview.background, color: preview.light ? '#11213D' : '#FFFFFF' }}
       >
         <div className="h-[3px]" style={{ backgroundColor: preview.accent }} />
-        <div className="flex items-center justify-between gap-3 px-5 py-6">
+        {preview.artUrl ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={preview.artUrl}
+              alt=""
+              className="pointer-events-none absolute inset-y-0 end-0 h-full w-[52%] object-cover object-right opacity-95"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background: `linear-gradient(to right, ${preview.background} 0%, ${preview.background} 36%, transparent 78%)`,
+              }}
+            />
+          </>
+        ) : null}
+        <div className="relative flex items-center justify-between gap-3 px-5 py-6">
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-current/60">{t('publicPreview')}</p>
             <p className="mt-2 font-serif text-2xl font-semibold tracking-tight">{custom.name || t('customTheme')}</p>
@@ -187,6 +206,7 @@ export function ThemeStudioPanel({
                       background: result.background,
                       accent: result.accent,
                       name: result.label,
+                      artUrl: result.artUrl ?? null,
                     }))
                     setSuggestions(result.suggestions ?? [result])
                   })
@@ -209,6 +229,7 @@ export function ThemeStudioPanel({
                         background: item.background,
                         accent: item.accent,
                         name: item.label,
+                        artUrl: item.artUrl ?? current.artUrl,
                       }))
                     }
                   >
