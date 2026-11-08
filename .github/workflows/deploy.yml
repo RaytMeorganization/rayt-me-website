@@ -60,7 +60,7 @@ jobs:
             NEXT_PUBLIC_SITE_URL=https://raytme.me
             NEXT_PUBLIC_WEB_SIGN_UP_DISABLED=${{ vars.NEXT_PUBLIC_WEB_SIGN_UP_DISABLED || 'true' }}
             NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=${{ vars.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '' }}
-            NEXT_PUBLIC_APP_STORE_URL=${{ vars.NEXT_PUBLIC_APP_STORE_URL || 'https://apps.apple.com/' }}
+            NEXT_PUBLIC_APP_STORE_URL=${{ vars.NEXT_PUBLIC_APP_STORE_URL || 'https://apps.apple.com/kr/app/rayt-me/id6821832114' }}
             NEXT_PUBLIC_PLAY_STORE_URL=${{ vars.NEXT_PUBLIC_PLAY_STORE_URL || 'https://play.google.com/store/apps/details?id=com.raytme.app' }}
 
       - name: Install SSH key

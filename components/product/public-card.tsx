@@ -9,6 +9,7 @@ import { MarketingShell } from '@/components/product/marketing-shell'
 import { ScoreRing } from '@/components/product/score-ring'
 import { useI18n } from '@/components/product/providers'
 import { cardThemeSurface } from '@/lib/card-theme'
+import { APP_STORE_URL, PLAY_STORE_URL } from '@/lib/store-links'
 import type { PublicProfile } from '@/lib/types'
 
 export function PublicCard({ profile }: { profile: PublicProfile }) {
@@ -111,10 +112,10 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
           <p className="font-semibold text-foreground">{t('download')}</p>
           <p className="mt-2 text-sm text-muted-foreground">{t('appOnly')}</p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <a className={buttonVariants()} href={process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://apps.apple.com/'}>
+            <a className={buttonVariants()} href={APP_STORE_URL}>
               App Store
             </a>
-            <a className={buttonVariants({ variant: 'outline' })} href={process.env.NEXT_PUBLIC_PLAY_STORE_URL || 'https://play.google.com/store'}>
+            <a className={buttonVariants({ variant: 'outline' })} href={PLAY_STORE_URL}>
               Google Play
             </a>
           </div>

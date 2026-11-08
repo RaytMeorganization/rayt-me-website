@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 
 import { LANDING_FAQ_ITEMS } from '@/lib/landing-faq'
 import { SITE_ORIGIN, siteUrl } from '@/lib/site'
+import { APP_STORE_URL, IOS_APP_STORE_APP_ID } from '@/lib/store-links'
 
 const DEFAULT_TITLE = 'RaytME — Virtual Business Card & Professional Reputation'
 const DEFAULT_DESCRIPTION =
@@ -81,6 +82,9 @@ export function buildRootMetadata(): Metadata {
     keywords: [...SITE_SEO_KEYWORDS],
     generator: 'RaytME',
     category: 'business',
+    itunes: {
+      appId: IOS_APP_STORE_APP_ID,
+    },
     ...(google ? { verification: { google } } : {}),
   }
 }
@@ -210,9 +214,7 @@ export function buildRootJsonLdGraph() {
         description:
           'A virtual business card and portable professional reputation profile you can share by link, QR, or email signature.',
         url: SITE_ORIGIN,
-        ...(process.env.NEXT_PUBLIC_APP_STORE_URL
-          ? { downloadUrl: process.env.NEXT_PUBLIC_APP_STORE_URL }
-          : {}),
+        downloadUrl: APP_STORE_URL,
       },
       faqPage,
     ],

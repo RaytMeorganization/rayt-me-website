@@ -100,6 +100,86 @@ export interface BusinessReputation {
   highestReputation?: number | null
 }
 
+export type AnalyticsPeriodPreset = 'current_month' | 'previous_month' | 'current_year' | 'custom'
+
+export interface BusinessAnalytics {
+  timezone: string
+  window: {
+    preset: AnalyticsPeriodPreset
+    from: string
+    to: string
+    previousFrom: string
+    previousTo: string
+    employeeId: string | null
+  }
+  snapshot: {
+    averageReputation: number
+    highestReputation: number | null
+    lowestReputation: number | null
+    verifiedMemberCount: number
+    memberCount: number
+    credibleRatingCount: number
+  }
+  period: {
+    ratingsReceived: number
+    ratingsGiven: number
+    reputation: number | null
+    categoryAverages: { key: string; average: number | null; sampleSize: number }[]
+  }
+  previousPeriod: {
+    ratingsReceived: number
+    ratingsGiven: number
+    reputation: number | null
+  }
+  comparison: {
+    reputationChange: number | null
+    ratingsReceivedChange: number
+    ratingsGivenChange: number
+  }
+  trend: { at: string; score: number; employeeId: string; ratingId: string }[]
+  volume: { bucket: string; grain: 'day' | 'week' | 'month'; received: number; given: number }[]
+}
+
+export interface EmployeeReputationDetail {
+  employee: {
+    id: string
+    name: string
+    email: string
+    jobTitle?: string | null
+    company?: string | null
+    avatarUrl?: string | null
+    isVerified: boolean
+    score: unknown
+    credibleRatingCount: number
+    employmentStatus?: 'working' | 'not_working' | 'open_to_work' | null
+  }
+  startingScore: number
+  currentScore: number
+  change: number
+  credibleRatingCount: number
+  historyAvailable: boolean
+  history: { at: string; score: number; kind: 'starting' | 'observation'; ratingId: string | null }[]
+}
+
+export interface BusinessRatingItem {
+  id: string
+  relationship: string
+  categoryScores: Record<string, number> | unknown
+  r: number | string
+  attributionTitle: string | null
+  comment: string | null
+  createdAt: string
+  direction: 'given' | 'received'
+  targetUserId?: string
+  rater?: { id: string; name: string } | null
+  target?: { id: string; name: string } | null
+}
+
+export interface PaginatedBusinessRatings {
+  items: BusinessRatingItem[]
+  nextCursor: string | null
+}
+
 export interface BusinessUsage {
   plan: string | null
   status: string | null

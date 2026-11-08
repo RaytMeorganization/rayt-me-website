@@ -3,6 +3,8 @@
 import { confirmAction } from '@/components/product/confirm-dialog'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   Building2,
@@ -29,6 +31,7 @@ import {
   WorkspaceTabs,
 } from '@/components/product/dashboard-ui'
 import { WorkspaceMemberCard } from '@/components/product/workspace-member-card'
+import { BusinessOverviewAnalytics } from '@/components/product/analytics/business-overview-analytics'
 import { EmptyState, Illustration, StatCard } from '@/components/product/brand-art'
 import { AnimatedNumber } from '@/components/product/premium-motion'
 import { useAuth, useI18n } from '@/components/product/providers'
@@ -89,6 +92,7 @@ export function BusinessDashboard() {
     recentRatings: Record<string, unknown>[]
   } | null>(null)
   const [inviteEmail, setInviteEmail] = useState('')
+  const [employeeQuery, setEmployeeQuery] = useState('')
   const [inviteRole, setInviteRole] = useState<'MEMBER' | 'ADMIN'>('MEMBER')
   const [message, setMessage] = useState('')
   const [messageIsError, setMessageIsError] = useState(false)
@@ -287,14 +291,26 @@ export function BusinessDashboard() {
     <ProductShell role="business">
       <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
         <PageHeader
-          eyebrow={t('organizationWorkspace')}
+          eyebrow={t('businessDashboardTitle')}
           title={organization?.name || t('business')}
           description={t('businessIntro')}
           action={
-            <Button variant="outline" size="sm" onClick={() => void load()} disabled={busy}>
-              <RefreshCw className={busy ? 'animate-spin' : ''} />
-              {t('refresh')}
-            </Button>
+            <div className="flex flex-wrap items-center gap-3">
+              {organization?.logoUrl ? (
+                <Image
+                  src={organization.logoUrl}
+                  alt=""
+                  width={48}
+                  height={48}
+                  unoptimized
+                  className="size-12 rounded-xl border border-white/10 object-cover"
+                />
+              ) : null}
+              <Button variant="outline" size="sm" onClick={() => void load()} disabled={busy}>
+                <RefreshCw className={busy ? 'animate-spin' : ''} />
+                {t('refresh')}
+              </Button>
+            </div>
           }
         />
 
@@ -321,24 +337,22 @@ export function BusinessDashboard() {
 
             {tab === 'overview' && (
               <div className="mt-5 grid gap-4">
+                <BusinessOverviewAnalytics
+                  employees={members
+                    .map(member => {
+                      const memberUser = member.user as { id?: string; name?: string } | undefined
+                      return {
+                        id: String(memberUser?.id ?? ''),
+                        name: String(memberUser?.name ?? ''),
+                      }
+                    })
+                    .filter(row => row.id)}
+                />
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                  <StatCard
-                    label={t('reputation')}
-                    value={formatScore(reputation?.averageReputation)}
-                    hint={`${reputation?.ratingCount ?? 0} ${t('basedOn')}`}
-                  />
                   <StatCard
                     label={t('averageRating')}
                     value={formatScore(reputation?.averageRating)}
                     hint={t('ratingCount')}
-                  />
-                  <StatCard
-                    label={t('lowestReputation')}
-                    value={formatScore(reputation?.lowestReputation)}
-                  />
-                  <StatCard
-                    label={t('highestReputation')}
-                    value={formatScore(reputation?.highestReputation)}
                   />
                   <StatCard
                     label={t('members')}
@@ -350,29 +364,22 @@ export function BusinessDashboard() {
                     }
                   />
                   <StatCard
-                    label={t('verifiedMembers')}
-                    value={String(reputation?.verifiedMemberCount ?? 0)}
-                    hint={`${reputation?.verifiedMemberCount ?? 0} / ${usage?.usage.members ?? members.length}`}
-                  />
-                  <StatCard
                     label={t('pendingInvites')}
                     value={String(usage?.usage.pendingInvites ?? 0)}
                   />
                   <StatCard label={t('plan')} value={planLabel(usage?.plan)} hint={statusLabel(t, usage?.status)} />
-                  <StatCard
-                    label={t('ratingsGiven')}
-                    value={String(teamActivity?.totals.ratingsGiven ?? 0)}
-                    hint={t('teamActivity')}
-                  />
-                  <StatCard
-                    label={t('ratingsReceived')}
-                    value={String(teamActivity?.totals.ratingsReceived ?? 0)}
-                    hint={t('teamActivityHelp')}
-                  />
                 </div>
 
-                {teamActivity?.recentRatings.length ? (
-                  <DashboardSurface title={t('recentTeamRatings')} description={t('teamActivityHelp')}>
+                <DashboardSurface
+                  title={t('recentTeamRatings')}
+                  description={t('teamActivityHelp')}
+                  action={
+                    <Button nativeButton={false} size="sm" variant="outline" render={<Link href="/business-dashboard/ratings" />}>
+                      {t('viewAllRatings')}
+                    </Button>
+                  }
+                >
+                  {teamActivity?.recentRatings.length ? (
                     <div className="grid gap-2">
                       {teamActivity.recentRatings.slice(0, 12).map((row) => {
                         const rater = row.rater as { name?: string } | undefined
@@ -396,8 +403,10 @@ export function BusinessDashboard() {
                         )
                       })}
                     </div>
-                  </DashboardSurface>
-                ) : null}
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{t('noRatingsYet')}</p>
+                  )}
+                </DashboardSurface>
 
                 <Card className="overflow-hidden border-white/10 bg-gradient-to-br from-card/95 via-card/80 to-primary/10 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.85)]">
                   <CardContent className="flex flex-wrap items-center justify-between gap-6 py-8">
@@ -503,10 +512,27 @@ export function BusinessDashboard() {
                 <p className="relative z-10 mt-2 text-xs text-muted-foreground">{t('seatsHelp')}</p>
 
                 <Separator className="my-6 bg-white/10" />
+                <Field className="max-w-sm">
+                  <FieldLabel htmlFor="employee-search" className="text-xs">{t('employeeSearch')}</FieldLabel>
+                  <Input
+                    id="employee-search"
+                    className="bg-input/30"
+                    value={employeeQuery}
+                    onChange={event => setEmployeeQuery(event.target.value)}
+                    placeholder={t('employeeSearch')}
+                  />
+                </Field>
 
                 {members.length ? (
-                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {members.map((member, index) => {
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {members.filter(member => {
+                      const memberUser = member.user as { name?: string; jobTitle?: string; email?: string } | undefined
+                      const q = employeeQuery.trim().toLowerCase()
+                      if (!q) return true
+                      return [memberUser?.name, memberUser?.jobTitle, memberUser?.email]
+                        .filter(Boolean)
+                        .some(value => String(value).toLowerCase().includes(q))
+                    }).map((member, index) => {
                       const memberUser = member.user as Record<string, unknown> & {
                         _count?: { ratingsGiven?: number; ratingsReceived?: number }
                       } | undefined
@@ -541,6 +567,7 @@ export function BusinessDashboard() {
                           }
                           isVerified={Boolean(memberUser?.isVerified)}
                           profileHref={memberUserId ? `/p/${encodeURIComponent(memberUserId)}` : null}
+                          detailHref={memberUserId ? `/business-dashboard/employees/${encodeURIComponent(memberUserId)}` : null}
                           avatarUrl={memberUser?.avatarUrl ? String(memberUser.avatarUrl) : null}
                           employmentStatus={
                             memberUser?.employmentStatus === 'working' ||
