@@ -218,8 +218,10 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
       setStep('done')
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.status === 429) setError(t('webRateTooMany'))
-        else if (/90 days/i.test(err.message)) setError(t('webRateDuplicate'))
+        if (err.status === 429) setError(t('webRateSubmitTooMany'))
+        else if (err.status === 503 || /disabled|unavailable/i.test(err.message)) {
+          setError(t('webRateEngineOff'))
+        } else if (/90 days/i.test(err.message)) setError(t('webRateDuplicate'))
         else if (/allowance exhausted/i.test(err.message)) setError(t('webRateCap'))
         else if (/yourself/i.test(err.message)) setError(t('webRateSelf'))
         else if (/not found|not available/i.test(err.message)) setError(t('webRateUnavailable'))
@@ -258,7 +260,10 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
               </p>
             ) : null}
             {error ? (
-              <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+              <p
+                className="rounded-xl border border-red-300 bg-red-100 px-3 py-2 text-sm font-medium text-red-950"
+                role="alert"
+              >
                 {error}
               </p>
             ) : null}
@@ -322,6 +327,31 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
                 >
                   {busy ? t('saving') : t('confirmCode')}
                 </Button>
+                <div className="flex flex-wrap gap-3 justify-between">
+                  <button
+                    type="button"
+                    className="min-h-11 text-sm font-semibold text-emerald-800 underline-offset-4 hover:underline disabled:opacity-50"
+                    disabled={busy}
+                    onClick={() => void startOtp()}
+                  >
+                    {t('webRateResendCode')}
+                  </button>
+                  <button
+                    type="button"
+                    className="min-h-11 text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline disabled:opacity-50"
+                    disabled={busy}
+                    onClick={() => {
+                      setCode('')
+                      setDevCode(null)
+                      setError(null)
+                      setTurnstileToken(null)
+                      otpTurnstileRef.current?.reset()
+                      setStep('verify')
+                    }}
+                  >
+                    {t('webRateChangeEmail')}
+                  </button>
+                </div>
               </>
             ) : null}
 
