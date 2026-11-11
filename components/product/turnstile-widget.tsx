@@ -11,15 +11,19 @@ declare global {
         options: {
           sitekey: string
           callback: (token: string) => void
-          'error-callback'?: () => void
+          'error-callback'?: (code?: string) => void
           'expired-callback'?: () => void
           action?: string
+          theme?: 'light' | 'dark' | 'auto'
           size?: 'normal' | 'compact' | 'flexible' | 'invisible'
           appearance?: 'always' | 'execute' | 'interaction-only'
+          execution?: 'render' | 'execute'
         },
       ) => string
       reset: (widgetId?: string) => void
       remove: (widgetId?: string) => void
+      execute: (container?: string | HTMLElement, parameters?: Record<string, unknown>) => void
+      getResponse: (widgetId?: string) => string | undefined
     }
   }
 }
@@ -28,6 +32,8 @@ const SCRIPT_ID = 'cf-turnstile-script'
 
 export type TurnstileWidgetHandle = {
   reset: () => void
+  /** Run the challenge and resolve with a fresh token (or reject). */
+  execute: () => Promise<string>
 }
 
 export const TurnstileWidget = forwardRef<
@@ -41,6 +47,10 @@ export const TurnstileWidget = forwardRef<
   const hostRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)
   const onTokenRef = useRef(onToken)
+  const pendingRef = useRef<{
+    resolve: (token: string) => void
+    reject: (error: Error) => void
+  } | null>(null)
 
   useEffect(() => {
     onTokenRef.current = onToken
@@ -49,9 +59,38 @@ export const TurnstileWidget = forwardRef<
   useImperativeHandle(ref, () => ({
     reset() {
       onTokenRef.current(null)
+      pendingRef.current = null
       if (widgetIdRef.current && window.turnstile) {
         window.turnstile.reset(widgetIdRef.current)
       }
+    },
+    execute() {
+      return new Promise<string>((resolve, reject) => {
+        if (!hostRef.current || !window.turnstile || !widgetIdRef.current) {
+          reject(new Error('Bot check is still loading. Please wait a moment.'))
+          return
+        }
+        const existing = window.turnstile.getResponse?.(widgetIdRef.current)?.trim()
+        if (existing) {
+          onTokenRef.current(existing)
+          resolve(existing)
+          return
+        }
+        pendingRef.current = { resolve, reject }
+        try {
+          window.turnstile.reset(widgetIdRef.current)
+          window.turnstile.execute(hostRef.current)
+        } catch (error) {
+          pendingRef.current = null
+          reject(error instanceof Error ? error : new Error('Bot check failed'))
+        }
+        window.setTimeout(() => {
+          if (pendingRef.current) {
+            pendingRef.current.reject(new Error('Bot check timed out. Please try again.'))
+            pendingRef.current = null
+          }
+        }, 20_000)
+      })
     },
   }))
 
@@ -59,19 +98,38 @@ export const TurnstileWidget = forwardRef<
     let cancelled = false
     const sitekey = turnstileSiteKey()
 
+    function settleToken(token: string) {
+      onTokenRef.current(token)
+      if (pendingRef.current) {
+        pendingRef.current.resolve(token)
+        pendingRef.current = null
+      }
+    }
+
+    function settleError(message: string) {
+      onTokenRef.current(null)
+      if (pendingRef.current) {
+        pendingRef.current.reject(new Error(message))
+        pendingRef.current = null
+      }
+    }
+
     function mount() {
       if (cancelled || !hostRef.current || !window.turnstile) return
       if (widgetIdRef.current) {
         window.turnstile.remove(widgetIdRef.current)
         widgetIdRef.current = null
       }
+      // Managed widget (Spin default). Auto-runs on render; execute() retries on demand.
       widgetIdRef.current = window.turnstile.render(hostRef.current, {
         sitekey,
         action,
-        size: 'invisible',
-        appearance: 'interaction-only',
-        callback: (token) => onTokenRef.current(token),
-        'error-callback': () => onTokenRef.current(null),
+        theme: 'dark',
+        size: 'flexible',
+        appearance: 'always',
+        execution: 'render',
+        callback: (token) => settleToken(token),
+        'error-callback': () => settleError('Bot check failed. Please try again.'),
         'expired-callback': () => onTokenRef.current(null),
       })
     }
@@ -92,6 +150,7 @@ export const TurnstileWidget = forwardRef<
 
     return () => {
       cancelled = true
+      pendingRef.current = null
       if (widgetIdRef.current && window.turnstile) {
         window.turnstile.remove(widgetIdRef.current)
         widgetIdRef.current = null
@@ -99,5 +158,5 @@ export const TurnstileWidget = forwardRef<
     }
   }, [action])
 
-  return <div ref={hostRef} className="cf-turnstile" />
+  return <div ref={hostRef} className="cf-turnstile min-h-[65px]" />
 })
