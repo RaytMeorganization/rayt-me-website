@@ -179,6 +179,7 @@ export function AdminDashboard() {
   const [collectionMeta, setCollectionMeta] = useState<{ total: number; limit: number } | null>(null)
   const [ratingsSearchInput, setRatingsSearchInput] = useState('')
   const [appliedRatingsSearch, setAppliedRatingsSearch] = useState('')
+  const [ratingsSourceFilter, setRatingsSourceFilter] = useState<'all' | 'app' | 'web'>('all')
   const [metrics, setMetrics] = useState<Record<string, number> | null>(null)
   const [dossier, setDossier] = useState<Record<string, unknown> | null>(null)
   const [userRecordOpen, setUserRecordOpen] = useState(false)
@@ -244,6 +245,9 @@ export function AdminDashboard() {
       params.set('limit', String(COLLECTION_PAGE_SIZE))
       if (section === 'ratings' && appliedRatingsSearch.trim()) {
         params.set('search', appliedRatingsSearch.trim())
+      }
+      if (section === 'ratings' && ratingsSourceFilter !== 'all') {
+        params.set('source', ratingsSourceFilter)
       }
       query = `?${params.toString()}`
     }
@@ -315,7 +319,7 @@ export function AdminDashboard() {
     } finally {
       if (generation === loadGeneration.current) setBusy(false)
     }
-  }, [appliedRatingsSearch, appliedSearch, invoicePage, section, t, userPage])
+  }, [appliedRatingsSearch, appliedSearch, invoicePage, ratingsSourceFilter, section, t, userPage])
 
   const loadMore = useCallback(async () => {
     if (!COLLECTION_SECTIONS.has(section) || !collectionMeta) return
@@ -330,6 +334,9 @@ export function AdminDashboard() {
     if (section === 'ratings' && appliedRatingsSearch.trim()) {
       params.set('search', appliedRatingsSearch.trim())
     }
+    if (section === 'ratings' && ratingsSourceFilter !== 'all') {
+      params.set('source', ratingsSourceFilter)
+    }
     try {
       const raw = await api<{ items: unknown[]; total: number; limit: number }>(
         `/admin/${endpoint}?${params.toString()}`,
@@ -343,7 +350,7 @@ export function AdminDashboard() {
     } finally {
       if (generation === loadGeneration.current) setBusy(false)
     }
-  }, [appliedRatingsSearch, collectionMeta, records.length, section, t])
+  }, [appliedRatingsSearch, collectionMeta, ratingsSourceFilter, records.length, section, t])
 
   useEffect(() => {
     if (section === 'engine') return
@@ -630,7 +637,7 @@ export function AdminDashboard() {
           ) : null}
           {section === 'ratings' && (
             <form
-              className="relative z-10 mb-6 flex max-w-xl flex-col gap-2 sm:flex-row"
+              className="relative z-10 mb-6 flex max-w-2xl flex-col gap-2 sm:flex-row"
               onSubmit={event => {
                 event.preventDefault()
                 setAppliedRatingsSearch(ratingsSearchInput.trim())
@@ -643,6 +650,18 @@ export function AdminDashboard() {
                 aria-label={t('search')}
                 className="h-11 bg-input/30"
               />
+              <select
+                value={ratingsSourceFilter}
+                onChange={event =>
+                  setRatingsSourceFilter(event.target.value as 'all' | 'app' | 'web')
+                }
+                aria-label={t('ratingSourceAll')}
+                className="h-11 rounded-md border border-input bg-input/30 px-3 text-sm text-foreground"
+              >
+                <option value="all">{t('ratingSourceAll')}</option>
+                <option value="app">{t('ratingSourceApp')}</option>
+                <option value="web">{t('ratingSourceWeb')}</option>
+              </select>
               <Button
                 type="submit"
                 variant="secondary"
