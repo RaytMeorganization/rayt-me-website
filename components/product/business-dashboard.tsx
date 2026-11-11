@@ -397,7 +397,12 @@ export function BusinessDashboard() {
                             title={`${fromLabel} → ${target?.name ?? '—'}`}
                             subtitle={formatAdminDate(row.createdAt)}
                             badges={
-                              <StatusBadge tone="muted">{Number(row.r ?? 0).toFixed(1)}</StatusBadge>
+                              <>
+                                {row.source === 'web' ? (
+                                  <StatusBadge tone="muted">{t('webRatingLabel')}</StatusBadge>
+                                ) : null}
+                                <StatusBadge tone="muted">{Number(row.r ?? 0).toFixed(1)}</StatusBadge>
+                              </>
                             }
                           />
                         )

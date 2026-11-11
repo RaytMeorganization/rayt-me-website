@@ -54,11 +54,18 @@ export function AdminRatingRecord({
       title={title}
       subtitle={`${t('rater')}: ${subtitle}`}
       badges={
-        mode === 'disputes' ? (
-          <StatusBadge tone="warn">{String(item.disputeStatus || 'flagged')}</StatusBadge>
-        ) : item.isHidden ? (
-          <Badge variant="outline" className="rounded-full">{t('hideRating')}</Badge>
-        ) : null
+        <>
+          {item.source === 'web' || (item.rater && typeof item.rater === 'object' && (item.rater as { isWebGuest?: boolean }).isWebGuest) ? (
+            <Badge variant="outline" className="rounded-full border-emerald-700/40 text-emerald-800">
+              {t('webRatingBadge')}
+            </Badge>
+          ) : null}
+          {mode === 'disputes' ? (
+            <StatusBadge tone="warn">{String(item.disputeStatus || 'flagged')}</StatusBadge>
+          ) : item.isHidden ? (
+            <Badge variant="outline" className="rounded-full">{t('hideRating')}</Badge>
+          ) : null}
+        </>
       }
     >
       <div className="flex w-full min-w-0 flex-col gap-4 lg:max-w-3xl">

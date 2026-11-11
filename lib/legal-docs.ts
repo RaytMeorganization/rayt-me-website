@@ -92,7 +92,7 @@ export const privacyNotice: LegalDocument = {
     { type: 'h', text: '4. Processors we use' },
     {
       type: 'p',
-      text: `We share the minimum data needed with the hosting, database, and notification providers that operate the Platform. Optional AI drafting is sent to OpenAI only after you consent in the app. Each provider is required to protect that data under their terms with us. For questions, contact ${COMPANY.emails.privacy}.`,
+      text: `We share the minimum data needed with the hosting, database, and notification providers that operate the Platform, and with Cloudflare Turnstile for bot protection on web rating. Optional AI drafting is sent to OpenAI only after you consent in the app. Each provider is required to protect that data under their terms with us. For questions, contact ${COMPANY.emails.privacy}.`,
     },
     { type: 'h', text: '5. Artificial intelligence' },
     {

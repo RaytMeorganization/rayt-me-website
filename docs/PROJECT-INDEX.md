@@ -63,7 +63,7 @@ Routes in `app/`:
 | Path | Role |
 |---|---|
 | `/` | Landing. Hero video stays here only |
-| `/p/[id]` | Public card. No rating, no snapshot |
+| `/p/[id]` | Public card. Rate CTA opens `/p/[id]/rate` (email-verified web rating). No snapshot / My List on web |
 | `/sign-in`, `/sign-up`, `/verify`, `/settings` | Account |
 | `/accept-invite` | Business invite |
 | `/business-dashboard` | Org admin |
@@ -92,8 +92,16 @@ Public and account:
 `/mobile` (app session; ratings also need header `x-rayt-client: mobile`):
 
 - Profile, snapshot, phone request, network, disputes, communities, themes, push token
-- `POST /mobile/ratings` — the only score write
+- `POST /mobile/ratings` — app score write (shared `createRating` service; still requires `x-rayt-client: mobile`)
 - Billing plans and invoices. Mobile `POST /mobile/billing/checkout` stays 403. Website checkout is `POST /billing/checkout`, closed until `BILLING_PROVIDER=endpoint`. See `docs/SIGNUP-AND-BILLING.md`.
+
+Web rating (cookie session; separately protected from the mobile gate):
+
+- `POST /web-ratings/otp/start` — email OTP for web raters (`turnstileToken` required)
+- `POST /web-ratings/otp/verify` — verify code and start a website/guest session
+- `POST /web-ratings/about-you` — save guest name/title/industry
+- `POST /web/ratings` — web score write via the same `createRating` service (`source=web`, Turnstile + consent)
+- `POST /auth/claim-guest/confirm` — claim a web-guest user after register OTP
 
 `/admin`: overview, users (`GET /users/:id` for email, rating stats, and invoices), verifications, ratings, disputes, communities, organizations, plans, payments, entitlements, audit log, health, analytics, `POST /reputation-lab/simulate`, `GET /reputation-lab/check/:userId`.
 

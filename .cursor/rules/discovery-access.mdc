@@ -17,17 +17,17 @@ Access points: in-person **QR**, **NFC** tap, shared **link**, **email signature
 
 ## No app yet
 
-1. Scan / tap / open → **rate.me** website
-2. Business-card **preview only**
-3. **Cannot** rate, **cannot** open snapshot, **cannot** add to My List
-4. CTA: Download the app (iOS / Google Play)
+1. Scan / tap / open → **raytme.me** website
+2. Business-card preview + **Rate** CTA (`/p/:id/rate` after email verification)
+3. **Cannot** open snapshot, **cannot** add to My List
+4. CTA: Rate on web, or download the app (iOS / Google Play)
 
 ```ts
-// ❌ BAD — public /p/:id page with Rate + snapshot
-<PublicCard actions={['rate', 'snapshot']} />
+// ❌ BAD — public /p/:id page with snapshot or My List
+<PublicCard actions={['snapshot', 'myList']} />
 
-// ✅ GOOD — web preview is a funnel; full actions require the app
-<PublicCard actions={['download']} />
+// ✅ GOOD — web preview + Rate funnel; snapshot/My List stay in the app
+<PublicCard actions={['rate', 'download']} />
 ```
 
 Universal Links / App Links / NFC NDEF must not expose private contacts. Marketing landing may illustrate rating/snapshot; scanned public profile pages must not.

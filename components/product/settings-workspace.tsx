@@ -213,6 +213,14 @@ export function SettingsWorkspace() {
     <ProductShell>
       <main className="mx-auto max-w-5xl px-5 py-10 lg:px-8">
         <PageHeader eyebrow={t('account')} title={t('settings')} description={t('settingsIntro')} />
+        {user?.isWebGuest ? (
+          <Panel title={t('download')} className="mt-6">
+            <p className="text-sm text-muted-foreground">{t('webGuestCompleteInApp')}</p>
+            <div className="mt-4">
+              <MobileAppStoreCta />
+            </div>
+          </Panel>
+        ) : null}
         <nav aria-label={t('settings')} className="mt-8 flex gap-2 overflow-x-auto pb-2">
           {tabs.map(key => (
             <button

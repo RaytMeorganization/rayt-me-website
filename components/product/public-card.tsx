@@ -1,20 +1,23 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
 import { Check, Lock, MapPin } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { MarketingShell } from '@/components/product/marketing-shell'
 import { ScoreRing } from '@/components/product/score-ring'
-import { useI18n } from '@/components/product/providers'
+import { useAuth, useI18n } from '@/components/product/providers'
 import { cardThemeSurface } from '@/lib/card-theme'
 import { APP_STORE_URL, PLAY_STORE_URL } from '@/lib/store-links'
 import type { PublicProfile } from '@/lib/types'
 
 export function PublicCard({ profile }: { profile: PublicProfile }) {
   const { t } = useI18n()
+  const { user } = useAuth()
   const [logoFailed, setLogoFailed] = useState(false)
+  const isOwner = Boolean(user?.id && user.id === profile.id)
   const surface = cardThemeSurface(profile.theme)
   const title = profile.jobTitle || profile.education?.fieldOfStudy
   const organization = profile.company || profile.education?.university
@@ -129,7 +132,19 @@ export function PublicCard({ profile }: { profile: PublicProfile }) {
         </Card>
         <Card className="mt-6 border-white/10 bg-card/80 p-6 text-center backdrop-blur-xl">
           <p className="font-semibold text-foreground">{t('download')}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{t('appOnly')}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {t('appOnly').replace('{name}', profile.name)}
+          </p>
+          {!isOwner ? (
+            <div className="mt-5">
+              <Link
+                className={buttonVariants({ className: 'min-h-11 rounded-full px-6' })}
+                href={`/p/${encodeURIComponent(profile.id)}/rate`}
+              >
+                {t('webRateCta').replace('{name}', profile.name)}
+              </Link>
+            </div>
+          ) : null}
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <a className={buttonVariants()} href={APP_STORE_URL}>
               App Store

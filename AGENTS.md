@@ -4,8 +4,8 @@ This repository is the Next.js marketing site, account dashboards, and privacy-s
 
 ## Hard boundary
 
-- `/p/:id` is card-only and read-only.
-- Never add rating, professional snapshot or My List to a public web profile.
+- `/p/:id` is the public card. Rate CTA links to `/p/:id/rate` (email-verified web rating).
+- Never add professional snapshot or My List to a public web profile.
 - Marketing demos are illustrative and must not write real product data.
 - Fetch public profiles only from the backend preview DTO; never access a database directly.
 
