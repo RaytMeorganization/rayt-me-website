@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Briefcase,
   Building2,
+  Gauge,
   Handshake,
   Layers2,
   Mail,
@@ -490,23 +491,30 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
                 </div>
 
                 <div className="space-y-4">
-                  {RATING_CATEGORIES.map((key) => {
-                    const meta = CATEGORY_META[key]
-                    const Icon = meta.icon
-                    const value = mode === 'overall' ? overall : scores[key]
-                    return (
-                      <ScoreSlider
-                        key={key}
-                        icon={<Icon className="size-4" />}
-                        label={t(meta.labelKey)}
-                        value={value}
-                        onChange={(next) => {
-                          if (mode === 'overall') setOverall(next)
-                          else setScores((current) => ({ ...current, [key]: next }))
-                        }}
-                      />
-                    )
-                  })}
+                  {mode === 'overall' ? (
+                    <ScoreSlider
+                      icon={<Gauge className="size-4" />}
+                      label={t('webRateOverall')}
+                      value={overall}
+                      onChange={setOverall}
+                    />
+                  ) : (
+                    RATING_CATEGORIES.map((key) => {
+                      const meta = CATEGORY_META[key]
+                      const Icon = meta.icon
+                      return (
+                        <ScoreSlider
+                          key={key}
+                          icon={<Icon className="size-4" />}
+                          label={t(meta.labelKey)}
+                          value={scores[key]}
+                          onChange={(next) =>
+                            setScores((current) => ({ ...current, [key]: next }))
+                          }
+                        />
+                      )
+                    })
+                  )}
                 </div>
 
                 <p className="text-sm text-white/55">
