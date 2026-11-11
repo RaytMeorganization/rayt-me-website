@@ -122,9 +122,14 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
       otpTurnstileRef.current?.reset()
       setStep('code')
     } catch (err) {
-      setError(errorMessage(err, t('error')))
-      setTurnstileToken(null)
-      otpTurnstileRef.current?.reset()
+      if (err instanceof ApiError && err.status === 429) {
+        setError(t('webRateTooMany'))
+        // Rate limit runs before siteverify, so the Turnstile token is still usable.
+      } else {
+        setError(errorMessage(err, t('error')))
+        setTurnstileToken(null)
+        otpTurnstileRef.current?.reset()
+      }
     } finally {
       setBusy(false)
     }
@@ -208,7 +213,8 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
       setStep('done')
     } catch (err) {
       if (err instanceof ApiError) {
-        if (/90 days/i.test(err.message)) setError(t('webRateDuplicate'))
+        if (err.status === 429) setError(t('webRateTooMany'))
+        else if (/90 days/i.test(err.message)) setError(t('webRateDuplicate'))
         else if (/allowance exhausted/i.test(err.message)) setError(t('webRateCap'))
         else if (/yourself/i.test(err.message)) setError(t('webRateSelf'))
         else if (/not found|not available/i.test(err.message)) setError(t('webRateUnavailable'))
@@ -217,8 +223,10 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
       } else {
         setError(errorMessage(err, t('error')))
       }
-      setTurnstileToken(null)
-      submitTurnstileRef.current?.reset()
+      if (!(err instanceof ApiError && err.status === 429)) {
+        setTurnstileToken(null)
+        submitTurnstileRef.current?.reset()
+      }
     } finally {
       setBusy(false)
     }
