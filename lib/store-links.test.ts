@@ -20,6 +20,8 @@ test('iPhone and iPad agents open the public Rayt Me App Store listing', () => {
 test('Android agents stay on Google Play, not the App Store listing', () => {
   assert.equal(storeUrlForUserAgent('Mozilla/5.0 (Linux; Android 14)'), PLAY_STORE_URL)
   assert.doesNotMatch(PLAY_STORE_URL, /id6821832114/)
+  assert.match(PLAY_STORE_URL, /id=com\.raytme\.app/)
+  assert.doesNotMatch(PLAY_STORE_URL, /^https:\/\/play\.google\.com\/store\/?$/)
 })
 
 test('non-Android agents, including desktop, use the iOS listing only', () => {

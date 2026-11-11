@@ -2,7 +2,10 @@
 export const IOS_APP_STORE_APP_ID = '6821832114'
 export const IOS_APP_STORE_LISTING = `https://apps.apple.com/app/rayt-me/id${IOS_APP_STORE_APP_ID}`
 
-const ANDROID_PLAY_LISTING = 'https://play.google.com/store/apps/details?id=com.raytme.app'
+/** Public Google Play listing for `com.raytme.app`. */
+export const ANDROID_PLAY_PACKAGE = 'com.raytme.app'
+export const ANDROID_PLAY_LISTING =
+  `https://play.google.com/store/apps/details?id=${ANDROID_PLAY_PACKAGE}&hl=en`
 
 function iosStoreUrl() {
   const fromEnv = process.env.NEXT_PUBLIC_APP_STORE_URL?.trim()
@@ -13,7 +16,17 @@ function iosStoreUrl() {
 }
 
 function androidStoreUrl() {
-  return process.env.NEXT_PUBLIC_PLAY_STORE_URL?.trim() || ANDROID_PLAY_LISTING
+  const fromEnv = process.env.NEXT_PUBLIC_PLAY_STORE_URL?.trim()
+  // Reject bare Play homepage / missing package so Docker defaults cannot break CTAs.
+  if (
+    fromEnv &&
+    fromEnv !== 'https://play.google.com/store' &&
+    fromEnv !== 'https://play.google.com/store/' &&
+    fromEnv.includes(`id=${ANDROID_PLAY_PACKAGE}`)
+  ) {
+    return fromEnv
+  }
+  return ANDROID_PLAY_LISTING
 }
 
 const IOS = iosStoreUrl()
