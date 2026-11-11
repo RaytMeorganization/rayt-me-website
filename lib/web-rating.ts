@@ -1,6 +1,15 @@
 /** Matches `RATING_COMMENT_MAX_CHARS` in `@rayt-me/plan-pricing` (mobile-plan-display). */
 export const RATING_COMMENT_MAX = 150
 
+/** Must match backend `WEB_RATING_TURNSTILE_ACTIONS`. */
+export const WEB_RATING_TURNSTILE_ACTIONS = {
+  otp: 'web-rating-otp',
+  submit: 'web-rating-submit',
+} as const
+
+/** Production Cloudflare Turnstile site key (public). Override via env if needed. */
+export const TURNSTILE_PRODUCTION_SITE_KEY = '0x4AAAAAAF9Pwins-8lx9Ft4'
+
 export const WEB_RATING_RELATIONSHIPS = [
   'worked_with',
   'client',
@@ -79,5 +88,9 @@ export function clipRatingComment(value: string) {
 export const TURNSTILE_TEST_SITE_KEY = '1x00000000000000000000AA'
 
 export function turnstileSiteKey() {
-  return process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || TURNSTILE_TEST_SITE_KEY
+  const fromEnv = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim()
+  if (fromEnv) return fromEnv
+  // Prefer the RaytME production widget over Cloudflare's always-pass test key.
+  if (process.env.NODE_ENV === 'production') return TURNSTILE_PRODUCTION_SITE_KEY
+  return TURNSTILE_TEST_SITE_KEY
 }
