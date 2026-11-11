@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -92,11 +92,20 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
     return () => window.clearTimeout(timer)
   }, [user, isOwner])
 
+  async function ensureTurnstileToken(ref: RefObject<TurnstileWidgetHandle | null>) {
+    const existing = turnstileToken?.trim()
+    if (existing) return existing
+    const token = await ref.current?.execute()
+    if (!token?.trim()) throw new Error(t('webRateBotRequired'))
+    setTurnstileToken(token)
+    return token
+  }
+
   async function startOtp() {
     setBusy(true)
     setError(null)
     try {
-      if (!turnstileToken) throw new Error(t('webRateBotRequired'))
+      const token = await ensureTurnstileToken(otpTurnstileRef)
       const result = await api<{ sent: true; message: string; devCode?: string }>(
         '/web-ratings/otp/start',
         {
@@ -104,7 +113,7 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
           body: JSON.stringify({
             email: email.trim().toLowerCase(),
             profileId: profile.id,
-            turnstileToken,
+            turnstileToken: token,
           }),
         },
       )
@@ -167,7 +176,7 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
     setError(null)
     try {
       if (!acceptedTerms) throw new Error(t('webRateTermsRequired'))
-      if (!turnstileToken) throw new Error(t('webRateBotRequired'))
+      const token = await ensureTurnstileToken(submitTurnstileRef)
       const categoryScores =
         mode === 'overall'
           ? scoresFromOverall(overall)
@@ -186,7 +195,7 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
           categoryScores,
           attributionPrivate: visibility === 'anonymous',
           comment: clipRatingComment(comment),
-          turnstileToken,
+          turnstileToken: token,
           acceptedTerms: true as const,
           marketingOptIn,
           firstName: firstName.trim(),
