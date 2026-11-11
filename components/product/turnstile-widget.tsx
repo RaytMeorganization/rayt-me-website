@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useImperativeHandle, useRef, forwardRef } from 'react'
 import { turnstileSiteKey } from '@/lib/web-rating'
 
 declare global {
@@ -13,6 +13,7 @@ declare global {
           callback: (token: string) => void
           'error-callback'?: () => void
           'expired-callback'?: () => void
+          action?: string
           size?: 'normal' | 'compact' | 'flexible' | 'invisible'
           appearance?: 'always' | 'execute' | 'interaction-only'
         },
@@ -25,11 +26,18 @@ declare global {
 
 const SCRIPT_ID = 'cf-turnstile-script'
 
-export function TurnstileWidget({
-  onToken,
-}: {
-  onToken: (token: string | null) => void
-}) {
+export type TurnstileWidgetHandle = {
+  reset: () => void
+}
+
+export const TurnstileWidget = forwardRef<
+  TurnstileWidgetHandle,
+  {
+    onToken: (token: string | null) => void
+    /** Maps to Turnstile `action` and must match server expectedAction. */
+    action: string
+  }
+>(function TurnstileWidget({ onToken, action }, ref) {
   const hostRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)
   const onTokenRef = useRef(onToken)
@@ -37,6 +45,15 @@ export function TurnstileWidget({
   useEffect(() => {
     onTokenRef.current = onToken
   }, [onToken])
+
+  useImperativeHandle(ref, () => ({
+    reset() {
+      onTokenRef.current(null)
+      if (widgetIdRef.current && window.turnstile) {
+        window.turnstile.reset(widgetIdRef.current)
+      }
+    },
+  }))
 
   useEffect(() => {
     let cancelled = false
@@ -50,6 +67,7 @@ export function TurnstileWidget({
       }
       widgetIdRef.current = window.turnstile.render(hostRef.current, {
         sitekey,
+        action,
         size: 'invisible',
         appearance: 'interaction-only',
         callback: (token) => onTokenRef.current(token),
@@ -79,7 +97,7 @@ export function TurnstileWidget({
         widgetIdRef.current = null
       }
     }
-  }, [])
+  }, [action])
 
   return <div ref={hostRef} className="cf-turnstile" />
-}
+})

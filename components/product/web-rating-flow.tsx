@@ -1,13 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { MarketingShell } from '@/components/product/marketing-shell'
-import { TurnstileWidget } from '@/components/product/turnstile-widget'
+import {
+  TurnstileWidget,
+  type TurnstileWidgetHandle,
+} from '@/components/product/turnstile-widget'
 import { useAuth, useI18n } from '@/components/product/providers'
 import { api, ApiError, errorMessage } from '@/lib/api'
 import { INDUSTRY_OPTIONS } from '@/lib/industries'
@@ -19,6 +22,7 @@ import {
   RATING_CATEGORIES,
   RATING_COMMENT_MAX,
   WEB_RATING_RELATIONSHIPS,
+  WEB_RATING_TURNSTILE_ACTIONS,
   averageCategoryScores,
   clipRatingComment,
   emptyCategoryScores,
@@ -42,6 +46,8 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
   const [code, setCode] = useState('')
   const [devCode, setDevCode] = useState<string | null>(null)
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const otpTurnstileRef = useRef<TurnstileWidgetHandle>(null)
+  const submitTurnstileRef = useRef<TurnstileWidgetHandle>(null)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [jobTitle, setJobTitle] = useState('')
@@ -103,9 +109,13 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
         },
       )
       setDevCode(result.devCode ?? null)
+      setTurnstileToken(null)
+      otpTurnstileRef.current?.reset()
       setStep('code')
     } catch (err) {
       setError(errorMessage(err, t('error')))
+      setTurnstileToken(null)
+      otpTurnstileRef.current?.reset()
     } finally {
       setBusy(false)
     }
@@ -177,7 +187,7 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
           attributionPrivate: visibility === 'anonymous',
           comment: clipRatingComment(comment),
           turnstileToken,
-          acceptedTerms: true,
+          acceptedTerms: true as const,
           marketingOptIn,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
@@ -198,6 +208,8 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
       } else {
         setError(errorMessage(err, t('error')))
       }
+      setTurnstileToken(null)
+      submitTurnstileRef.current?.reset()
     } finally {
       setBusy(false)
     }
@@ -245,7 +257,11 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </Field>
-                <TurnstileWidget onToken={setTurnstileToken} />
+                <TurnstileWidget
+                  ref={otpTurnstileRef}
+                  action={WEB_RATING_TURNSTILE_ACTIONS.otp}
+                  onToken={setTurnstileToken}
+                />
                 <Button
                   className="min-h-11 w-full rounded-full"
                   disabled={busy || !email.trim()}
@@ -478,7 +494,11 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
                   <span>{t('webRateMarketing')}</span>
                 </label>
 
-                <TurnstileWidget onToken={setTurnstileToken} />
+                <TurnstileWidget
+                  ref={submitTurnstileRef}
+                  action={WEB_RATING_TURNSTILE_ACTIONS.submit}
+                  onToken={setTurnstileToken}
+                />
 
                 <Button
                   className="min-h-11 w-full rounded-full"
