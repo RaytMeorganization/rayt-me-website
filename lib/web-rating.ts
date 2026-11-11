@@ -1,6 +1,5 @@
-import { RATING_COMMENT_MAX_CHARS } from '../.local-packages/rayt-me-shared/src/mobile-plan-display'
-
-export const RATING_COMMENT_MAX = RATING_COMMENT_MAX_CHARS
+/** Matches `RATING_COMMENT_MAX_CHARS` in `@rayt-me/plan-pricing` (mobile-plan-display). */
+export const RATING_COMMENT_MAX = 150
 
 export const WEB_RATING_RELATIONSHIPS = [
   'worked_with',
