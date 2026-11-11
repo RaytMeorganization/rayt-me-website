@@ -1,4 +1,6 @@
-export const RATING_COMMENT_MAX = 150
+import { RATING_COMMENT_MAX_CHARS } from '../.local-packages/rayt-me-shared/src/mobile-plan-display'
+
+export const RATING_COMMENT_MAX = RATING_COMMENT_MAX_CHARS
 
 export const WEB_RATING_RELATIONSHIPS = [
   'worked_with',
