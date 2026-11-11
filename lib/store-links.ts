@@ -1,6 +1,6 @@
 /** Public iOS App Store listing. Used only for Apple devices / App Store CTAs. */
 export const IOS_APP_STORE_APP_ID = '6821832114'
-export const IOS_APP_STORE_LISTING = `https://apps.apple.com/kr/app/rayt-me/id${IOS_APP_STORE_APP_ID}`
+export const IOS_APP_STORE_LISTING = `https://apps.apple.com/app/rayt-me/id${IOS_APP_STORE_APP_ID}`
 
 const ANDROID_PLAY_LISTING = 'https://play.google.com/store/apps/details?id=com.raytme.app'
 
