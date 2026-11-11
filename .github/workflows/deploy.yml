@@ -13,8 +13,10 @@ permissions:
   contents: read
 
 concurrency:
+  # A zombie in-progress run (all steps green, job never finalized) was blocking
+  # this group for 40+ minutes. Allow a newer deploy to cancel the stuck one.
   group: deploy-website
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   # Same tag compose uses by default (WEB_IMAGE unset), so manual recover/up keeps working.
