@@ -1,11 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
+import {
+  ArrowRight,
+  Briefcase,
+  Building2,
+  Handshake,
+  Layers2,
+  Mail,
+  MessageCircle,
+  Shield,
+  User as UserIcon,
+  Users,
+} from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Field, FieldLabel } from '@/components/ui/field'
 import { MarketingShell } from '@/components/product/marketing-shell'
 import {
   TurnstileWidget,
@@ -29,6 +38,7 @@ import {
   scoresFromOverall,
   snapRatingScore,
   type CategoryScores,
+  type RatingCategory,
   type WebRatingRelationship,
 } from '@/lib/web-rating'
 import { cn } from '@/lib/utils'
@@ -37,6 +47,23 @@ type Step = 'verify' | 'code' | 'about' | 'rate' | 'done'
 
 type RatingMode = 'overall' | 'categories'
 type Visibility = 'anonymous' | 'title'
+
+const CATEGORY_META: Record<
+  RatingCategory,
+  { labelKey: 'webRateCatProfessionalism' | 'webRateCatCommunication' | 'webRateCatReliability' | 'webRateCatKnowledge' | 'webRateCatCollaboration'; icon: typeof Briefcase }
+> = {
+  professionalism: { labelKey: 'webRateCatProfessionalism', icon: Briefcase },
+  communication: { labelKey: 'webRateCatCommunication', icon: MessageCircle },
+  reliability: { labelKey: 'webRateCatReliability', icon: Shield },
+  knowledge: { labelKey: 'webRateCatKnowledge', icon: Layers2 },
+  collaboration: { labelKey: 'webRateCatCollaboration', icon: Users },
+}
+
+const fieldClass =
+  'min-h-12 w-full rounded-xl border border-white/12 bg-[#0a0f14] px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-emerald-400/70 focus:ring-2 focus:ring-emerald-400/20'
+const iconFieldClass = cn(fieldClass, 'ps-10')
+const labelClass = 'mb-1.5 block text-sm font-medium text-white/70'
+const requiredMark = <span className="text-emerald-400" aria-hidden>*</span>
 
 export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
   const { t, locale } = useI18n()
@@ -75,7 +102,6 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
   useEffect(() => {
     if (!user || isOwner) return
     const timer = window.setTimeout(() => {
-      // Prefill about-you for returning guests / signed-in users.
       if (user.name && user.name !== 'Web rater') {
         const parts = user.name.trim().split(/\s+/)
         setFirstName(parts[0] ?? '')
@@ -85,8 +111,6 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
       if (user.company) setCompany(user.company)
       if (user.industry) setIndustry(user.industry)
       if (user.email) setEmail(user.email)
-      // Only skip verify/code → about. Never pull the user back from rate/done
-      // after Continue + refresh() updates session (that looked like Continue no-op).
       if (user.personalEmailStatus === 'verified' || user.isVerified) {
         setStep((current) =>
           current === 'verify' || current === 'code' ? 'about' : current,
@@ -128,7 +152,6 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
     } catch (err) {
       if (err instanceof ApiError && err.status === 429) {
         setError(t('webRateTooMany'))
-        // Rate limit runs before siteverify, so the Turnstile token is still usable.
       } else {
         setError(errorMessage(err, t('error')))
         setTurnstileToken(null)
@@ -172,7 +195,6 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
         }),
       })
       setStep('rate')
-      // Session refresh must not gate navigation (and must not reset step).
       void refresh()
     } catch (err) {
       setError(errorMessage(err, t('error')))
@@ -243,25 +265,31 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
 
   return (
     <MarketingShell>
-      <div className="mx-auto max-w-xl px-5 py-10 sm:py-14">
-        <p className="mb-2 text-center text-xs font-bold uppercase tracking-[0.18em] text-emerald-700">
-          RaytME
-        </p>
-        <h1 className="text-center font-serif text-3xl font-semibold tracking-tight text-foreground">
-          {title}
-        </h1>
-        <p className="mt-2 text-center text-sm text-muted-foreground">{t('webRateSubtitle')}</p>
+      <div className="mx-auto max-w-xl px-4 py-8 sm:px-5 sm:py-12">
+        <section
+          className={cn(
+            'rounded-[1.35rem] border border-white/10 bg-[#101820]/92 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-7',
+          )}
+        >
+          <header className="mb-6 text-center">
+            <p className="text-[0.7rem] font-bold uppercase tracking-[0.22em] text-emerald-400">
+              RaytME
+            </p>
+            <h1 className="mt-2 font-serif text-[1.85rem] font-semibold tracking-tight text-white sm:text-3xl">
+              {title}
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed text-white/55">{t('webRateSubtitle')}</p>
+          </header>
 
-        <Card className="mt-8 border-[#d9dfd9] bg-white/90 shadow-none">
-          <CardContent className="space-y-5 p-6">
+          <div className="space-y-5">
             {isOwner ? (
-              <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">
+              <p className="rounded-xl border border-red-400/30 bg-red-500/15 px-3 py-2 text-sm text-red-100" role="alert">
                 {t('webRateSelf')}
               </p>
             ) : null}
             {error ? (
               <p
-                className="rounded-xl border border-red-300 bg-red-100 px-3 py-2 text-sm font-medium text-red-950"
+                className="rounded-xl border border-red-400/35 bg-red-500/15 px-3 py-2 text-sm font-medium text-red-50"
                 role="alert"
               >
                 {error}
@@ -270,67 +298,62 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
 
             {!isOwner && step === 'verify' ? (
               <>
-                <Field>
-                  <FieldLabel htmlFor="web-rate-email">
-                    {t('email')} <span aria-hidden>*</span>
-                  </FieldLabel>
-                  <Input
+                <IconField id="web-rate-email" label={t('email')} required icon={<Mail className="size-4" />}>
+                  <input
                     id="web-rate-email"
                     type="email"
                     required
                     autoComplete="email"
-                    className="min-h-11"
+                    className={iconFieldClass}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                </Field>
+                </IconField>
                 <TurnstileWidget
                   ref={otpTurnstileRef}
                   action={WEB_RATING_TURNSTILE_ACTIONS.otp}
                   onToken={setTurnstileToken}
                 />
-                <Button
-                  className="min-h-11 w-full rounded-full"
+                <PrimaryButton
                   disabled={busy || !email.trim()}
                   onClick={() => void startOtp()}
                 >
                   {busy ? t('saving') : t('webRateSendCode')}
-                </Button>
+                </PrimaryButton>
               </>
             ) : null}
 
             {!isOwner && step === 'code' ? (
               <>
-                <p className="text-sm text-muted-foreground">{t('webRateCodeHelp')}</p>
+                <p className="text-sm text-white/55">{t('webRateCodeHelp')}</p>
                 {devCode ? (
-                  <p className="rounded-xl bg-[#edf3ed] px-3 py-2 text-sm text-foreground">
+                  <p className="rounded-xl border border-emerald-400/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
                     {t('developmentCode')}: {devCode}
                   </p>
                 ) : null}
-                <Field>
-                  <FieldLabel htmlFor="web-rate-code">
-                    {t('code')} <span aria-hidden>*</span>
-                  </FieldLabel>
-                  <Input
+                <div>
+                  <label htmlFor="web-rate-code" className={labelClass}>
+                    {t('code')} {requiredMark}
+                  </label>
+                  <input
                     id="web-rate-code"
                     inputMode="numeric"
                     maxLength={6}
-                    className="min-h-11 tracking-[0.3em]"
+                    className={cn(fieldClass, 'tracking-[0.35em]')}
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   />
-                </Field>
-                <Button
-                  className="min-h-11 w-full rounded-full"
+                </div>
+                <PrimaryButton
                   disabled={busy || code.length !== 6}
                   onClick={() => void verifyOtp()}
                 >
                   {busy ? t('saving') : t('confirmCode')}
-                </Button>
-                <div className="flex flex-wrap gap-3 justify-between">
+                </PrimaryButton>
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <button
                     type="button"
-                    className="min-h-11 text-sm font-semibold text-emerald-800 underline-offset-4 hover:underline disabled:opacity-50"
+                    className="min-h-11 text-sm font-semibold text-emerald-300 underline-offset-4 hover:underline disabled:opacity-50"
                     disabled={busy}
                     onClick={() => void startOtp()}
                   >
@@ -338,7 +361,7 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
                   </button>
                   <button
                     type="button"
-                    className="min-h-11 text-sm font-semibold text-muted-foreground underline-offset-4 hover:underline disabled:opacity-50"
+                    className="min-h-11 text-sm font-semibold text-white/55 underline-offset-4 hover:text-white hover:underline disabled:opacity-50"
                     disabled={busy}
                     onClick={() => {
                       setCode('')
@@ -358,188 +381,192 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
             {!isOwner && step === 'about' ? (
               <>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field>
-                    <FieldLabel htmlFor="web-first">
-                      {t('webRateFirstName')} <span aria-hidden>*</span>
-                    </FieldLabel>
-                    <Input id="web-first" className="min-h-11" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="web-last">
-                      {t('webRateLastName')} <span aria-hidden>*</span>
-                    </FieldLabel>
-                    <Input id="web-last" className="min-h-11" required value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                  </Field>
+                  <IconField id="web-first" label={t('webRateFirstName')} required icon={<UserIcon className="size-4" />}>
+                    <input
+                      id="web-first"
+                      className={iconFieldClass}
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
+                  </IconField>
+                  <IconField id="web-last" label={t('webRateLastName')} required icon={<UserIcon className="size-4" />}>
+                    <input
+                      id="web-last"
+                      className={iconFieldClass}
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
+                  </IconField>
                 </div>
-                <Field>
-                  <FieldLabel htmlFor="web-title">
-                    {t('jobTitle')} <span aria-hidden>*</span>
-                  </FieldLabel>
-                  <Input id="web-title" className="min-h-11" required value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="web-company">{t('company')}</FieldLabel>
-                  <Input id="web-company" className="min-h-11" value={company} onChange={(e) => setCompany(e.target.value)} />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="web-industry">
-                    {t('industry')} <span aria-hidden>*</span>
-                  </FieldLabel>
-                  <select
-                    id="web-industry"
-                    className="min-h-11 w-full rounded-lg border border-input bg-background px-3 text-sm"
-                    value={industry}
-                    onChange={(e) => setIndustry(e.target.value)}
-                  >
-                    {INDUSTRY_OPTIONS.map((option) => (
-                      <option key={option.key} value={option.en}>
-                        {locale === 'ar' ? option.ar : option.en}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="web-relationship">
-                    {t('webRateHowKnow').replace('{name}', profile.name)} <span aria-hidden>*</span>
-                  </FieldLabel>
-                  <select
+                <IconField id="web-title" label={t('jobTitle')} required icon={<Briefcase className="size-4" />}>
+                  <input
+                    id="web-title"
+                    className={iconFieldClass}
+                    required
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                  />
+                </IconField>
+                <IconField id="web-company" label={t('company')} icon={<Building2 className="size-4" />}>
+                  <input
+                    id="web-company"
+                    className={iconFieldClass}
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                  />
+                </IconField>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <IconField id="web-industry" label={t('industry')} required icon={<Layers2 className="size-4" />}>
+                    <select
+                      id="web-industry"
+                      className={cn(iconFieldClass, 'appearance-none pe-8')}
+                      value={industry}
+                      onChange={(e) => setIndustry(e.target.value)}
+                    >
+                      {INDUSTRY_OPTIONS.map((option) => (
+                        <option key={option.key} value={option.en} className="bg-[#0a0f14] text-white">
+                          {locale === 'ar' ? option.ar : option.en}
+                        </option>
+                      ))}
+                    </select>
+                  </IconField>
+                  <IconField
                     id="web-relationship"
-                    className="min-h-11 w-full rounded-lg border border-input bg-background px-3 text-sm"
-                    value={relationship}
-                    onChange={(e) => setRelationship(e.target.value as WebRatingRelationship)}
+                    label={t('webRateHowKnow').replace('{name}', profile.name)}
+                    required
+                    icon={<Handshake className="size-4" />}
                   >
-                    {WEB_RATING_RELATIONSHIPS.map((value) => (
-                      <option key={value} value={value}>
-                        {relationshipLabels[value]}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Button
-                  className="min-h-11 w-full rounded-full"
+                    <select
+                      id="web-relationship"
+                      className={cn(iconFieldClass, 'appearance-none pe-8')}
+                      value={relationship}
+                      onChange={(e) => setRelationship(e.target.value as WebRatingRelationship)}
+                    >
+                      {WEB_RATING_RELATIONSHIPS.map((value) => (
+                        <option key={value} value={value} className="bg-[#0a0f14] text-white">
+                          {relationshipLabels[value]}
+                        </option>
+                      ))}
+                    </select>
+                  </IconField>
+                </div>
+                <PrimaryButton
                   disabled={busy || !firstName.trim() || !lastName.trim() || !jobTitle.trim()}
                   onClick={() => void saveAboutAndContinue()}
                 >
-                  {busy ? t('saving') : t('continue')}
-                </Button>
+                  {busy ? t('saving') : (
+                    <span className="inline-flex items-center gap-2">
+                      {t('continue')}
+                      <ArrowRight className="size-4 rtl:rotate-180" aria-hidden />
+                    </span>
+                  )}
+                </PrimaryButton>
               </>
             ) : null}
 
             {!isOwner && step === 'rate' ? (
               <>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    className={cn(
-                      'min-h-11 rounded-full px-4 text-sm font-semibold',
-                      mode === 'overall' ? 'bg-[#17201e] text-white' : 'border border-[#d9dfd9] bg-white',
-                    )}
+                <div className="inline-flex rounded-full border border-white/12 bg-[#0a0f14] p-1">
+                  <ModeChip
+                    active={mode === 'overall'}
                     onClick={() => {
                       setOverall(averageCategoryScores(scores))
                       setMode('overall')
                     }}
                   >
                     {t('webRateModeOverall')}
-                  </button>
-                  <button
-                    type="button"
-                    className={cn(
-                      'min-h-11 rounded-full px-4 text-sm font-semibold',
-                      mode === 'categories' ? 'bg-[#17201e] text-white' : 'border border-[#d9dfd9] bg-white',
-                    )}
+                  </ModeChip>
+                  <ModeChip
+                    active={mode === 'categories'}
                     onClick={() => {
                       setScores(scoresFromOverall(overall))
                       setMode('categories')
                     }}
                   >
                     {t('webRateModeCategories')}
-                  </button>
+                  </ModeChip>
                 </div>
 
-                {mode === 'overall' ? (
-                  <ScoreSlider
-                    label={t('webRateOverall')}
-                    value={overall}
-                    onChange={setOverall}
-                  />
-                ) : (
-                  RATING_CATEGORIES.map((key) => (
-                    <ScoreSlider
-                      key={key}
-                      label={t(
-                        key === 'professionalism'
-                          ? 'webRateCatProfessionalism'
-                          : key === 'communication'
-                            ? 'webRateCatCommunication'
-                            : key === 'reliability'
-                              ? 'webRateCatReliability'
-                              : key === 'knowledge'
-                                ? 'webRateCatKnowledge'
-                                : 'webRateCatCollaboration',
-                      )}
-                      value={scores[key]}
-                      onChange={(value) => setScores((current) => ({ ...current, [key]: value }))}
-                    />
-                  ))
-                )}
+                <div className="space-y-4">
+                  {RATING_CATEGORIES.map((key) => {
+                    const meta = CATEGORY_META[key]
+                    const Icon = meta.icon
+                    const value = mode === 'overall' ? overall : scores[key]
+                    return (
+                      <ScoreSlider
+                        key={key}
+                        icon={<Icon className="size-4" />}
+                        label={t(meta.labelKey)}
+                        value={value}
+                        onChange={(next) => {
+                          if (mode === 'overall') setOverall(next)
+                          else setScores((current) => ({ ...current, [key]: next }))
+                        }}
+                      />
+                    )
+                  })}
+                </div>
 
-                <p className="text-sm text-muted-foreground">
-                  {t('webRatePreview')}: <strong className="text-foreground">{preview.toFixed(1)}</strong>
+                <p className="text-sm text-white/55">
+                  {t('webRatePreview')}:{' '}
+                  <strong className="font-semibold text-white">{preview.toFixed(1)}</strong>
                 </p>
 
-                <Field>
-                  <FieldLabel htmlFor="web-comment">{t('webRateComment')}</FieldLabel>
+                <div>
+                  <label htmlFor="web-comment" className={labelClass}>
+                    {t('webRateComment')}
+                  </label>
                   <textarea
                     id="web-comment"
                     maxLength={RATING_COMMENT_MAX}
                     rows={3}
-                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                    className={cn(fieldClass, 'min-h-24 resize-y')}
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                   />
-                </Field>
-
-                <div className="grid gap-2">
-                  <label className="flex min-h-11 items-center gap-2 text-sm">
-                    <input
-                      type="radio"
-                      name="visibility"
-                      checked={visibility === 'anonymous'}
-                      onChange={() => setVisibility('anonymous')}
-                    />
-                    {t('webRateAnonymous')}
-                  </label>
-                  <label className="flex min-h-11 items-center gap-2 text-sm">
-                    <input
-                      type="radio"
-                      name="visibility"
-                      checked={visibility === 'title'}
-                      onChange={() => setVisibility('title')}
-                    />
-                    {t('webRateShowTitle')}
-                  </label>
                 </div>
 
-                <label className="flex items-start gap-2 text-sm">
+                <div className="grid gap-3">
+                  <VisibilityOption
+                    checked={visibility === 'anonymous'}
+                    onChange={() => setVisibility('anonymous')}
+                    title={t('webRateAnonymous')}
+                    help={t('webRateAnonymousHelp')}
+                  />
+                  <VisibilityOption
+                    checked={visibility === 'title'}
+                    onChange={() => setVisibility('title')}
+                    title={t('webRateShowTitle')}
+                    help={t('webRateShowTitleHelp')}
+                  />
+                </div>
+
+                <label className="flex items-start gap-2.5 text-sm text-white/80">
                   <input
                     type="checkbox"
-                    className="mt-1"
+                    className="mt-1 size-4 rounded border-white/30 bg-transparent accent-emerald-400"
                     checked={acceptedTerms}
                     onChange={(e) => setAcceptedTerms(e.target.checked)}
                   />
                   <span>
                     {t('webRateTermsPrefix')}{' '}
-                    <Link className="underline" href="/terms">{t('webRateTerms')}</Link>
-                    {' '}{t('webRateAnd')}{' '}
-                    <Link className="underline" href="/privacy">{t('webRatePrivacy')}</Link>
+                    <Link className="underline decoration-white/40 underline-offset-2 hover:text-white" href="/terms">
+                      {t('webRateTerms')}
+                    </Link>{' '}
+                    {t('webRateAnd')}{' '}
+                    <Link className="underline decoration-white/40 underline-offset-2 hover:text-white" href="/privacy">
+                      {t('webRatePrivacy')}
+                    </Link>
                     {'. '}
                     {t('webRateTermsSuffix')}
                   </span>
                 </label>
-                <label className="flex items-start gap-2 text-sm text-muted-foreground">
+                <label className="flex items-start gap-2.5 text-sm text-white/55">
                   <input
                     type="checkbox"
-                    className="mt-1"
+                    className="mt-1 size-4 rounded border-white/30 bg-transparent accent-emerald-400"
                     checked={marketingOptIn}
                     onChange={(e) => setMarketingOptIn(e.target.checked)}
                   />
@@ -552,61 +579,191 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
                   onToken={setTurnstileToken}
                 />
 
-                <Button
-                  className="min-h-11 w-full rounded-full"
+                <PrimaryButton
                   disabled={busy || !acceptedTerms}
                   onClick={() => void submitRating()}
                 >
                   {busy ? t('saving') : t('webRateSubmit')}
-                </Button>
+                </PrimaryButton>
               </>
             ) : null}
 
             {!isOwner && step === 'done' ? (
               <div className="space-y-4 text-center">
-                <p className="font-serif text-2xl font-semibold text-foreground">{t('webRateDoneTitle')}</p>
-                <p className="text-sm text-muted-foreground">{t('webRateDoneBody')}</p>
-                <p className="pt-2 font-semibold text-foreground">{t('webRateCreateCard')}</p>
+                <p className="font-serif text-2xl font-semibold text-white">{t('webRateDoneTitle')}</p>
+                <p className="text-sm text-white/55">{t('webRateDoneBody')}</p>
+                <p className="pt-2 font-semibold text-white">{t('webRateCreateCard')}</p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <a className={buttonVariants()} href={APP_STORE_URL}>App Store</a>
-                  <a className={buttonVariants({ variant: 'outline' })} href={PLAY_STORE_URL}>Google Play</a>
+                  <a className={buttonVariants({ className: 'rounded-full bg-white text-black hover:bg-white/90' })} href={APP_STORE_URL}>
+                    App Store
+                  </a>
+                  <a
+                    className={buttonVariants({
+                      variant: 'outline',
+                      className: 'rounded-full border-white/20 bg-transparent text-white hover:bg-white/10',
+                    })}
+                    href={PLAY_STORE_URL}
+                  >
+                    Google Play
+                  </a>
                 </div>
-                <Link className={buttonVariants({ variant: 'ghost' })} href={`/p/${encodeURIComponent(profile.id)}`}>
+                <Link
+                  className={buttonVariants({
+                    variant: 'ghost',
+                    className: 'rounded-full text-white/70 hover:bg-white/10 hover:text-white',
+                  })}
+                  href={`/p/${encodeURIComponent(profile.id)}`}
+                >
                   {t('webRateBackToCard')}
                 </Link>
               </div>
             ) : null}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
     </MarketingShell>
   )
 }
 
+function IconField({
+  id,
+  label,
+  required,
+  icon,
+  children,
+}: {
+  id: string
+  label: string
+  required?: boolean
+  icon: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className={labelClass}>
+        {label} {required ? requiredMark : null}
+      </label>
+      <div className="relative">
+        <span className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-emerald-400">
+          {icon}
+        </span>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function PrimaryButton({
+  children,
+  disabled,
+  onClick,
+}: {
+  children: ReactNode
+  disabled?: boolean
+  onClick: () => void
+}) {
+  return (
+    <Button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className="min-h-12 w-full rounded-full bg-white text-base font-semibold text-black hover:bg-white/90 disabled:bg-white/35 disabled:text-black/50"
+    >
+      {children}
+    </Button>
+  )
+}
+
+function ModeChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'min-h-10 rounded-full px-4 text-sm font-semibold transition',
+        active
+          ? 'bg-white text-black shadow-sm'
+          : 'bg-transparent text-emerald-300/90 hover:text-emerald-200',
+      )}
+    >
+      {children}
+    </button>
+  )
+}
+
+function VisibilityOption({
+  checked,
+  onChange,
+  title,
+  help,
+}: {
+  checked: boolean
+  onChange: () => void
+  title: string
+  help: string
+}) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-[#0a0f14]/80 px-3 py-3">
+      <input
+        type="radio"
+        name="visibility"
+        className="mt-1 size-4 accent-emerald-400"
+        checked={checked}
+        onChange={onChange}
+      />
+      <span>
+        <span className="block text-sm font-semibold text-white">{title}</span>
+        <span className="mt-0.5 block text-xs leading-relaxed text-white/50">{help}</span>
+      </span>
+    </label>
+  )
+}
+
 function ScoreSlider({
+  icon,
   label,
   value,
   onChange,
 }: {
+  icon: ReactNode
   label: string
   value: number
   onChange: (value: number) => void
 }) {
+  const pct = ((value - 1) / 4) * 100
   return (
     <label className="block space-y-2">
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-medium text-foreground">{label}</span>
-        <span className="font-mono tabular-nums text-foreground">{value.toFixed(1)}</span>
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="inline-flex items-center gap-2 font-medium text-white/80">
+          <span className="text-emerald-400">{icon}</span>
+          {label}
+        </span>
+        <span className="font-mono tabular-nums text-white">{value.toFixed(1)}</span>
       </div>
-      <input
-        type="range"
-        min={1}
-        max={5}
-        step={0.5}
-        value={value}
-        onChange={(e) => onChange(snapRatingScore(Number(e.target.value)))}
-        className="w-full accent-emerald-700"
-      />
+      <div className="relative h-2.5 rounded-full bg-white/15">
+        <div
+          className="absolute inset-y-0 start-0 rounded-full bg-emerald-400"
+          style={{ width: `${pct}%` }}
+        />
+        <input
+          type="range"
+          min={1}
+          max={5}
+          step={0.5}
+          value={value}
+          onChange={(e) => onChange(snapRatingScore(Number(e.target.value)))}
+          className="absolute inset-0 h-full w-full cursor-pointer appearance-none bg-transparent accent-emerald-400 [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-emerald-400 [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-emerald-400"
+          aria-label={label}
+        />
+      </div>
     </label>
   )
 }
