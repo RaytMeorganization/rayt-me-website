@@ -85,8 +85,12 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
       if (user.company) setCompany(user.company)
       if (user.industry) setIndustry(user.industry)
       if (user.email) setEmail(user.email)
+      // Only skip verify/code → about. Never pull the user back from rate/done
+      // after Continue + refresh() updates session (that looked like Continue no-op).
       if (user.personalEmailStatus === 'verified' || user.isVerified) {
-        setStep('about')
+        setStep((current) =>
+          current === 'verify' || current === 'code' ? 'about' : current,
+        )
       }
     }, 0)
     return () => window.clearTimeout(timer)
@@ -167,8 +171,9 @@ export function WebRatingFlow({ profile }: { profile: PublicProfile }) {
           relationship,
         }),
       })
-      await refresh()
       setStep('rate')
+      // Session refresh must not gate navigation (and must not reset step).
+      void refresh()
     } catch (err) {
       setError(errorMessage(err, t('error')))
     } finally {
