@@ -11,25 +11,43 @@ test('landing renders the branded hero and paused account CTA', async ({ page })
   await expect(page.getByText('LinkedIn')).toHaveCount(0)
 })
 
-test('public QR profile is card-only, privacy-safe, and app-directed', async ({ page }) => {
+test('public QR profile is privacy-safe and offers web rating CTA', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/p/demo-omar-al-kuwari')
   await expect(page.getByRole('heading', { name: 'Michael Brennan' })).toBeVisible()
   await expect(page.getByText('Public card preview')).toBeVisible()
   await expect(page.getByText('Request phone in the app')).toBeVisible()
   await expect(page.getByText('Continue in the RaytME app')).toBeVisible()
+  await expect(page.getByText(/Know Michael Brennan professionally/i)).toBeVisible()
+  await expect(page.getByRole('link', { name: /Rate Michael Brennan/i })).toHaveAttribute(
+    'href',
+    /\/p\/demo-omar-al-kuwari\/rate/,
+  )
   await expect(page.getByRole('link', { name: 'App Store' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Google Play' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /^rate$/i })).toHaveCount(0)
   await expect(page.getByText(/view professional snapshot/i)).toHaveCount(0)
   await expect(page.getByText('omar.personal@example.com')).toHaveCount(0)
 })
 
-test('public profile supports RTL without exposing app-only actions', async ({ page }) => {
+test('public profile supports RTL web rating CTA at phone width', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/p/demo-omar-al-kuwari')
   await page.getByRole('button', { name: 'Language' }).first().click()
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   await expect(page.getByText('معاينة البطاقة العامة')).toBeVisible()
-  await expect(page.getByRole('button', { name: /^rate$/i })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: /قيّم Michael Brennan/i })).toBeVisible()
+})
+
+test('web rating journey opens verify step in English and Arabic', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/p/demo-omar-al-kuwari/rate')
+  await expect(page.getByRole('heading', { name: /Rate Michael Brennan/i })).toBeVisible()
+  await expect(page.getByLabel('Email')).toBeVisible()
+  await expect(page.getByRole('button', { name: /Send verification code/i })).toBeVisible()
+  await page.getByRole('button', { name: 'Language' }).first().click()
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+  await expect(page.getByRole('heading', { name: /قيّم Michael Brennan/i })).toBeVisible()
+  await expect(page.getByRole('button', { name: /إرسال رمز التحقق/i })).toBeVisible()
 })
 
 test('platform admin can sign in and reach protected operations', async ({ page }) => {

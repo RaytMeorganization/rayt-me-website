@@ -29,6 +29,7 @@ export interface User {
   city?: string | null
   country?: string | null
   isVerified: boolean
+  isWebGuest?: boolean
   workEmailStatus: CheckStatus
   personalEmailStatus: CheckStatus
   phoneStatus: CheckStatus
@@ -168,6 +169,7 @@ export interface BusinessRatingItem {
   r: number | string
   attributionTitle: string | null
   comment: string | null
+  source?: string | null
   createdAt: string
   direction: 'given' | 'received'
   targetUserId?: string

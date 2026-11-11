@@ -7,13 +7,13 @@ alwaysApply: false
 
 Portable verified professional reputation. Company **RAYTME LLC**. Live site **raytme.me**, API **api.raytme.me**. App ids `me.rate.rayt`. English controls legal text.
 
-The website sells, hosts accounts, and shows a public card. Only the Expo app submits ratings and opens a professional snapshot. `/p/:id` is card-only.
+The website sells, hosts accounts, and shows a public card. Web visitors can rate via `/p/:id/rate` after email verification (lightweight web-guest account). Professional snapshot and My List remain app-only.
 
 Full map: `docs/PROJECT-INDEX.md`.
 
 ```tsx
-// ❌ BAD — public web profile can rate or open snapshot
-<PublicCard onRate={submit} showSnapshot />
+// ❌ BAD — public web profile opens snapshot or My List
+<PublicCard showSnapshot showMyList />
 
-// ✅ GOOD — no app: card + download. App: rate + snapshot.
+// ✅ GOOD — web: card + Rate CTA + download. App: snapshot + My List.
 ```

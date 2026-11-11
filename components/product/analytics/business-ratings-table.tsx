@@ -46,7 +46,14 @@ export function BusinessRatingsTable({ items }: { items: BusinessRatingItem[] })
                     <StatusBadge tone="muted">{Number(row.r ?? 0).toFixed(1)}</StatusBadge>
                   </td>
                   <td className="py-3 pe-3 text-foreground">{row.target?.name ?? '—'}</td>
-                  <td className="py-3 pe-3 text-muted-foreground">{fromLabel}</td>
+                  <td className="py-3 pe-3 text-muted-foreground">
+                    {fromLabel}
+                    {row.source === 'web' ? (
+                      <span className="ms-2 rounded-full border border-emerald-700/30 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
+                        {t('webRatingLabel')}
+                      </span>
+                    ) : null}
+                  </td>
                   <td className="py-3 pe-3 text-muted-foreground">{row.relationship}</td>
                   <td className="py-3 pe-3 text-xs text-muted-foreground">{categorySummary(row.categoryScores)}</td>
                   <td className="py-3 text-muted-foreground">{row.comment || '—'}</td>
@@ -69,6 +76,7 @@ export function BusinessRatingsTable({ items }: { items: BusinessRatingItem[] })
               <p className="mt-1 text-xs text-muted-foreground">{formatAdminDate(row.createdAt)}</p>
               <p className="mt-2 text-sm text-muted-foreground">
                 {t('ratingRater')}: {fromLabel}
+                {row.source === 'web' ? ` · ${t('webRatingLabel')}` : ''}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">{categorySummary(row.categoryScores)}</p>
               {row.comment ? <p className="mt-2 text-sm text-foreground">{row.comment}</p> : null}
